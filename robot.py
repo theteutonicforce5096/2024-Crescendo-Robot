@@ -8,7 +8,7 @@ from cscore import CameraServer
 from magicbot import MagicRobot
 from robotpy_ext.autonomous.selector import AutonomousModeSelector
 import autonomous
-from rev.color import ColorSensorV3
+from rev import ColorSensorV3
 
 class MyRobot(MagicRobot):
 
