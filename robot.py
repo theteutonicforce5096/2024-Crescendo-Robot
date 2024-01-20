@@ -17,10 +17,21 @@ class MyRobot(MagicRobot):
 
     def teleopInit(self):
         self.colorSensor = ColorSensorV3(wpilib.I2C.Port.kOnboard)
+        #self.colorSensor.configureProximitySensorLED(current=ColorSensorV3.LEDCurrent.kPulse5mA)
 
     def teleopPeriodic(self):
         detectColor = self.colorSensor.getColor()
-        print(detectColor)
+        #print(detectColor)
+        proximity = self.colorSensor.getProximity()
+        wpilib.SmartDashboard.putNumber("Proximity", proximity)
+        #print(proximity)
+        rawDetectColor = self.colorSensor.getRawColor()
+        wpilib.SmartDashboard.putNumber("Raw Red", rawDetectColor.red)
+        wpilib.SmartDashboard.putNumber("Raw Green", rawDetectColor.green)
+        wpilib.SmartDashboard.putNumber("Raw Blue", rawDetectColor.blue)
+        #print("red", rawDetectColor.red)
+        #print("green", rawDetectColor.green)
+        #print("blue", rawDetectColor.blue)
     
     def autonomousInit(self):
         pass
