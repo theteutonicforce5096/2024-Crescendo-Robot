@@ -8,6 +8,7 @@ from cscore import CameraServer
 from magicbot import MagicRobot
 from robotpy_ext.autonomous.selector import AutonomousModeSelector
 import autonomous
+from rev.color import ColorSensorV3
 
 class MyRobot(MagicRobot):
 
@@ -18,7 +19,7 @@ class MyRobot(MagicRobot):
         pass
 
     def teleopPeriodic(self):
-        pass
+        rev.color.ColorSensorV3
     
     def autonomousInit(self):
         pass
