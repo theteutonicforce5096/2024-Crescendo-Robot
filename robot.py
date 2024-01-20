@@ -8,7 +8,8 @@ from cscore import CameraServer
 from magicbot import MagicRobot
 from robotpy_ext.autonomous.selector import AutonomousModeSelector
 import autonomous
-from rev.color import ColorSensorV3
+import ColorSensorV3
+from rev import ColorSensorV3
 
 class MyRobot(MagicRobot):
 
@@ -16,10 +17,11 @@ class MyRobot(MagicRobot):
         pass
 
     def teleopInit(self):
-        pass
+        self.colorSensor = ColorSensorV3(wpilib.I2C.Port.kOnboard)
 
     def teleopPeriodic(self):
-        rev.color.ColorSensorV3
+        detectColor = self.colorSensor.getColor()
+        print(detectColor)
     
     def autonomousInit(self):
         pass
