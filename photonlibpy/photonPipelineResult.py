@@ -35,6 +35,12 @@ class PhotonPipelineResult:
 
     def getTimestamp(self) -> float:
         return self.timestampSec
-
+    
     def getTargets(self) -> list[PhotonTrackedTarget]:
         return self.targets
+    
+    def hasTargets(self) -> bool:
+        return len(self.targets) > 0
+    
+    def getBestTarget(self) -> PhotonTrackedTarget:
+        return self.targets[0] if len(self.targets) > 0 else None

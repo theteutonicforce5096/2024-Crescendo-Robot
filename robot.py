@@ -26,7 +26,8 @@ class MyRobot(MagicRobot):
         # wpilib.SmartDashboard.putNumber("Raw Blue", self.rawDetectColor.blue)
         self.result = self.cam.getLatestResult()
         self.targets = self.result.getTargets()
-        print(self.targets)
+        self.bestTarget = self.result.getBestTarget()
+        print(self.bestTarget)
         # targetvalue = self.ca
         pass
     
