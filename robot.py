@@ -6,8 +6,6 @@ from cscore import CameraServer
 from magicbot import MagicRobot
 from robotpy_ext.autonomous.selector import AutonomousModeSelector
 import autonomous
-import cv2
-import subsystems.vision
 from rev import ColorSensorV3
 
 class MyRobot(MagicRobot):
@@ -16,16 +14,16 @@ class MyRobot(MagicRobot):
         self.joystick = wpilib.Joystick(0)
         pass
     def teleopInit(self):
-        self.ColorSensor = ColorSensorV3(wpilib.I2C.Port.kOnboard)
+        self.colorSensor = ColorSensorV3(wpilib.I2C.Port.kOnboard)
 
     def teleopPeriodic(self):
-        self.joystick
-        proximity = self.ColorSensor.getProximity()
-        wpilib.SmartDashboard.putNumber("Proximity", proximity)
-        rawDetectColor = self.ColorSensor.getRawColor()
-        wpilib.SmartDashboard.putNumber("Raw Red", rawDetectColor.Red)
-        wpilib.SmartDashboard.putNumber("Raw Green", rawDetectColor.Green)
-        wpilib.SmartDashboard.putNumber("Raw Blue", rawDetectColor.Blue)
+        self.proximity = self.colorSensor.getProximity()
+        wpilib.SmartDashboard.putNumber("Proximity", self.proximity)
+        self.rawDetectColor = self.colorSensor.getRawColor()
+        wpilib.SmartDashboard.putNumber("Raw Red", self.rawDetectColor.red)
+        wpilib.SmartDashboard.putNumber("Raw Green", self.rawDetectColor.green)
+        wpilib.SmartDashboard.putNumber("Raw Blue", self.rawDetectColor.blue)
+        pass
     
     def autonomousInit(self):
         pass
