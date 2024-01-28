@@ -5,8 +5,8 @@ import ntcore
 from cscore import CameraServer
 from magicbot import MagicRobot
 from robotpy_ext.autonomous.selector import AutonomousModeSelector
-import autonomous
 from rev import ColorSensorV3
+from photonlibpy import photonCamera
 
 class MyRobot(MagicRobot):
     # subsystems.vision.Vision()
@@ -14,15 +14,20 @@ class MyRobot(MagicRobot):
         self.joystick = wpilib.Joystick(0)
         pass
     def teleopInit(self):
-        self.colorSensor = ColorSensorV3(wpilib.I2C.Port.kOnboard)
+        # self.colorSensor = ColorSensorV3(wpilib.I2C.Port.kOnboard)
+        self.cam = photonCamera.PhotonCamera('main')
 
     def teleopPeriodic(self):
-        self.proximity = self.colorSensor.getProximity()
-        wpilib.SmartDashboard.putNumber("Proximity", self.proximity)
-        self.rawDetectColor = self.colorSensor.getRawColor()
-        wpilib.SmartDashboard.putNumber("Raw Red", self.rawDetectColor.red)
-        wpilib.SmartDashboard.putNumber("Raw Green", self.rawDetectColor.green)
-        wpilib.SmartDashboard.putNumber("Raw Blue", self.rawDetectColor.blue)
+        # self.proximity = self.colorSensor.getProximity()
+        # wpilib.SmartDashboard.putNumber("Proximity", self.proximity)
+        # self.rawDetectColor = self.colorSensor.getRawColor()
+        # wpilib.SmartDashboard.putNumber("Raw Red", self.rawDetectColor.red)
+        # wpilib.SmartDashboard.putNumber("Raw Green", self.rawDetectColor.green)
+        # wpilib.SmartDashboard.putNumber("Raw Blue", self.rawDetectColor.blue)
+        self.result = self.cam.getLatestResult()
+        self.targets = self.result.getTargets()
+        print(self.targets)
+        # targetvalue = self.ca
         pass
     
     def autonomousInit(self):
