@@ -14,21 +14,26 @@ class MyRobot(MagicRobot):
         self.joystick = wpilib.Joystick(0)
         pass
     def teleopInit(self):
-        # self.colorSensor = ColorSensorV3(wpilib.I2C.Port.kOnboard)
+        self.colorSensor = ColorSensorV3(wpilib.I2C.Port.kOnboard)
         self.cam = photonCamera.PhotonCamera('main')
 
     def teleopPeriodic(self):
-        # self.proximity = self.colorSensor.getProximity()
-        # wpilib.SmartDashboard.putNumber("Proximity", self.proximity)
-        # self.rawDetectColor = self.colorSensor.getRawColor()
-        # wpilib.SmartDashboard.putNumber("Raw Red", self.rawDetectColor.red)
-        # wpilib.SmartDashboard.putNumber("Raw Green", self.rawDetectColor.green)
-        # wpilib.SmartDashboard.putNumber("Raw Blue", self.rawDetectColor.blue)
+        self.proximity = self.colorSensor.getProximity()
+        wpilib.SmartDashboard.putNumber("Proximity", self.proximity)
+        self.rawDetectColor = self.colorSensor.getRawColor()
+        wpilib.SmartDashboard.putNumber("Raw Red", self.rawDetectColor.red)
+        wpilib.SmartDashboard.putNumber("Raw Green", self.rawDetectColor.green)
+        wpilib.SmartDashboard.putNumber("Raw Blue", self.rawDetectColor.blue)
         self.result = self.cam.getLatestResult()
-        self.targets = self.result.getTargets()
-        self.bestTarget = self.result.getBestTarget()
-        print(self.bestTarget)
-        # targetvalue = self.ca
+        if self.result.hasTargets():
+            self.targets = self.result.getTargets()
+            self.bestTarget = self.result.getBestTarget()
+            self.cameraPos = self.bestTarget.getBestCameraToTarget()
+            # print(self.cameraPos)
+            # wpilib.SmartDashboard.putNumberArray("Cam", self.cameraPos)
+            wpilib.SmartDashboard.putNumber("X Position (relative to tag)", self.cameraPos.x)
+            wpilib.SmartDashboard.putNumber("Y Position (relative to tag)", self.cameraPos.y)
+            wpilib.SmartDashboard.putNumber("Z Position (relative to tag)", self.cameraPos.z)
         pass
     
     def autonomousInit(self):
