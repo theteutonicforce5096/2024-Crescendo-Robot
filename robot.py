@@ -1,48 +1,26 @@
+# TODO: insert robot code here
 import wpilib
-import wpilib.drive
-import os
-import ntcore
-from cscore import CameraServer
-from magicbot import MagicRobot
-from robotpy_ext.autonomous.selector import AutonomousModeSelector
-from rev import ColorSensorV3
-from photonlibpy import photonCamera
+import math
 
-class MyRobot(MagicRobot):
-    # subsystems.vision.Vision()
-    def createObjects(self):
-        self.joystick = wpilib.Joystick(0)
-        pass
-    def teleopInit(self):
-        self.colorSensor = ColorSensorV3(wpilib.I2C.Port.kOnboard)
-        self.cam = photonCamera.PhotonCamera('main')
 
-    def teleopPeriodic(self):
-        self.proximity = self.colorSensor.getProximity()
-        wpilib.SmartDashboard.putNumber("Proximity", self.proximity)
-        self.rawDetectColor = self.colorSensor.getRawColor()
-        wpilib.SmartDashboard.putNumber("Raw Red", self.rawDetectColor.red)
-        wpilib.SmartDashboard.putNumber("Raw Green", self.rawDetectColor.green)
-        wpilib.SmartDashboard.putNumber("Raw Blue", self.rawDetectColor.blue)
-        self.result = self.cam.getLatestResult()
-        if self.result.hasTargets():
-            self.targets = self.result.getTargets()
-            self.bestTarget = self.result.getBestTarget()
-            self.cameraPos = self.bestTarget.getBestCameraToTarget()
-            # print(self.cameraPos)
-            # wpilib.SmartDashboard.putNumberArray("Cam", self.cameraPos)
-            wpilib.SmartDashboard.putNumber("X Position (relative to tag)", self.cameraPos.x)
-            wpilib.SmartDashboard.putNumber("Y Position (relative to tag)", self.cameraPos.y)
-            wpilib.SmartDashboard.putNumber("Z Position (relative to tag)", self.cameraPos.z)
-        pass
+
+class MyRobot(wpilib.TimedRobot):
+    def teleopInit(self) -> None:
+        self.joystick=wpilib.Joystick()
+        return super().teleopInit()
     
-    def autonomousInit(self):
+    
+    def teleopPeriodic(self) -> None:
+        return super().teleopPeriodic()
+    
+class SwerveDrive:
+    def moveRobot(speed, direction):
         pass
 
-    def autonomous(self):
-        # For auto, use MagicBot's auto mode.
-        # This will load the ./autonomous folder.
-        super().autonomous()
+class SwerveModuleStub:
+    def driveModule(speed, direction):
+        print("Speed is: " + str(speed) + "    Direction is: " + str(direction))
+    
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     wpilib.run(MyRobot)
