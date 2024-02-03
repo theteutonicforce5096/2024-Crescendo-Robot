@@ -30,21 +30,20 @@ class SwerveModule():
         self.cancoder = phoenix6.hardware.CANcoder(cancoder_id)
 
         # Turning Motor Configs
-        self.closed_loop_configs = phoenix6.configs.config_groups.ClosedLoopGeneralConfigs()
-        self.closed_loop_configs.continuous_wrap = True
-        self.turning_motor.configurator.apply(self.closed_loop_configs)
-        self.feedback_configs = phoenix6.configs.config_groups.FeedbackConfigs()
-        self.feedback_configs.sensor_to_mechanism_ratio = 150 / 7
-        self.turning_motor.configurator.apply(self.feedback_configs)
-        self.turning_motor_offset, self.module_direction = self.determine_motor_offset()
+        self.talonfx_configs = phoenix6.configs.TalonFXConfiguration()
+        self.talonfx_configs.closed_loop_general.continuous_wrap = True
+        self.talonfx_configs.feedback.sensor_to_mechanism_ratio = 150 / 7
 
         # PID Configs
-        self.slot_configs = phoenix6.configs.Slot0Configs()
-        self.slot_configs.k_p = 20
-        self.slot_configs.k_i = 0 
-        self.slot_configs.k_d = 0
-        self.turning_motor.configurator.apply(self.slot_configs) 
+        self.talonfx_configs.slot0.k_p = 20
+        self.talonfx_configs.slot0.k_i = 0 
+        self.talonfx_configs.slot0.k_d = 0
+
+        self.turning_motor.configurator.apply(self.talonfx_configs) 
         self.pid = phoenix6.controls.PositionVoltage(0).with_slot(0)
+
+        # Motor Offset and Starting Direction
+        self.turning_motor_offset, self.module_direction = self.determine_motor_offset()
 
         # Cancoder Configs
         self.cancoders = Shuffleboard.getTab("CANcoders")
