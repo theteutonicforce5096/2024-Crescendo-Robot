@@ -64,9 +64,9 @@ class SwerveModule():
 
     def reset(self):
         """
-        Returns the home position of the turning motor.
+        Sets the swerve module to face forward.
         """
-        return self.turning_motor_offset
+        self.turning_motor.set_control(self.pid.with_position(self.turning_motor_offset)) 
 
     def set_velocity(self, speed, angle, direction = 1):
         """
