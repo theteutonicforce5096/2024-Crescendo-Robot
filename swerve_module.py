@@ -39,7 +39,10 @@ class SwerveModule():
         self.talonfx_configs.slot0.k_i = 0 
         self.talonfx_configs.slot0.k_d = 0
 
+        # Apply the configs to the steering motor
         self.steering_motor.configurator.apply(self.talonfx_configs) 
+
+        Create PID object
         self.pid = phoenix6.controls.PositionVoltage(0).with_slot(0)
 
         # Motor Offset and Starting Direction
@@ -47,22 +50,26 @@ class SwerveModule():
 
         # Cancoder Configs
         self.cancoders = Shuffleboard.getTab("CANcoders")
-        self.cancoder_0 = self.cancoders.add(f"{module_position} Cancoder Value for 0 Degrees", default_cancoder_0).getEntry().getFloat(default_cancoder_0) 
-        self.cancoder_180 = self.cancoders.add(f"{module_position} Cancoder Value for 180 Degrees", default_cancoder_180).getEntry().getFloat(default_cancoder_180)        
+        self.cancoder_0 = self.cancoders.add(f"{module_position} CANcoder Value for 0 Degrees", default_cancoder_0).getEntry().getFloat(default_cancoder_0) 
+        self.cancoder_180 = self.cancoders.add(f"{module_position} CANcoder Value for 180 Degrees", default_cancoder_180).getEntry().getFloat(default_cancoder_180)        
 
     def determine_steering_motor_offset(self):
         """
         Determine the steering motor offset to allow the swerve module to face forward and return the steering motor offset and module direction.
-
         """
+        # Calculate CANcoder offsets for 0 degree and 180 degree position
         cancoder_offset_0 = self.cancoder.get_absolute_position().value - self.cancoder_0
         cancoder_offset_180 = self.cancoder.get_absolute_position().value - self.cancoder_180
+
+        # Set steering motor offset and module direction to the offset with the lowest amount of distance needed to travel
         if fabs(cancoder_offset_0) <= fabs(cancoder_offset_180):
             steering_motor_offset = self.steering_motor.get_position().value + cancoder_offset_0
             module_direction = 1
         elif fabs(cancoder_offset_180) < fabs(cancoder_offset_0):
             steering_motor_offset = self.steering_motor.get_position().value + cancoder_offset_180
             module_direction = -1
+
+        # Return steering motor offset and module direction
         return steering_motor_offset, module_direction 
 
     def reset(self):
@@ -83,9 +90,11 @@ class SwerveModule():
         :param direction: Direction of the motor. 1 is facing forward. -1 is inverted. Use the direction from wpimath.kinematics.SwerveModuleState.optimize.
         :type direction: int. 1 or -1
         """
+        # Determine speed, position, and module direction
         desired_speed = speed
         desired_position = self.steering_motor_offset + (angle / 360)
         desired_module_direction = direction * self.module_direction
-            
+
+        # Set the motors to the desired speed and angle
         self.driving_motor.set_control(phoenix6.controls.DutyCycleOut(desired_speed * desired_module_direction))
         self.steering_motor.set_control(self.pid.with_position(desired_position)) 
