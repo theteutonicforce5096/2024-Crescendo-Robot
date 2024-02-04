@@ -10,7 +10,7 @@ class SwerveModule():
         """
         Constructor for Swerve Module.
 
-        :param module_position: Location of the module. Possible options: FR, FL, BR, BR
+        :param module_position: Location of the module. Possible options: FR, FL, BR, BL
         :type module_position: str
         :param steering_motor_id: ID of the steering motor
         :type steering_motor_id: int
