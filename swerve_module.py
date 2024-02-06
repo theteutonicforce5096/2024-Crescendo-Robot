@@ -42,12 +42,11 @@ class SwerveModule():
         # Apply the configs to the steering motor
         self.steering_motor.configurator.apply(self.talonfx_configs) 
 
-        Create PID object
+        # Create PID object
         self.pid = phoenix6.controls.PositionVoltage(0).with_slot(0)
 
         # Motor Offset and Starting Direction
-        self.steering_motor_offset, self.module_direction = self.determine_steering_motor_offset()
-
+        self.steering_motor_offset, self.module_direction = self.determine_steering_motor_offset()  #FIXME: this uses self.cancoder_0 before being defined
         # Cancoder Configs
         self.cancoders = Shuffleboard.getTab("CANcoders")
         self.cancoder_0 = self.cancoders.add(f"{module_position} CANcoder Value for 0 Degrees", default_cancoder_0).getEntry().getFloat(default_cancoder_0) 
