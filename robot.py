@@ -6,7 +6,6 @@ import math
 
 class MyRobot(wpilib.TimedRobot):
     def robotInit(self):
-        #super().robotInit()
         self.drivetrain = SwerveDrive()
 
     def teleopInit(self):
