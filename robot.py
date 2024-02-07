@@ -14,11 +14,11 @@ class MyRobot(wpilib.TimedRobot):
         self.timer.restart()
     
     def teleopPeriodic(self):
-        raw_x = self.joystick.getX()
-        raw_y = self.joystick.getY() * -1
-        rotation = self.joystick.getZ() * -1 * math.pi
         magnitude = self.joystick. # Get Magnitude function
         if magnitude > 0.2:
+            raw_x = self.joystick.getX()
+            raw_y = self.joystick.getY() * -1
+            rotation = self.joystick.getZ() * -1 * math.pi
             self.drivetrain.move_robot(raw_x, raw_y, rotation)    
     
 class SwerveDrive:
