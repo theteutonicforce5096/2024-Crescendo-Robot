@@ -81,7 +81,7 @@ class SwerveModule():
         """
         # Determine speed, position, and module direction
         desired_speed = speed
-        desired_position = self.steering_motor_offset + ((angle / 360) % 360)
+        desired_position = self.steering_motor_offset + (angle / 360)
         desired_module_direction = direction
 
         # Set the motors to the desired speed and angle
