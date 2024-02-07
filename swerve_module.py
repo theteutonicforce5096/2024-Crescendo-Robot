@@ -5,8 +5,7 @@ from wpilib.shuffleboard import Shuffleboard
 class SwerveModule():
     """Class for controlling swerve module on robot."""
 
-    def __init__(self, module_position, steering_motor_id, driving_motor_id, cancoder_id, default_cancoder_0, 
-                default_cancoder_180):
+    def __init__(self, module_position, steering_motor_id, driving_motor_id, cancoder_id, default_cancoder_value):
         """
         Constructor for Swerve Module.
 
@@ -18,10 +17,8 @@ class SwerveModule():
         :type driving_motor_id: int
         :param cancoder_id: ID of the CANcoder
         :type cancoder_id: int
-        :param default_cancoder_0: Default value of the CANcoder at 0 degrees. Only used when Shuffleboard widget is not accessible.
-        :type default_cancoder_0: float
-        :param default_cancoder_180: Default value of the CANcoder at 180 degrees. Only used when Shuffleboard widget is not accessible.
-        :type default_cancoder_180: float
+        :param default_cancoder_value: Default value of the CANcoder at 0 degrees. Only used when Shuffleboard widget is not accessible.
+        :type default_cancoder_value: float
         """
 
         # Hardware Initialization
@@ -45,31 +42,25 @@ class SwerveModule():
         # Create PID object
         self.pid = phoenix6.controls.PositionVoltage(0).with_slot(0)
 
-        # Motor Offset and Starting Direction
-        self.steering_motor_offset, self.module_direction = self.determine_steering_motor_offset()  #FIXME: this uses self.cancoder_0 before being defined
         # Cancoder Configs
         self.cancoders = Shuffleboard.getTab("CANcoders")
-        self.cancoder_0 = self.cancoders.add(f"{module_position} CANcoder Value for 0 Degrees", default_cancoder_0).getEntry().getFloat(default_cancoder_0) 
-        self.cancoder_180 = self.cancoders.add(f"{module_position} CANcoder Value for 180 Degrees", default_cancoder_180).getEntry().getFloat(default_cancoder_180)        
+        self.default_cancoder_value = self.cancoders.add(f"{module_position} Default CANcoder Value", default_cancoder_value).getEntry().getFloat(default_cancoder_value)  
+
+        # Motor Offset and Starting Direction
+        self.steering_motor_offset = self.determine_steering_motor_offset()      
 
     def determine_steering_motor_offset(self):
         """
         Determine the steering motor offset to allow the swerve module to face forward and return the steering motor offset and module direction.
         """
-        # Calculate CANcoder offsets for 0 degree and 180 degree position
-        cancoder_offset_0 = self.cancoder.get_absolute_position().value - self.cancoder_0
-        cancoder_offset_180 = self.cancoder.get_absolute_position().value - self.cancoder_180
+        # Calculate CANcoder offsets for 0 degree position
+        cancoder_offset = self.default_cancoder_value - self.cancoder.get_absolute_position().value
 
-        # Set steering motor offset and module direction to the offset with the lowest amount of distance needed to travel
-        if fabs(cancoder_offset_0) <= fabs(cancoder_offset_180):
-            steering_motor_offset = self.steering_motor.get_position().value + cancoder_offset_0
-            module_direction = 1
-        elif fabs(cancoder_offset_180) < fabs(cancoder_offset_0):
-            steering_motor_offset = self.steering_motor.get_position().value + cancoder_offset_180
-            module_direction = -1
+        # Set steering motor offset to the opossite of the 
+        steering_motor_offset = self.steering_motor.get_position().value - cancoder_offset
 
-        # Return steering motor offset and module direction
-        return steering_motor_offset, module_direction 
+        # Return steering motor offset 
+        return steering_motor_offset
 
     def reset(self):
         """
@@ -92,7 +83,7 @@ class SwerveModule():
         # Determine speed, position, and module direction
         desired_speed = speed
         desired_position = self.steering_motor_offset + (angle / 360)
-        desired_module_direction = direction * self.module_direction
+        desired_module_direction = direction
 
         # Set the motors to the desired speed and angle
         self.driving_motor.set_control(phoenix6.controls.DutyCycleOut(desired_speed * desired_module_direction))
