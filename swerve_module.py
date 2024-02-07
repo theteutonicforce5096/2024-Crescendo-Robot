@@ -1,5 +1,4 @@
 import phoenix6
-from math import fabs
 from wpilib.shuffleboard import Shuffleboard
 
 class SwerveModule():
