@@ -10,6 +10,7 @@ class MyRobot(wpilib.TimedRobot):
 
     def teleopInit(self):
         self.joystick = wpilib.Joystick(0)
+        self.drivetrain.reset()
         self.timer = wpilib.Timer()
         self.timer.restart()
     
@@ -31,15 +32,17 @@ class SwerveDrive:
         self.kinematics = SwerveDrive4Kinematics(FL_location, FR_location, BL_location, BR_location)
         
         self.FL_module = SwerveModule("FL", 23, 13, 33, -0.002686)
-        self.FL_module.reset()
 
         self.FR_module = SwerveModule("FR", 20, 10, 30, 0.003906)
-        self.FR_module.reset()
 
         self.BL_module = SwerveModule("BL", 22, 12, 32, -0.476807)
-        self.BL_module.reset()
 
         self.BR_module = SwerveModule("BR", 21, 11, 31, 0.002930)
+
+    def reset():
+        self.FL_module.reset()
+        self.FR_module.reset()
+        self.BL_module.reset()
         self.BR_module.reset()
 
     def move_robot(self, raw_x, raw_y, rotation):
