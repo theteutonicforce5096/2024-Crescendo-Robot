@@ -67,6 +67,12 @@ class SwerveModule():
         """
         self.steering_motor.set_control(self.pid.with_position(self.steering_motor_offset)) 
 
+    def stop(self):
+        """
+        Stop the driving motor but continue to hold the last position received from the joystick.
+        """
+        self.driving_motor.set_control(phoenix6.controls.DutyCycleOut(0))
+
     def set_velocity(self, speed, angle, direction = 1):
         """
         Set the velocity of the swerve module.
