@@ -7,12 +7,11 @@ from magicbot import MagicRobot
 from robotpy_ext.autonomous.selector import AutonomousModeSelector
 from rev import ColorSensorV3
 from photonlibpy import photonCamera
-<<<<<<< HEAD
+
 import navx
 from navx import AHRS
-=======
+
 import vision
->>>>>>> 1320649572d396ad7f8f029abd8245c42b078e9f
 
 class MyRobot(MagicRobot):
     #subsystems.vision.Vision()
@@ -20,7 +19,6 @@ class MyRobot(MagicRobot):
         self.joystick = wpilib.Joystick(0)
         pass
     def teleopInit(self):
-<<<<<<< HEAD
         #self.navx = navx.AHRS.create_i2c()
         self.colorSensor = ColorSensorV3(wpilib.I2C.Port.kMXP)
         self.cam = photonCamera.PhotonCamera('main')
@@ -49,7 +47,6 @@ class MyRobot(MagicRobot):
             wpilib.SmartDashboard.putNumber("Y Position (relative to tag)", self.cameraPos.y)
             wpilib.SmartDashboard.putNumber("Z Position (relative to tag)", self.cameraPos.z)
         pass
-=======
         self.vision = vision.Vision("main", wpilib.I2C.Port.kOnboard)
         pass
 
@@ -68,7 +65,7 @@ class MyRobot(MagicRobot):
             rotationSpeed = self.joystick.getRawAxis(2)
         iamspeed = self.joystick.getRawAxis(1)
         #send da commands to da drivetrain
->>>>>>> 1320649572d396ad7f8f029abd8245c42b078e9f
+
     
     def autonomousInit(self):
         pass
