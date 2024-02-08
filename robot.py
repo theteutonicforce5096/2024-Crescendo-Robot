@@ -15,12 +15,14 @@ class MyRobot(wpilib.TimedRobot):
         self.timer.restart()
     
     def teleopPeriodic(self):
-        magnitude = self.joystick. # Get Magnitude function
+        magnitude = self.joystick.getMagnitude() 
         if magnitude > 0.2:
             raw_x = self.joystick.getX()
             raw_y = self.joystick.getY() * -1
             rotation = self.joystick.getZ() * -1 * math.pi
-            self.drivetrain.move_robot(raw_x, raw_y, rotation)    
+            self.drivetrain.move_robot(raw_x, raw_y, rotation)   
+        else:
+            self.drivetrain.stop_robot()
     
 class SwerveDrive:
     def __init__(self):
@@ -39,7 +41,7 @@ class SwerveDrive:
 
         self.BR_module = SwerveModule("BR", 21, 11, 31, 0.002930)
 
-    def reset():
+    def reset(self):
         self.FL_module.reset()
         self.FR_module.reset()
         self.BL_module.reset()
@@ -53,6 +55,13 @@ class SwerveDrive:
         self.FR_module.set_velocity(FR_state.speed / 5, FR_state.angle.degrees(), 1)
         self.BL_module.set_velocity(BL_state.speed / 5 , BL_state.angle.degrees(), 1)
         self.BR_module.set_velocity(BR_state.speed / 5, BR_state.angle.degrees(), 1)
-        
+
+    def stop_robot(self):
+        self.FL_module.stop()
+        self.FR_module.stop()
+        self.BL_module.stop()
+        self.BR_module.stop()
+
+
 if __name__ == "__main__":
     wpilib.run(MyRobot)
