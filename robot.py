@@ -14,12 +14,10 @@ from navx import AHRS
 import vision
 
 class MyRobot(MagicRobot):
-    #subsystems.vision.Vision()
     def createObjects(self):
         self.joystick = wpilib.Joystick(0)
         pass
     def teleopInit(self):
-        #self.navx = navx.AHRS.create_i2c()
         self.colorSensor = ColorSensorV3(wpilib.I2C.Port.kMXP)
         self.cam = photonCamera.PhotonCamera('main')
 
