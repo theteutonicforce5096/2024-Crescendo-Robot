@@ -7,7 +7,6 @@ from magicbot import MagicRobot
 from robotpy_ext.autonomous.selector import AutonomousModeSelector
 from rev import ColorSensorV3
 from photonlibpy import photonCamera
-
 import navx
 from navx import AHRS
 
