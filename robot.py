@@ -51,16 +51,18 @@ class MyRobot(MagicRobot):
         self.vision.updateCameraPosition()
         self.vision.updateColorSensor()
         rotationSpeed = 0
-        if self.joystick.getRawButtonPressed(3):
-            if wpilib.DriverStation.getAlliance() == wpilib.DriverStation.Alliance.kBlue:
-                self.vision.moveToTarget(7)
-                self.vision.moveToTarget(8)
-            elif wpilib.DriverStation.getAlliance() == wpilib.DriverStation.Alliance.kRed:
-                self.vision.moveToTarget(3)
-                self.vision.moveToTarget(4)
-        else:
-            rotationSpeed = self.joystick.getRawAxis(2)
-        iamspeed = self.joystick.getRawAxis(1)
+        # if self.joystick.getRawButtonPressed(3):
+        #     if wpilib.DriverStation.getAlliance() == wpilib.DriverStation.Alliance.kBlue:
+        #         self.vision.moveToTarget(7)
+        #         self.vision.moveToTarget(8)
+        #     elif wpilib.DriverStation.getAlliance() == wpilib.DriverStation.Alliance.kRed:
+        #         self.vision.moveToTarget(3)
+        #         self.vision.moveToTarget(4)
+        # else:
+        #     rotationSpeed = self.joystick.getRawAxis(2)
+        forwardSpeed, rotationSpeed = self.vision.moveToTarget(3)
+        print(forwardSpeed, rotationSpeed)
+        # iamspeed = self.joystick.getRawAxis(1)
         #send da commands to da drivetrain
 
     
