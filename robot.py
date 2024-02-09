@@ -60,24 +60,24 @@ class SwerveDrive:
         self.BL_module.reset()
         self.BR_module.reset()
     
-    def optimize_angle(self, current_angle, desired_angle):
-        desired_angle = (desired_angle + 360) % 360
-        print(f"Desired: {desired_angle}")
-        print(f"Current: {current_angle}")
-        if desired_angle - current_angle == 180:
-            module_direction = -1
-        elif desired_angle + current_angle == -180:
-            module_direction = 1
-        elif desired_angle - current_angle > 90:
-            desired_angle -= 180
-            module_direction = -1
-        elif desired_angle + current_angle < -90:
-            desired_angle += 180
-            module_direction = 1
-        else:
-            module_direction = 1
+    # def optimize_angle(self, current_angle, desired_angle):
+    #     desired_angle = (desired_angle + 360) % 360
+    #     print(f"Desired: {desired_angle}")
+    #     print(f"Current: {current_angle}")
+    #     if desired_angle - current_angle == 180:
+    #         module_direction = -1
+    #     elif desired_angle + current_angle == -180:
+    #         module_direction = 1
+    #     elif desired_angle - current_angle > 90:
+    #         desired_angle -= 180
+    #         module_direction = -1
+    #     elif desired_angle + current_angle < -90:
+    #         desired_angle += 180
+    #         module_direction = 1
+    #     else:
+    #         module_direction = 1
 
-        return desired_angle, module_direction
+    #     return desired_angle, module_direction
 
     def move_robot(self, raw_x, raw_y, rotation):
         speeds = ChassisSpeeds(raw_y, raw_x, rotation)
