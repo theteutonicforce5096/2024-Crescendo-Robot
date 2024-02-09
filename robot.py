@@ -82,16 +82,21 @@ class SwerveDrive:
     def move_robot(self, raw_x, raw_y, rotation):
         speeds = ChassisSpeeds(raw_y, raw_x, rotation)
         FL_state, FR_state, BL_state, BR_state = self.kinematics.desaturateWheelSpeeds(self.kinematics.toSwerveModuleStates(speeds), 1)
+        
+        FL_state = FL_state.optimize(FL_state, self.FL_module.current_angle)
+        FR_state = FR_state.optimize(FR_state, self.FR_module.current_angle)
+        BL_state = BL_state.optimize(BL_state, self.BL_module.current_angle)
+        BR_state = BR_state.optimize(BR_state, self.BR_module.current_angle)
+        
+        #FL_angle, FL_direction = self.optimize_angle(self.FL_module.current_angle, FL_state.angle.degrees() * -1)
+        #FR_angle, FR_direction = self.optimize_angle(self.FR_module.current_angle, FR_state.angle.degrees() * -1)
+        #BL_angle, BL_direction = self.optimize_angle(self.BL_module.current_angle, BL_state.angle.degrees() * -1)
+        #BR_angle, BR_direction = self.optimize_angle(self.BR_module.current_angle, BR_state.angle.degrees() * -1)
 
-        FL_angle, FL_direction = self.optimize_angle(self.FL_module.current_angle, FL_state.angle.degrees() * -1)
-        FR_angle, FR_direction = self.optimize_angle(self.FR_module.current_angle, FR_state.angle.degrees() * -1)
-        BL_angle, BL_direction = self.optimize_angle(self.BL_module.current_angle, BL_state.angle.degrees() * -1)
-        BR_angle, BR_direction = self.optimize_angle(self.BR_module.current_angle, BR_state.angle.degrees() * -1)
-
-        self.FL_module.set_velocity(FL_state.speed / 10, FL_angle, FL_direction)
-        self.FR_module.set_velocity(FR_state.speed / 10, FR_angle, FR_direction)
-        self.BL_module.set_velocity(BL_state.speed / 10, BL_angle, BL_direction)
-        self.BR_module.set_velocity(BR_state.speed / 10, BR_angle, BR_direction)
+        self.FL_module.set_velocity(FL_state.speed / 10, FL_state.angle)
+        self.FR_module.set_velocity(FR_state.speed / 10, FR_state.angle)
+        self.BL_module.set_velocity(BL_state.speed / 10, BL_state.angle)
+        self.BR_module.set_velocity(BR_state.speed / 10, BR_state.angle)
 
     def stop_robot(self):
         self.FL_module.stop()
