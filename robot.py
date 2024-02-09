@@ -9,10 +9,10 @@ class MyRobot(wpilib.TimedRobot):
         self.timer = wpilib.Timer()
 
     def teleopInit(self):
-        self.drivetrain.reset()
         self.raw_x = 0
         self.raw_y = 0
         self.rotation = 0
+        self.drivetrain.reset()
         self.timer.restart()
     
     def teleopPeriodic(self):
