@@ -1,5 +1,6 @@
 import phoenix6
 from wpilib.shuffleboard import Shuffleboard
+from wpimath.geometry import Rotation2d
 
 class SwerveModule():
     """Class for controlling swerve module on robot."""
@@ -69,7 +70,7 @@ class SwerveModule():
         """
         Set the swerve module to face forward.
         """
-        self.current_angle = 0
+        self.current_angle = Rotation2d.fromDegrees(0)
         self.steering_motor.set_control(self.pid.with_position(self.steering_motor_offset)) 
 
     def stop(self):
@@ -78,7 +79,7 @@ class SwerveModule():
         """
         self.driving_motor.set_control(phoenix6.controls.DutyCycleOut(0))
 
-    def set_velocity(self, speed, angle, direction = 1):
+    def set_velocity(self, speed, angle):
         """
         Set the velocity of the swerve module.
     
@@ -87,16 +88,13 @@ class SwerveModule():
         :type speed: float
         :param angle: Desired angle of the module. Must already be optimized. Use wpimath.kinematics.SwerveModuleState.optimize to optimize the angle.
         :type angle: float
-        :param direction: Direction the module should go. 1 is forward. -1 is backwards. When using angle optimization, use the direction from wpimath.kinematics.SwerveModuleState.optimize.
-        :type direction: int. 1 or -1
         """
         # Determine speed, position, and module direction
         desired_speed = speed
-        desired_angle = (angle + 360) % 360
+        desired_angle = ((angle.degrees() * -1) + 360) % 360
         desired_position = self.steering_motor_offset + (desired_angle / 360)
-        desired_module_direction = direction * self.module_direction
-        self.current_angle = desired_angle
+        self.current_angle = angle
 
         # Set the motors to the desired speed and angle
-        self.driving_motor.set_control(phoenix6.controls.DutyCycleOut(desired_speed * desired_module_direction))
+        self.driving_motor.set_control(phoenix6.controls.DutyCycleOut(desired_speed * self.module_direction))
         self.steering_motor.set_control(self.pid.with_position(desired_position)) 
