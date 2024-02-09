@@ -4,7 +4,7 @@ from wpilib.shuffleboard import Shuffleboard
 class SwerveModule():
     """Class for controlling swerve module on robot."""
 
-    def __init__(self, module_position, steering_motor_id, driving_motor_id, cancoder_id, default_cancoder_value):
+    def __init__(self, module_position, steering_motor_id, driving_motor_id, cancoder_id, default_cancoder_value, module_direction):
         """
         Constructor for Swerve Module.
 
@@ -18,6 +18,8 @@ class SwerveModule():
         :type cancoder_id: int
         :param default_cancoder_value: Default value of the CANcoder at 0 degrees. Only used when Shuffleboard widget is not accessible.
         :type default_cancoder_value: float
+        :param module_direction: Direction the module faces. 1 is forward relative to the front of the robot. -1 is inverted relative to the front of the robot.
+        :type module_direction: int, 1 or -1
         """
 
         # Hardware Initialization
@@ -45,8 +47,10 @@ class SwerveModule():
         self.cancoders = Shuffleboard.getTab("CANcoders")
         self.default_cancoder_value = self.cancoders.add(f"{module_position} Default CANcoder Value", default_cancoder_value).getEntry().getFloat(default_cancoder_value)  
 
-        # Motor Offset and Starting Direction
-        self.steering_motor_offset = self.determine_steering_motor_offset()      
+        # Swerve Module Configs
+        self.steering_motor_offset = self.determine_steering_motor_offset()   
+        self.module_direction = module_direction
+        self.current_angle = None
 
     def determine_steering_motor_offset(self):
         """
@@ -65,6 +69,7 @@ class SwerveModule():
         """
         Set the swerve module to face forward.
         """
+        self.current_angle = 0
         self.steering_motor.set_control(self.pid.with_position(self.steering_motor_offset)) 
 
     def stop(self):
@@ -82,13 +87,15 @@ class SwerveModule():
         :type speed: float
         :param angle: Desired angle of the module. Must already be optimized. Use wpimath.kinematics.SwerveModuleState.optimize to optimize the angle.
         :type angle: float
-        :param direction: Direction of the motor. 1 is facing forward. -1 is inverted. Use the direction from wpimath.kinematics.SwerveModuleState.optimize.
+        :param direction: Direction the module should go. 1 is forward. -1 is backwards. When using angle optimization, use the direction from wpimath.kinematics.SwerveModuleState.optimize.
         :type direction: int. 1 or -1
         """
         # Determine speed, position, and module direction
         desired_speed = speed
-        desired_position = self.steering_motor_offset + (((angle + 360) % 360) / 360)
-        desired_module_direction = direction
+        desired_angle = (angle + 360) % 360
+        desired_position = self.steering_motor_offset + (desired_angle / 360)
+        desired_module_direction = direction * self.module_direction
+        self.current_angle = desired_angle
 
         # Set the motors to the desired speed and angle
         self.driving_motor.set_control(phoenix6.controls.DutyCycleOut(desired_speed * desired_module_direction))
