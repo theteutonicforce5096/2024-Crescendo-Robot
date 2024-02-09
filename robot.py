@@ -5,14 +5,14 @@ from math import fabs
 class MyRobot(wpilib.TimedRobot):
     def robotInit(self):
         self.drivetrain = SwerveDrive()
+        self.joystick = wpilib.Joystick(0)
+        self.timer = wpilib.Timer()
 
     def teleopInit(self):
         self.drivetrain.reset()
-        self.joystick = wpilib.Joystick(0)
         self.raw_x = 0
         self.raw_y = 0
         self.rotation = 0
-        self.timer = wpilib.Timer()
         self.timer.restart()
     
     def teleopPeriodic(self):
