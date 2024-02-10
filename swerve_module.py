@@ -21,12 +21,12 @@ class SwerveModule():
         :type default_cancoder_value: float
         :param module_direction: Direction the module faces. 1 is forward relative to the front of the robot. -1 is inverted relative to the front of the robot.
         :type module_direction: int, 1 or -1
-        """
-
+        """        
         # Hardware Initialization
         self.steering_motor = phoenix6.hardware.TalonFX(steering_motor_id)
         self.driving_motor = phoenix6.hardware.TalonFX(driving_motor_id)
         self.cancoder = phoenix6.hardware.CANcoder(cancoder_id)
+        self.module_position = module_position
 
         # Turning Motor Configs
         self.talonfx_configs = phoenix6.configs.TalonFXConfiguration()
@@ -44,32 +44,38 @@ class SwerveModule():
         # Create PID object
         self.pid = phoenix6.controls.PositionVoltage(0).with_slot(0)
 
-        # Cancoder Configs
-        self.cancoders = Shuffleboard.getTab("CANcoders")
-        self.default_cancoder_value = self.cancoders.add(f"{module_position} Default CANcoder Value", default_cancoder_value).getEntry().getFloat(default_cancoder_value)  
-
+        # Cancoder Config
+        self.default_cancoder_value = default_cancoder_value
+        self.get_default_cancoder_value()
+        
         # Swerve Module Configs
-        self.steering_motor_offset = self.determine_steering_motor_offset()   
+        self.determine_steering_motor_offset()   
         self.module_direction = module_direction
         self.current_angle = None
 
-    def determine_steering_motor_offset(self):
+    def _get_default_cancoder_value(self):
         """
-        Determine the steering motor offset to allow the swerve module to face forward and return the steering motor offset and module direction.
+        Get the default CANcoder value from Shuffleboard.
+        """
+        self.default_cancoder_value = Shuffleboard.getTab("CANcoders").add(f"{self.module_position} Default CANcoder Value", 
+                                                                           self.default_cancoder_value).getEntry().getFloat(self.default_cancoder_value)  
+
+    def _determine_steering_motor_offset(self):
+        """
+        Determine the steering motor offset to allow the swerve module to face forward.
         """
         # Calculate CANcoder offsets for 0 degree position
         cancoder_offset = self.default_cancoder_value - self.cancoder.get_absolute_position().value
 
-        # Set steering motor offset to the opossite of the 
-        steering_motor_offset = self.steering_motor.get_position().value - cancoder_offset
-
-        # Return steering motor offset 
-        return steering_motor_offset
+        # Set steering motor offset
+        self.steering_motor_offset = self.steering_motor.get_position().value - cancoder_offset
 
     def reset(self):
         """
-        Set the swerve module to face forward.
+        Reset the swerve module's main variables and set it to face forward.
         """
+        self.get_default_cancoder_value()
+        self.determine_steering_motor_offset()
         self.current_angle = Rotation2d.fromDegrees(0)
         self.steering_motor.set_control(self.pid.with_position(self.steering_motor_offset)) 
 
@@ -79,9 +85,9 @@ class SwerveModule():
         """
         self.driving_motor.set_control(phoenix6.controls.DutyCycleOut(0))
 
-    def set_velocity(self, speed, angle):
+    def move(self, speed, angle):
         """
-        Set the velocity of the swerve module.
+        Move the Swerve Module to the desired speed and angle.
     
         :param speed: Desired speed of the module. Must be between 0 and 1. Use wpimath.kinematics.SwerveDrive4Kinematics.desaturateWheelSpeeds 
         to reduce desired speed to be between 0 and 1. 
