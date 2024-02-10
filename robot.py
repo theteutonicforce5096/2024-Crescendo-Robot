@@ -2,7 +2,7 @@ import wpilib
 from drivetrain import SwerveDrive
 from math import fabs
 
-class MyRobot(wpilib.TimedRobot):
+class TeutonicForceRobot(wpilib.TimedRobot):
     def robotInit(self):
         self.drivetrain = SwerveDrive()
         self.joystick = wpilib.Joystick(0)
@@ -12,6 +12,7 @@ class MyRobot(wpilib.TimedRobot):
         self.raw_x = 0
         self.raw_y = 0
         self.rotation = 0
+        self.stop_robot = False
         self.drivetrain.reset()
         self.timer.restart()
     
@@ -33,7 +34,11 @@ class MyRobot(wpilib.TimedRobot):
         if self.raw_x != 0 or self.raw_y != 0 or self.rotation != 0:
             self.drivetrain.move_robot(self.raw_x, self.raw_y, rotation) 
         else:
+            self.stop_robot = True
+
+        if self.stop_robot:
             self.drivetrain.stop_robot()
+            self.stop_robot = False
 
 if __name__ == "__main__":
-    wpilib.run(MyRobot)
+    wpilib.run(TeutonicForceRobot)
