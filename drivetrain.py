@@ -24,6 +24,12 @@ class SwerveDrive:
         self.FR_module.reset()
         self.BL_module.reset()
         self.BR_module.reset()
+
+    def stop_robot(self):
+        self.FL_module.stop()
+        self.FR_module.stop()
+        self.BL_module.stop()
+        self.BR_module.stop()
     
     # def optimize_angle(self, current_angle, desired_angle):
     #     desired_angle = (desired_angle + 360) % 360
@@ -58,13 +64,7 @@ class SwerveDrive:
         #BL_angle, BL_direction = self.optimize_angle(self.BL_module.current_angle, BL_state.angle.degrees() * -1)
         #BR_angle, BR_direction = self.optimize_angle(self.BR_module.current_angle, BR_state.angle.degrees() * -1)
 
-        self.FL_module.set_velocity(FL_state.speed / 10, FL_state.angle)
-        self.FR_module.set_velocity(FR_state.speed / 10, FR_state.angle)
-        self.BL_module.set_velocity(BL_state.speed / 10, BL_state.angle)
-        self.BR_module.set_velocity(BR_state.speed / 10, BR_state.angle)
-
-    def stop_robot(self):
-        self.FL_module.stop()
-        self.FR_module.stop()
-        self.BL_module.stop()
-        self.BR_module.stop()
+        self.FL_module.move(FL_state.speed / 10, FL_state.angle)
+        self.FR_module.move(FR_state.speed / 10, FR_state.angle)
+        self.BL_module.move(BL_state.speed / 10, BL_state.angle)
+        self.BR_module.move(BR_state.speed / 10, BR_state.angle)
