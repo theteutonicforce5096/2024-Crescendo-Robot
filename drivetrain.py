@@ -4,20 +4,20 @@ from swerve_module import SwerveModule
     
 class SwerveDrive:
     def __init__(self):
-        FL_location = Translation2d(0.3175, 0.3175)
-        FR_location = Translation2d(0.3175, -0.3175)
-        BL_location = Translation2d(-0.3175, 0.3175)
-        BR_location = Translation2d(-0.3175, -0.3175)
+        FL_location = Translation2d(0.250825, 0.250825)
+        FR_location = Translation2d(0.250825, -0.250825)
+        BL_location = Translation2d(-0.250825, 0.250825)
+        BR_location = Translation2d(-0.250825, -0.250825)
 
         self.kinematics = SwerveDrive4Kinematics(FL_location, FR_location, BL_location, BR_location)
         
-        self.FL_module = SwerveModule("FL", 23, 13, 33, -0.002686, -1)
+        self.FL_module = SwerveModule("FL", 23, 13, 33, "CANivore", "CANivore", "rio", -0.002686, -1)
 
-        self.FR_module = SwerveModule("FR", 20, 10, 30, 0.003906, 1)
+        self.FR_module = SwerveModule("FR", 20, 10, 30, "CANivore", "CANivore", "rio", 0.003906, 1)
 
-        self.BL_module = SwerveModule("BL", 22, 12, 32, -0.476807, -1)
+        self.BL_module = SwerveModule("BL", 22, 12, 32, "CANivore", "CANivore", "rio", -0.476807, -1)
 
-        self.BR_module = SwerveModule("BR", 21, 11, 31, 0.002930, 1)
+        self.BR_module = SwerveModule("BR", 21, 11, 31, "CANivore", "CANivore", "rio", 0.002930, 1)
 
     def reset(self):
         self.FL_module.reset()
@@ -64,7 +64,7 @@ class SwerveDrive:
         #BL_angle, BL_direction = self.optimize_angle(self.BL_module.current_angle, BL_state.angle.degrees() * -1)
         #BR_angle, BR_direction = self.optimize_angle(self.BR_module.current_angle, BR_state.angle.degrees() * -1)
 
-        self.FL_module.move(FL_state.speed / 10, FL_state.angle)
-        self.FR_module.move(FR_state.speed / 10, FR_state.angle)
-        self.BL_module.move(BL_state.speed / 10, BL_state.angle)
-        self.BR_module.move(BR_state.speed / 10, BR_state.angle)
+        self.FL_module.move(FL_state.speed / 7.5, FL_state.angle)
+        self.FR_module.move(FR_state.speed / 7.5, FR_state.angle)
+        self.BL_module.move(BL_state.speed / 7.5, BL_state.angle)
+        self.BR_module.move(BR_state.speed / 7.5, BR_state.angle)

@@ -5,7 +5,7 @@ from wpimath.geometry import Rotation2d
 class SwerveModule():
     """Class for controlling swerve module on robot."""
 
-    def __init__(self, module_position, steering_motor_id, driving_motor_id, cancoder_id, default_cancoder_value, module_direction):
+    def __init__(self, module_position, steering_motor_id, driving_motor_id, cancoder_id, steering_motor_bus, driving_motor_bus, cancoder_bus, default_cancoder_value, module_direction):
         """
         Constructor for Swerve Module.
 
@@ -23,9 +23,9 @@ class SwerveModule():
         :type module_direction: int, 1 or -1
         """        
         # Hardware Initialization
-        self.steering_motor = phoenix6.hardware.TalonFX(steering_motor_id)
-        self.driving_motor = phoenix6.hardware.TalonFX(driving_motor_id)
-        self.cancoder = phoenix6.hardware.CANcoder(cancoder_id)
+        self.steering_motor = phoenix6.hardware.TalonFX(steering_motor_id, steering_motor_bus)
+        self.driving_motor = phoenix6.hardware.TalonFX(driving_motor_id, driving_motor_bus)
+        self.cancoder = phoenix6.hardware.CANcoder(cancoder_id, cancoder_bus)
         self.module_position = module_position
 
         # Turning Motor Configs
@@ -46,10 +46,10 @@ class SwerveModule():
 
         # Cancoder Config
         self.default_cancoder_value = default_cancoder_value
-        self.get_default_cancoder_value()
+        self._get_default_cancoder_value()
         
         # Swerve Module Configs
-        self.determine_steering_motor_offset()   
+        self._determine_steering_motor_offset()   
         self.module_direction = module_direction
         self.current_angle = None
 
@@ -74,8 +74,8 @@ class SwerveModule():
         """
         Reset the swerve module's main variables and set it to face forward.
         """
-        self.get_default_cancoder_value()
-        self.determine_steering_motor_offset()
+        self._get_default_cancoder_value()
+        self._determine_steering_motor_offset()
         self.current_angle = Rotation2d.fromDegrees(0)
         self.steering_motor.set_control(self.pid.with_position(self.steering_motor_offset)) 
 
