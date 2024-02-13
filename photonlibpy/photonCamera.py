@@ -4,8 +4,11 @@ from wpilib import Timer
 import wpilib
 from photonlibpy.packet import Packet
 from photonlibpy.photonPipelineResult import PhotonPipelineResult
-from photonlibpy.version import PHOTONVISION_VERSION, PHOTONLIB_VERSION  # type: ignore[import-untyped]
+#from photonlibpy.version import PHOTONVISION_VERSION, PHOTONLIB_VERSION  # type: ignore[import-untyped]
 
+#from photonlibpy.version import PHOTONVISION_VERSION, PHOTONLIB_VERSION
+PHOTONVISION_VERSION = ""
+PHOTONLIB_VERSION = ""
 
 class VisionLEDMode(Enum):
     kDefault = -1
@@ -15,7 +18,7 @@ class VisionLEDMode(Enum):
 
 
 _lastVersionTimeCheck = 0.0
-_VERSION_CHECK_ENABLED = True
+_VERSION_CHECK_ENABLED = False
 
 
 def setVersionCheckEnabled(enabled: bool):

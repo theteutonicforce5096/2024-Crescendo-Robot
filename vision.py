@@ -31,6 +31,16 @@ class Vision():
         wpilib.SmartDashboard.putNumber("Raw Red", self.rawDetectColor.red)
         wpilib.SmartDashboard.putNumber("Raw Green", self.rawDetectColor.green)
         wpilib.SmartDashboard.putNumber("Raw Blue", self.rawDetectColor.blue)
+    
+    def hasRing(self) -> bool:
+        """
+        Check for a ring in the robot.
+        """
+        self.rawDetectColor = self.colorSensor.getRawColor()
+        if self.rawDetectColor.red > 50 and self.rawDetectColor.green > 50 and self.rawDetectColor.blue > 50:
+            return True
+        else:
+            return False
 
     def updateCameraPosition(self):
         self.result = self.cam.getLatestResult()
@@ -54,6 +64,7 @@ class Vision():
         if self.result.hasTargets() == True:
             self.targets = self.result.getTargets()
             self.bestTarget = self.result.getBestTarget()
+            wpimath.objectToRobotPose(self.bestTarget)
             self.yaw = self.bestTarget.getYaw()
             wpilib.SmartDashboard.putNumber("Target ID", self.bestTarget.fiducialId)
             cameraHeightMeters = 0
@@ -63,8 +74,14 @@ class Vision():
                 rotationSpeed = self.rotationPID.calculate(self.yaw, 0)
                 range = photonUtils.PhotonUtils.calculateDistanceToTargetMeters(cameraHeightMeters, targetHeightMeters, cameraPitch, (math.radians(self.bestTarget.getPitch())))
                 forwardSpeed = self.movementPID.calculate(range, 0.5)
+                if not forwardSpeed and not rotationSpeed:
+                    rotationSpeed = 0.0
+                    forwardSpeed = 0.0
             else:
                 rotationSpeed = 0.0
                 forwardSpeed = 0.0
-            return forwardSpeed, rotationSpeed
+        else:
+            rotationSpeed = 0.0
+            forwardSpeed = 0.0
+        return [forwardSpeed, rotationSpeed]
             
