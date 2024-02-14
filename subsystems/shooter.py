@@ -6,11 +6,19 @@ import time
 class Shooter():
     def __init__(self):
         self.shootMotor1 = phoenix6.hardware.TalonFX(1)
-        self.shootMotor2 = phoenix6.hardware.TalonFX(2)
+        self.shootMotor2 = phoenix6.hardware.TalonFX(2) # direction reverse
+        self.elevationMotor1 = phoenix6.hardware.TalonFX(3)
+        self.elevationMotor2 = phoenix6.hardware.TalonFX(4) # direction reversed
+        self.intakeMotor = phoenix6.hardware.TalonFX(5)
 
     def align(self):
         pass
     
+    def turnIntakeOn(self):
+        self.intakeMotor.set_control(phoenix6.controls.DutyCycleOut(.25))
+    def turnIntakeOff(self):
+        self.intakeMotor.set_control(phoenix6.controls.DutyCycleOut(.0))
+
     def shoot(self, motorSpeed: int):
         """
         \"Hey Johnny, spin up those shooting motors!\"
@@ -19,7 +27,7 @@ class Shooter():
         """
         if self.isReadyToShoot():
             self.shootMotor1.set_position(motorSpeed)
-            self.shootMotor2.set_position(motorSpeed)
+            self.shootMotor2.set_position()
         else:
             time.sleep(0.01)
             self.shoot()

@@ -11,8 +11,8 @@ from photonlibpy import photonCamera
 import navx
 from navx import AHRS
 import pyfrc.physics.drivetrains
-
 import vision
+import subsystems.shooter
 
 class MyRobot(MagicRobot):
     def createObjects(self):
@@ -69,8 +69,12 @@ class MyRobot(MagicRobot):
         wpilib.SmartDashboard.putNumber("forwardSpeed", forwardSpeed)
         wpilib.SmartDashboard.putNumber("rotationSpeed", rotationSpeed)
         #send da commands to da drivetrain
+        
+        if joystick.getRawButton(5):
+            turnIntakeOn()
+        else:
+            turnIntakeOff()
 
-    
     def autonomousInit(self):
         pass
 
