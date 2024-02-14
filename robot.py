@@ -1,4 +1,5 @@
 import wpilib
+from wpilib import shuffleboard
 import wpilib.drive
 import os
 import ntcore
@@ -9,7 +10,6 @@ from rev import ColorSensorV3
 from photonlibpy import photonCamera
 import navx
 from navx import AHRS
-
 import vision
 
 class MyRobot(MagicRobot):
