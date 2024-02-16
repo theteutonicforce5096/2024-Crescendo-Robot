@@ -1,4 +1,5 @@
 import phoenix6
+from wpilib import DigitalInput 
 
 class Shooter():
     def __init__(self):
@@ -7,6 +8,7 @@ class Shooter():
         self.shoot_motor_2 = phoenix6.hardware.TalonFX(2) 
         self.arm_motor_1 = phoenix6.hardware.TalonFX(3)
         self.arm_motor_2 = phoenix6.hardware.TalonFX(4) 
+        self.color_sensor = DigitalInput(0) # TODO: Change to real color sensor
 
         # PID Configs
         self.set_pid(self.intake_motor, 0, 0, 0, 0, 0)
@@ -34,7 +36,8 @@ class Shooter():
         motor.configurator.apply(self.talonfx_configs) 
 
     def intake_note(self):
-        self.intake_motor.set_control(self.intake_motor_pid.with_velocity())
+        self.intake_motor.set_control(self.intake_motor_pid.with_velocity(8))
+        
 
     def shoot(self, motorSpeed: int):
         """
