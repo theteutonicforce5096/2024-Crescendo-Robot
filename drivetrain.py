@@ -11,13 +11,13 @@ class SwerveDrive:
 
         self.kinematics = SwerveDrive4Kinematics(FL_location, FR_location, BL_location, BR_location)
         
-        self.FL_module = SwerveModule("FL", 23, 13, 33, "CANivore", "CANivore", "rio", -0.002686, -1)
+        self.FL_module = SwerveModule("FL", 23, 13, 33, "CANivore", "CANivore", "rio", -0.002686, 1)
 
-        self.FR_module = SwerveModule("FR", 20, 10, 30, "CANivore", "CANivore", "rio", 0.003906, 1)
+        self.FR_module = SwerveModule("FR", 20, 10, 30, "CANivore", "CANivore", "rio", 0.003906, -1)
 
-        self.BL_module = SwerveModule("BL", 22, 12, 32, "CANivore", "CANivore", "rio", -0.476807, -1)
+        self.BL_module = SwerveModule("BL", 22, 12, 32, "CANivore", "CANivore", "rio", -0.476807, 1)
 
-        self.BR_module = SwerveModule("BR", 21, 11, 31, "CANivore", "CANivore", "rio", 0.002930, 1)
+        self.BR_module = SwerveModule("BR", 21, 11, 31, "CANivore", "CANivore", "rio", 0.002930, -1)
 
     def reset(self):
         self.FL_module.reset()
