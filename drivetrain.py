@@ -55,7 +55,8 @@ class SwerveDrive():
         """
         # Get desired Swerve Modules' speeds and angles.
         current_robot_angle = self.get_current_robot_angle()
-        robot_speeds = ChassisSpeeds.fromFieldRelativeSpeeds(forward_speed, stafe_speed, rotation_speed, Rotation2d.fromDegrees(current_robot_angle))
+        robot_speeds = 
+        #ChassisSpeeds.fromFieldRelativeSpeeds(forward_speed, stafe_speed, rotation_speed, Rotation2d.fromDegrees(current_robot_angle))
         front_left_module_state, front_right_module_state, back_left_module_state, back_right_module_state = self.kinematics.desaturateWheelSpeeds(self.kinematics.toSwerveModuleStates(robot_speeds), 1)
         
         # Optimize desired Swerve Modules' angles.
@@ -65,10 +66,10 @@ class SwerveDrive():
         back_right_module_state = back_right_module_state.optimize(back_right_module_state, self.back_right_module.current_angle)
 
         # Set the Swerve Modules to the desired speeds and angles.
-        self.front_left_module.set(front_left_module_state.speed / 7.5, front_left_module_state.angle)
-        self.front_right_module.set(front_right_module_state.speed / 7.5, front_right_module_state.angle)
-        self.back_left_module.set(back_left_module_state.speed / 7.5, back_left_module_state.angle)
-        self.back_right_module.set(back_right_module_state.speed / 7.5, back_right_module_state.angle)
+        self.front_left_module.set(front_left_module_state.speed / 4, front_left_module_state.angle)
+        self.front_right_module.set(front_right_module_state.speed / 4, front_right_module_state.angle)
+        self.back_left_module.set(back_left_module_state.speed / 4, back_left_module_state.angle)
+        self.back_right_module.set(back_right_module_state.speed / 4, back_right_module_state.angle)
 
     def stop_robot(self):
         """

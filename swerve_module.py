@@ -20,23 +20,24 @@ class SwerveModule():
         :param default_cancoder_value: Default value of the CANcoder at 0 degrees. Only used when Shuffleboard widget is not accessible.
         :type default_cancoder_value: float
         :param inverted_module: Whether the module is inverted or not.
-        :type module_direction: boolean
+        :type inverted_module: boolean
         """        
         # Hardware Initialization
         self.steering_motor = phoenix6.hardware.TalonFX(steering_motor_id, steering_motor_bus)
         self.driving_motor = phoenix6.hardware.TalonFX(driving_motor_id, driving_motor_bus)
         self.cancoder = phoenix6.hardware.CANcoder(cancoder_id, cancoder_bus)
+        self.module_position = module_position
 
         # Steering Motor and Driving Motor Config
-        self._configure_driving_motor()
+        self._configure_driving_motor(inverted_module)
         self._configure_steering_motor()
 
         # Cancoder Config
         self.default_cancoder_value = default_cancoder_value
-        self._get_default_cancoder_value(module_position)
+        self._get_default_cancoder_value()
         
         # Swerve Module Configs
-        self._determine_steering_motor_offset(inverted_module)   
+        self._determine_steering_motor_offset()   
         self.current_angle = None
 
     def _configure_driving_motor(self, inverted_module):
@@ -51,7 +52,7 @@ class SwerveModule():
         # PID Configs
         talonfx_configs.slot0.k_s = 0.05
         talonfx_configs.slot0.k_v = 0.12
-        talonfx_configs.slot0.k_p = 0.11
+        talonfx_configs.slot0.k_p = 0.75
         talonfx_configs.slot0.k_i = 0 
         talonfx_configs.slot0.k_d = 0
 
@@ -79,11 +80,11 @@ class SwerveModule():
         # Create PID object
         self.steering_pid = phoenix6.controls.PositionVoltage(position = 0, enable_foc = False)
 
-    def _get_default_cancoder_value(self, module_position):
+    def _get_default_cancoder_value(self):
         """
         Get the default CANcoder value for SwerveModule from Shuffleboard.
         """
-        self.default_cancoder_value = Shuffleboard.getTab("CANcoders").add(f"{module_position} Default CANcoder Value", self.default_cancoder_value).getEntry().getFloat(self.default_cancoder_value)  
+        self.default_cancoder_value = Shuffleboard.getTab("CANcoders").add(f"{self.module_position} Default CANcoder Value", self.default_cancoder_value).getEntry().getFloat(self.default_cancoder_value)  
 
     def _determine_steering_motor_offset(self):
         """
