@@ -5,7 +5,7 @@ from wpimath.geometry import Rotation2d
 class SwerveModule():
     """Class for controlling swerve module on robot."""
 
-    def __init__(self, module_position, steering_motor_id, driving_motor_id, cancoder_id, steering_motor_bus, driving_motor_bus, cancoder_bus, default_cancoder_value, module_direction):
+    def __init__(self, module_position, steering_motor_id, driving_motor_id, cancoder_id, steering_motor_bus, driving_motor_bus, cancoder_bus, default_cancoder_value, inverted_module):
         """
         Constructor for Swerve Module.
 
@@ -19,46 +19,70 @@ class SwerveModule():
         :type cancoder_id: int
         :param default_cancoder_value: Default value of the CANcoder at 0 degrees. Only used when Shuffleboard widget is not accessible.
         :type default_cancoder_value: float
-        :param module_direction: Direction the module faces. 1 is forward relative to the front of the robot. -1 is inverted relative to the front of the robot.
-        :type module_direction: int, 1 or -1
+        :param inverted_module: Whether the module is inverted or not.
+        :type module_direction: boolean
         """        
         # Hardware Initialization
         self.steering_motor = phoenix6.hardware.TalonFX(steering_motor_id, steering_motor_bus)
         self.driving_motor = phoenix6.hardware.TalonFX(driving_motor_id, driving_motor_bus)
         self.cancoder = phoenix6.hardware.CANcoder(cancoder_id, cancoder_bus)
-        self.module_position = module_position
 
-        # Turning Motor Configs
-        self.talonfx_configs = phoenix6.configs.TalonFXConfiguration()
-        self.talonfx_configs.closed_loop_general.continuous_wrap = True
-        self.talonfx_configs.feedback.sensor_to_mechanism_ratio = 150 / 7
-
-        # PID Configs
-        self.talonfx_configs.slot0.k_p = 20
-        self.talonfx_configs.slot0.k_i = 0 
-        self.talonfx_configs.slot0.k_d = 0
-
-        # Apply the configs to the steering motor
-        self.steering_motor.configurator.apply(self.talonfx_configs) 
-
-        # Create PID object
-        self.pid = phoenix6.controls.PositionVoltage(0).with_slot(0)
+        # Steering Motor and Driving Motor Config
+        self._configure_driving_motor()
+        self._configure_steering_motor()
 
         # Cancoder Config
         self.default_cancoder_value = default_cancoder_value
-        self._get_default_cancoder_value()
+        self._get_default_cancoder_value(module_position)
         
         # Swerve Module Configs
-        self._determine_steering_motor_offset()   
-        self.module_direction = module_direction
+        self._determine_steering_motor_offset(inverted_module)   
         self.current_angle = None
 
-    def _get_default_cancoder_value(self):
+    def _configure_driving_motor(self, inverted_module):
+        # Driving Motor Configs
+        talonfx_configs = phoenix6.configs.TalonFXConfiguration()
+        talonfx_configs.feedback.feedback_sensor_source
+        talonfx_configs.closed_loop_general.continuous_wrap = True
+        talonfx_configs.feedback.sensor_to_mechanism_ratio = 6.12
+
+        # PID Configs
+        talonfx_configs.slot0.k_s = 0.05
+        talonfx_configs.slot0.k_v = 0.12
+        talonfx_configs.slot0.k_p = 0.11
+        talonfx_configs.slot0.k_i = 0 
+        talonfx_configs.slot0.k_d = 0
+        if inverted_module:
+            talonfx_configs.motor_output.inverted = phoenix6.signals.InvertedValue.COUNTER_CLOCKWISE_POSITIVE
+
+        # Apply the configs to the driving motor
+        self.driving_motor.configurator.apply(talonfx_configs) 
+
+        # Create PID object
+        self.driving_pid = phoenix6.controls.VelocityVoltage(velocity = 0, enable_foc = False)
+
+    def _configure_steering_motor(self):
+        # Steering Motor Configs
+        talonfx_configs = phoenix6.configs.TalonFXConfiguration()
+        talonfx_configs.closed_loop_general.continuous_wrap = True
+        talonfx_configs.feedback.sensor_to_mechanism_ratio = 150 / 7
+
+        # PID Configs
+        talonfx_configs.slot0.k_p = 10
+        talonfx_configs.slot0.k_i = 0 
+        talonfx_configs.slot0.k_d = 0
+
+        # Apply the configs to the steering motor
+        self.steering_motor.configurator.apply(talonfx_configs) 
+
+        # Create PID object
+        self.steering_pid = phoenix6.controls.PositionVoltage(position = 0, enable_foc = False)
+
+    def _get_default_cancoder_value(self, module_position):
         """
-        Get the default CANcoder value from Shuffleboard.
+        Get the default CANcoder value for SwerveModule from Shuffleboard.
         """
-        self.default_cancoder_value = Shuffleboard.getTab("CANcoders").add(f"{self.module_position} Default CANcoder Value", 
-                                                                           self.default_cancoder_value).getEntry().getFloat(self.default_cancoder_value)  
+        self.default_cancoder_value = Shuffleboard.getTab("CANcoders").add(f"{module_position} Default CANcoder Value", self.default_cancoder_value).getEntry().getFloat(self.default_cancoder_value)  
 
     def _determine_steering_motor_offset(self):
         """
@@ -72,18 +96,19 @@ class SwerveModule():
 
     def reset(self):
         """
-        Reset the swerve module's main variables and set it to face forward.
+        Reset the swerve module's main variables and set it to hold its position.
         """
         self._get_default_cancoder_value()
         self._determine_steering_motor_offset()
         self.current_angle = Rotation2d.fromDegrees(0)
-        self.steering_motor.set_control(self.pid.with_position(self.steering_motor_offset)) 
+        self.driving_motor.set_control(self.driving_pid.with_velocity(0))
+        self.steering_motor.set_control(self.steering_pid.with_position(self.steering_motor_offset)) 
 
     def stop(self):
         """
         Stop the driving motor but continue to hold the last position received from the joystick.
         """
-        self.driving_motor.set_control(phoenix6.controls.DutyCycleOut(0))
+        self.driving_motor.set_control(self.driving_pid.with_velocity(0))
 
     def move(self, speed, angle):
         """
@@ -102,5 +127,5 @@ class SwerveModule():
         self.current_angle = angle
 
         # Set the motors to the desired speed and angle
-        self.driving_motor.set_control(phoenix6.controls.DutyCycleOut(desired_speed * self.module_direction))
-        self.steering_motor.set_control(self.pid.with_position(desired_position)) 
+        self.driving_motor.set_control(self.driving_pid.with_velocity(desired_speed * (100 / 6.12)))
+        self.steering_motor.set_control(self.steering_pid.with_position(desired_position)) 
