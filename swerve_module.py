@@ -110,9 +110,9 @@ class SwerveModule():
         """
         self.driving_motor.set_control(self.driving_pid.with_velocity(0))
 
-    def move(self, speed, angle):
+    def set(self, speed, angle):
         """
-        Move the Swerve Module to the desired speed and angle.
+        Set the Swerve Module to a desired speed and angle.
     
         :param speed: Desired speed of the module. Must be between 0 and 1. Use wpimath.kinematics.SwerveDrive4Kinematics.desaturateWheelSpeeds 
         to reduce desired speed to be between 0 and 1. 
