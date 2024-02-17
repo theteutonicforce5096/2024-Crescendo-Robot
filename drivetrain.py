@@ -55,7 +55,7 @@ class SwerveDrive():
         """
         # Get desired Swerve Modules' speeds and angles.
         current_robot_angle = self.get_current_robot_angle()
-        robot_speeds = 
+        robot_speeds = ChassisSpeeds(forward_speed, stafe_speed, rotation_speed)
         #ChassisSpeeds.fromFieldRelativeSpeeds(forward_speed, stafe_speed, rotation_speed, Rotation2d.fromDegrees(current_robot_angle))
         front_left_module_state, front_right_module_state, back_left_module_state, back_right_module_state = self.kinematics.desaturateWheelSpeeds(self.kinematics.toSwerveModuleStates(robot_speeds), 1)
         
