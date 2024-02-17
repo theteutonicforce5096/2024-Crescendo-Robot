@@ -42,9 +42,11 @@ class SwerveModule():
     def _configure_driving_motor(self, inverted_module):
         # Driving Motor Configs
         talonfx_configs = phoenix6.configs.TalonFXConfiguration()
-        talonfx_configs.feedback.feedback_sensor_source
         talonfx_configs.closed_loop_general.continuous_wrap = True
         talonfx_configs.feedback.sensor_to_mechanism_ratio = 6.12
+        talonfx_configs.closed_loop_ramps.voltage_closed_loop_ramp_period = 0.5
+        if inverted_module:
+            talonfx_configs.motor_output.inverted = phoenix6.signals.InvertedValue.COUNTER_CLOCKWISE_POSITIVE
 
         # PID Configs
         talonfx_configs.slot0.k_s = 0.05
@@ -52,8 +54,6 @@ class SwerveModule():
         talonfx_configs.slot0.k_p = 0.11
         talonfx_configs.slot0.k_i = 0 
         talonfx_configs.slot0.k_d = 0
-        if inverted_module:
-            talonfx_configs.motor_output.inverted = phoenix6.signals.InvertedValue.COUNTER_CLOCKWISE_POSITIVE
 
         # Apply the configs to the driving motor
         self.driving_motor.configurator.apply(talonfx_configs) 
@@ -66,6 +66,7 @@ class SwerveModule():
         talonfx_configs = phoenix6.configs.TalonFXConfiguration()
         talonfx_configs.closed_loop_general.continuous_wrap = True
         talonfx_configs.feedback.sensor_to_mechanism_ratio = 150 / 7
+        talonfx_configs.closed_loop_ramps.voltage_closed_loop_ramp_period = 0.5
 
         # PID Configs
         talonfx_configs.slot0.k_p = 10
