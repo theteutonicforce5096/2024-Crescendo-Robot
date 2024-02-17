@@ -9,36 +9,37 @@ class TeutonicForceRobot(wpilib.TimedRobot):
         self.timer = wpilib.Timer()
 
     def teleopInit(self):
-        self.raw_x = 0
-        self.raw_y = 0
-        self.rotation = 0
+        self.forward_speed = 0
+        self.strafe_speed = 0
+        self.rotation_speed = 0
         self.stop_robot = False
         self.drivetrain.reset()
         self.timer.restart()
     
     def teleopPeriodic(self):
         magnitude = self.joystick.getMagnitude() 
-        rotation = self.joystick.getZ() * -1
+        rotation_speed = self.joystick.getZ() * -1
+
         if magnitude > 0.2:
-            self.raw_x = self.joystick.getX() * -1
-            self.raw_y = self.joystick.getY() * -1
+            self.forward_speed = self.joystick.getX() * -1
+            self.strafe_speed = self.joystick.getY() * -1
         else:
-            self.raw_x = 0
-            self.raw_y = 0
+            self.forward_speed = 0
+            self.strafe_speed = 0
 
-        if fabs(rotation) > 0.2:
-            self.rotation = rotation
+        if fabs(rotation_speed) > 0.2:
+            self.rotation_speed = rotation_speed
         else:
-            self.rotation = 0
+            self.rotation_speed = 0
 
-        if self.raw_x != 0 or self.raw_y != 0 or self.rotation != 0:
-            self.drivetrain.move_robot(self.raw_x, self.raw_y, rotation) 
+        if self.forward_speed != 0 or self.strafe_speed != 0 or self.rotation_speed != 0:
+            self.drivetrain.move_robot(self.forward_speed, self.strafe_speed, rotation_speed) 
+            self.stop_robot = False
         else:
             self.stop_robot = True
 
         if self.stop_robot:
             self.drivetrain.stop_robot()
-            self.stop_robot = False
 
 if __name__ == "__main__":
     wpilib.run(TeutonicForceRobot)
