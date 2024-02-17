@@ -18,10 +18,10 @@ class SwerveDrive():
 
         # Create Kinematics object and initialize Swerve Modules
         self.kinematics = SwerveDrive4Kinematics(front_left_location, front_right_location, back_left_location, back_right_location)
-        self.front_left_module = SwerveModule("FL", 23, 13, 33, "CANivore", "CANivore", "rio", -0.002686, True)
-        self.front_right_module = SwerveModule("FR", 20, 10, 30, "CANivore", "CANivore", "rio", 0.003906, False)
-        self.back_left_module = SwerveModule("BL", 22, 12, 32, "CANivore", "CANivore", "rio", -0.476807, True)
-        self.back_right_module = SwerveModule("BR", 21, 11, 31, "CANivore", "CANivore", "rio", 0.002930, False)
+        self.front_left_module = SwerveModule("FL", 23, 13, 33, "CANivore", "CANivore", "rio", -0.002686, False)
+        self.front_right_module = SwerveModule("FR", 20, 10, 30, "CANivore", "CANivore", "rio", 0.003906, True)
+        self.back_left_module = SwerveModule("BL", 22, 12, 32, "CANivore", "CANivore", "rio", -0.476807, False)
+        self.back_right_module = SwerveModule("BR", 21, 11, 31, "CANivore", "CANivore", "rio", 0.002930, True)
 
         # Initialize Gyro
         self.gyro = navx.AHRS.create_spi()
@@ -41,7 +41,7 @@ class SwerveDrive():
         Get the current robot angle relative to the field using the gyro.
         """
         # Scale the gyro angle from -360 to 360 scale to -180 to 180 scale.
-        current_robot_angle = (round(self.gyro.getAngle(), 2) * -1) % 360
+        current_robot_angle = (self.gyro.getAngle() * -1) % 360
         if current_robot_angle > 180: 
             current_robot_angle -= 360
         elif current_robot_angle < -180:
@@ -54,9 +54,8 @@ class SwerveDrive():
         Move the robot by a forward speed, strafe speed, and rotation speed.
         """
         # Get desired Swerve Modules' speeds and angles.
-        #current_robot_angle = self.get_current_robot_angle()
-        robot_speeds = ChassisSpeeds(forward_speed, stafe_speed, rotation_speed)
-        #ChassisSpeeds.fromFieldRelativeSpeeds(forward_speed, stafe_speed, rotation_speed, Rotation2d.fromDegrees(current_robot_angle))
+        current_robot_angle = self.get_current_robot_angle()
+        robot_speeds = ChassisSpeeds.fromFieldRelativeSpeeds(forward_speed, stafe_speed, rotation_speed, Rotation2d.fromDegrees(current_robot_angle))
         front_left_module_state, front_right_module_state, back_left_module_state, back_right_module_state = self.kinematics.desaturateWheelSpeeds(self.kinematics.toSwerveModuleStates(robot_speeds), 1)
         
         # Optimize desired Swerve Modules' angles.
