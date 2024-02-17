@@ -47,7 +47,7 @@ class SwerveModule():
         talonfx_configs.feedback.sensor_to_mechanism_ratio = 6.12
         talonfx_configs.closed_loop_ramps.voltage_closed_loop_ramp_period = 0.2
         if inverted_module:
-            talonfx_configs.motor_output.inverted = phoenix6.signals.InvertedValue.COUNTER_CLOCKWISE_POSITIVE
+            talonfx_configs.motor_output.inverted = phoenix6.signals.InvertedValue.CLOCKWISE_POSITIVE
 
         # PID Configs
         talonfx_configs.slot0.k_s = 0.05
