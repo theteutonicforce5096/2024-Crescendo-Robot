@@ -41,7 +41,7 @@ class SwerveDrive():
         Get the current robot angle relative to the field using the gyro.
         """
         # Scale the gyro angle from -360 to 360 scale to -180 to 180 scale.
-        current_robot_angle = (self.gyro.getAngle() * -1) % 360
+        current_robot_angle = (round(self.gyro.getAngle(), 2) * -1) % 360
         if current_robot_angle > 180: 
             current_robot_angle -= 360
         elif current_robot_angle < -180:
