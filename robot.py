@@ -39,11 +39,11 @@ class TeutonicForceRobot(wpilib.TimedRobot):
         self.cancel_intake_timer.reset()
 
     def teleopPeriodic(self):
-        forward_speed = self.joystick.getX()
-        strafe_speed = self.joystick.getY()
+        forward_speed = self.joystick.getY()
+        strafe_speed = self.joystick.getX()
         rotation_speed = self.joystick.getZ()
         self.shooter.shooter_motor_speeds = ((self.joystick.getRawAxis(3) * -1) + 1) / 2
-        #self.shooter.shooter_motor_speeds_entry.setFloat(self.shooter.shooter_motor_speeds_entry)
+        self.shooter.shooter_motor_speeds_entry.setFloat(self.shooter.shooter_motor_speeds_entry)
 
         if forward_speed > 0.1 or forward_speed < -0.1:
             self.forward_speed = forward_speed
