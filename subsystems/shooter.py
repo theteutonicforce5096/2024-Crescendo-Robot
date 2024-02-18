@@ -1,44 +1,52 @@
-import wpilib
-import phoenix6
-import vision
-import time
-from robot import MyRobot
+import phoenix5
+from wpilib.shuffleboard import Shuffleboard
 
 class Shooter():
     def __init__(self):
-        self.shootMotor1 = phoenix6.hardware.TalonFX(1)
-        self.shootMotor2 = phoenix6.hardware.TalonFX(2) # direction reverse
-        self.elevationMotor1 = phoenix6.hardware.TalonFX(3)
-        self.elevationMotor2 = phoenix6.hardware.TalonFX(4) # direction reverse
-        self.intakeMotor = phoenix6.hardware.TalonFX(5)
+        self.intake_motor = phoenix5.VictorSPX(9)
+        self.shoot_left_motor = phoenix5.VictorSPX(8)
+        self.shoot_right_motor = phoenix5.VictorSPX(6)
+        self.arm_left = phoenix5.VictorSPX(10)
+        self.arm_right = phoenix5.VictorSPX(31)
+        self.shooter_motor_speeds = 0.5
 
-    def align(self):
-        pass
+    def reset(self):
+        self.intake_motor.set(phoenix5.ControlMode.PercentOutput, 0)
+        self.shoot_left_motor.set(phoenix5.ControlMode.PercentOutput, 0)
+        self.shoot_right_motor.set(phoenix5.ControlMode.PercentOutput, 0)
+
+    def pick_up_note(self):
+        self.intake_motor.set(phoenix5.ControlMode.PercentOutput, self.shooter_motor_speeds)
+
+    def stop_picking_up_note(self):
+        self.intake_motor.set(phoenix5.ControlMode.PercentOutput, 0)
+
+    def release_note(self):
+        self.intake_motor.set(phoenix5.ControlMode.PercentOutput, self.shooter_motor_speeds * -1)
+
+    def stop_releasing_note(self):
+        self.intake_motor.set(phoenix5.ControlMode.PercentOutput, 0)
+
+    def prime_shooter(self):
+        self.shoot_left_motor.set(phoenix5.ControlMode.PercentOutput, self.shooter_motor_speeds)
+        self.shoot_right_motor.set(phoenix5.ControlMode.PercentOutput, self.shooter_motor_speeds)
     
-    def turnIntakeOn(self):
-        self.intakeMotor.set_control(phoenix6.controls.DutyCycleOut(0.25))
+    def fire_out_note(self):
+        self.intake_motor.set(phoenix5.ControlMode.PercentOutput, self.shooter_motor_speeds)
 
-    def turnIntakeOff(self):
-        self.intakeMotor.set_control(phoenix6.controls.DutyCycleOut(0.0))
+    def stop_firing_out_note(self):
+        self.intake_motor.set(phoenix5.ControlMode.PercentOutput, 0)
+        self.shoot_left_motor.set(phoenix5.ControlMode.PercentOutput, 0)
+        self.shoot_right_motor.set(phoenix5.ControlMode.PercentOutput, 0)
 
-    def shoot(self, motorSpeed: int):
-        """
-        \"Hey Johnny, spin up those shooting motors!\"
+    # def move_arm_up(self):
+    #     self.arm_left.set(phoenix5.ControlMode.PercentOutput, -1)
+    #     self.arm_right.set(phoenix5.ControlMode.PercentOutput, 1)
 
-        :param motorSpeed: Speed of the shooting motors. The higher, the further the ring goes 👀
-        """
-        if self.isReadyToShoot():
-            self.shootMotor1.set_position(motorSpeed)
-            self.shootMotor2.set_position()
-        else:
-            time.sleep(0.01)
-            self.shoot()
+    # def move_arm_down(self):
+    #     self.arm_left.set(phoenix5.ControlMode.PercentOutput, 1)
+    #     self.arm_right.set(phoenix5.ControlMode.PercentOutput, -1)
 
-    def isReadyToShoot(self) -> bool:
-        if MyRobot.vision.hasRing():
-            if self.shootMotor1.get_acceleration() == 0:
-                return True
-            else:
-                return False
-        else:
-            return False
+    # def stop_arm(self):
+    #     self.arm_left.set(phoenix5.ControlMode.PercentOutput, 0)
+    #     self.arm_right.set(phoenix5.ControlMode.PercentOutput, 0)

@@ -3,7 +3,6 @@ import wpimath.controller
 from photonlibpy.photonCamera import PhotonCamera
 from photonlibpy.photonUtils import PhotonUtils
 from rev import ColorSensorV3
-import math
 
 class Vision():
     
