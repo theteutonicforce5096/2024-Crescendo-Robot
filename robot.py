@@ -15,15 +15,15 @@ class TeutonicForceRobot(wpilib.TimedRobot):
         self.rotation_speed = 0
 
         # Reset drivetrain and timer
+        self.drivetrain.front_left_module._configure_driving_motor()
+        self.drivetrain.front_right_module._configure_driving_motor()
+        self.drivetrain.back_left_module._configure_driving_motor()
+        self.drivetrain.back_right_module._configure_driving_motor()
+
         self.drivetrain.reset()
         self.timer.restart()
     
     def teleopPeriodic(self):
-        if self.joystick.getRawButton(11):
-            self.drivetrain.move_robot(0.5, 0, 0)
-        else:
-            self.drivetrain.stop_robot()
-            
         magnitude = self.joystick.getMagnitude() 
         rotation_speed = self.joystick.getZ()
 
