@@ -33,6 +33,3 @@ class ColorSensor():
             return self.color_sensor.getRawColor()
         else:
             return raw_color
-
-
-            

@@ -41,10 +41,10 @@ class SwerveModule():
         self.current_angle = None
 
     def _configure_driving_motor(self, inverted_module):
+        # Driving Motor Configs
         talonfx_configs = phoenix6.configs.TalonFXConfiguration()
         talonfx_configs.closed_loop_general.continuous_wrap = True
-        #talonfx_configs.feedback.sensor_to_mechanism_ratio = 6.12
-        talonfx_configs.closed_loop_ramps.voltage_closed_loop_ramp_period = 0
+        talonfx_configs.closed_loop_ramps.voltage_closed_loop_ramp_period = 0.25
         if inverted_module:
             talonfx_configs.motor_output.inverted = phoenix6.signals.InvertedValue.CLOCKWISE_POSITIVE
 
@@ -68,8 +68,8 @@ class SwerveModule():
         talonfx_configs.feedback.sensor_to_mechanism_ratio = 150 / 7
 
         # PID Configs
-        talonfx_configs.slot0.k_p = 35
-        talonfx_configs.slot0.k_i = 0 
+        talonfx_configs.slot0.k_p = 50
+        talonfx_configs.slot0.k_i = 0
         talonfx_configs.slot0.k_d = 0
 
         # Apply the configs to the steering motor
@@ -101,7 +101,7 @@ class SwerveModule():
         self._get_default_cancoder_value()
         self._determine_steering_motor_offset()
         self.current_angle = Rotation2d.fromDegrees(0)
-        #self.driving_motor.set_control(self.driving_pid.with_velocity(0))
+        self.driving_motor.set_control(self.driving_pid.with_velocity(0))
         self.steering_motor.set_control(self.steering_pid.with_position(self.steering_motor_offset)) 
 
     def stop(self):
@@ -127,5 +127,5 @@ class SwerveModule():
         self.current_angle = angle
 
         # Set the motors to the desired speed and angle
-        self.driving_motor.set_control(self.driving_pid.with_velocity(desired_speed * 100)) #(100 / 6.12)))
+        self.driving_motor.set_control(self.driving_pid.with_velocity(desired_speed * 100))
         self.steering_motor.set_control(self.steering_pid.with_position(desired_position)) 
