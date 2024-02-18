@@ -18,7 +18,8 @@ class ColorSensor():
         Check for a ring in the robot.
         """
         self.raw_color = self.colorSensor.getRawColor()
-        if self.raw_color.red > 50 and self.raw_color.green > 50 and self.raw_color.blue > 50:
+        print(self.raw_color.red, self.raw_color.green, self.raw_color.blue)
+        if self.raw_color.blue > 130:
             return True
         else:
             return False
