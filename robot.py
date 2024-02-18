@@ -2,9 +2,14 @@ import wpilib
 from subsystems.drivetrain import SwerveDrive
 from subsystems.shooter import Shooter
 from subsystems.color_sensor import ColorSensor
+from magicbot import MagicRobot
+import wpilib
+import wpilib.drive
+import autonomous
+from robotpy_ext.autonomous.selector import AutonomousModeSelector
 
-class TeutonicForceRobot(wpilib.TimedRobot):
-    def robotInit(self):
+class TeutonicForceRobot(MagicRobot):
+    def createObjects(self):
         self.drivetrain = SwerveDrive()
         self.shooter = Shooter()
         self.color_sensor = ColorSensor()
@@ -19,8 +24,8 @@ class TeutonicForceRobot(wpilib.TimedRobot):
         self.drivetrain.reset_drivetrain()
         self.drivetrain.reset_gyro()
 
-    def autonomousPeriodic(self):
-        pass
+    def autonomous(self):
+        super().autonomous()
 
     def teleopInit(self):
         # Default speeds
