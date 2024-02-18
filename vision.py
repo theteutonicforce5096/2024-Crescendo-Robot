@@ -5,10 +5,9 @@ from photonlibpy.photonUtils import PhotonUtils
 from rev import ColorSensorV3
 import math
 
-
 class Vision():
     
-    def __init__(self, camera: str, colorSensor: wpilib.I2C.Port):
+    def __init__(self, inFrontCamera: str, inBackCamera: str, colorSensor: wpilib.I2C.Port):
         """
         Initializer for the Vision module.
 
@@ -18,7 +17,8 @@ class Vision():
         :type colorSensor: Port
         """
         self.colorSensor = ColorSensorV3(colorSensor)
-        self.cam = PhotonCamera(camera)
+        self.frontCamera = PhotonCamera(inFrontCamera)
+        self.backCamera = PhotonCamera(inBackCamera)
         self.rotationPID = wpimath.controller.PIDController(0.0, 0, 0.1)
         self.movementPID = wpimath.controller.PIDController(0.1, 0, 0.0)
 
@@ -32,7 +32,7 @@ class Vision():
         wpilib.SmartDashboard.putNumber("Raw Red", self.rawDetectColor.red)
         wpilib.SmartDashboard.putNumber("Raw Green", self.rawDetectColor.green)
         wpilib.SmartDashboard.putNumber("Raw Blue", self.rawDetectColor.blue)
-    
+
     def hasRing(self) -> bool:
         """
         Check for a ring in the robot.
