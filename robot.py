@@ -19,7 +19,11 @@ class TeutonicForceRobot(wpilib.TimedRobot):
         self.timer.restart()
     
     def teleopPeriodic(self):
-        print(round(self.drivetrain.get_current_robot_angle(), 2))
+        if self.joystick.getRawButton(11):
+            self.drivetrain.move_robot(0.5, 0, 0)
+        else:
+            self.drivetrain.stop_robot()
+            
         magnitude = self.joystick.getMagnitude() 
         rotation_speed = self.joystick.getZ()
 
