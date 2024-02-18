@@ -1,6 +1,6 @@
 from .base_auto import BaseAuto
 from magicbot.state_machine import state, timed_state, AutonomousStateMachine
-from ..drivetrain import SwerveDrive
+from ..subsystems.drivetrain import SwerveDrive
 
 
 class Move(BaseAuto):
