@@ -19,7 +19,7 @@ class ColorSensor():
         """
         self.raw_color = self.colorSensor.getRawColor()
         print(self.raw_color.red, self.raw_color.green, self.raw_color.blue)
-        if self.raw_color.blue > 130:
+        if self.raw_color.blue > 120:
             return True
         else:
             return False

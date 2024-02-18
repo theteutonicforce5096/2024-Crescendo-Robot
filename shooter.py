@@ -15,7 +15,7 @@ class Shooter():
         self.intake_motor.set(phoenix5.ControlMode.PercentOutput, 0)
 
     def release_note(self):
-        self.intake_motor.set(phoenix5.ControlMode.PercentOutput, 0.2)
+        self.intake_motor.set(phoenix5.ControlMode.PercentOutput, -0.5)
 
     def stop_releasing_note(self):
         self.intake_motor.set(phoenix5.ControlMode.PercentOutput, 0)
