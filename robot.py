@@ -7,6 +7,7 @@ import wpilib
 import wpilib.drive
 import autonomous
 from robotpy_ext.autonomous.selector import AutonomousModeSelector
+from .subsystems.drive_controller import DriveController
 
 class TeutonicForceRobot(MagicRobot):
     def createObjects(self):
@@ -19,6 +20,7 @@ class TeutonicForceRobot(MagicRobot):
         self.timer = wpilib.Timer()
         self.shoot_timer = wpilib.Timer()
         self.cancel_intake_timer = wpilib.Timer()
+        self.drivecontrol = DriveController()
 
     def autonomousInit(self):
         self.drivetrain.reset_drivetrain()
@@ -63,6 +65,13 @@ class TeutonicForceRobot(MagicRobot):
             self.rotation_speed = rotation_speed 
         else:
             self.rotation_speed = 0
+
+        # if self.joystick.getRawButton(0):
+        #     self.forward_speed, self.rotation_speed = self.drivecontrol.alignToAmp()
+
+        # if self.joystick.getRawButton(0):
+        #     self.rotation_speed = self.drivecontrol.alignToSpeaker()
+
 
         if self.forward_speed != 0 or self.strafe_speed != 0 or self.rotation_speed != 0:
             self.drivetrain.move_robot(self.forward_speed, self.strafe_speed, self.rotation_speed) 
