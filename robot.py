@@ -21,6 +21,7 @@ class MyRobot(MagicRobot):
     def teleopInit(self):
         self.vision = vision.Vision("main", wpilib.I2C.Port.kMXP)
         self.controller = wpilib.XboxController(0)
+        self.shooter = subsystems.shooter.Shooter()
 
     # def teleopPeriodic(self):
     #     self.proximity = self.colorSensor.getProximity()
@@ -70,10 +71,10 @@ class MyRobot(MagicRobot):
         wpilib.SmartDashboard.putNumber("rotationSpeed", rotationSpeed)
         #send da commands to da drivetrain
         
-        if joystick.getRawButton(5):
-            turnIntakeOn()
+        if self.joystick.getRawButton(5):
+            self.shooter.turnIntakeOn()
         else:
-            turnIntakeOff()
+            self.shooter.turnIntakeOff()
 
     def autonomousInit(self):
         pass

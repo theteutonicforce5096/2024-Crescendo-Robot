@@ -1,6 +1,7 @@
 import wpilib
 import wpimath.controller
-from photonlibpy import photonCamera, photonUtils
+from photonlibpy.photonCamera import PhotonCamera
+from photonlibpy.photonUtils import PhotonUtils
 from rev import ColorSensorV3
 import math
 
@@ -17,7 +18,7 @@ class Vision():
         :type colorSensor: Port
         """
         self.colorSensor = ColorSensorV3(colorSensor)
-        self.cam = photonCamera.PhotonCamera(camera)
+        self.cam = PhotonCamera(camera)
         self.rotationPID = wpimath.controller.PIDController(0.0, 0, 0.1)
         self.movementPID = wpimath.controller.PIDController(0.1, 0, 0.0)
 
@@ -61,27 +62,27 @@ class Vision():
         """
         rotationSpeed = 0
         self.result = self.cam.getLatestResult()
-        if self.result.hasTargets() == True:
-            self.targets = self.result.getTargets()
-            self.bestTarget = self.result.getBestTarget()
-            wpimath.objectToRobotPose(self.bestTarget)
-            self.yaw = self.bestTarget.getYaw()
-            wpilib.SmartDashboard.putNumber("Target ID", self.bestTarget.fiducialId)
-            cameraHeightMeters = 0
-            targetHeightMeters = 0
-            cameraPitch = math.radians(0)
-            if self.bestTarget.fiducialId == target:
-                rotationSpeed = self.rotationPID.calculate(self.yaw, 0)
-                range = photonUtils.PhotonUtils.calculateDistanceToTargetMeters(cameraHeightMeters, targetHeightMeters, cameraPitch, (math.radians(self.bestTarget.getPitch())))
-                forwardSpeed = self.movementPID.calculate(range, 0.5)
-                if not forwardSpeed and not rotationSpeed:
-                    rotationSpeed = 0.0
-                    forwardSpeed = 0.0
-            else:
-                rotationSpeed = 0.0
-                forwardSpeed = 0.0
-        else:
-            rotationSpeed = 0.0
-            forwardSpeed = 0.0
-        return [forwardSpeed, rotationSpeed]
+        # if self.result.hasTargets() == True:
+        #     self.targets = self.result.getTargets()
+        #     self.bestTarget = self.result.getBestTarget()
+        #     self.pose = wpimath.objectToRobotPose(self.bestTarget)
+        #     self.yaw = self.bestTarget.getYaw()
+        #     wpilib.SmartDashboard.putNumber("Target ID", self.bestTarget.fiducialId)
+        #     cameraHeightMeters = 0
+        #     targetHeightMeters = 0
+        #     cameraPitch = math.radians(0)
+        #     if self.bestTarget.fiducialId == target:
+        #         rotationSpeed = self.rotationPID.calculate(self.yaw, 0)
+        #         range = photonUtils.PhotonUtils.calculateDistanceToTargetMeters(cameraHeightMeters, targetHeightMeters, cameraPitch, (math.radians(self.bestTarget.getPitch())))
+        #         forwardSpeed = self.movementPID.calculate(range, 0.5)
+        #         if not forwardSpeed and not rotationSpeed:
+        #             rotationSpeed = 0.0
+        #             forwardSpeed = 0.0
+        #     else:
+        #         rotationSpeed = 0.0
+        #         forwardSpeed = 0.0
+        # else:
+        #     rotationSpeed = 0.0
+        #     forwardSpeed = 0.0
+        # return [forwardSpeed, rotationSpeed]
             
