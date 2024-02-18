@@ -77,21 +77,21 @@ class TeutonicForceRobot(wpilib.TimedRobot):
                 if self.cancel_intake_timer.hasElapsed(0.1):
                     self.shooter.stop_releasing_note()
                     self.cancel_intake_timer.reset()
-                
+                    self.shooter_state = "Load"
             case "Load":
                 if self.joystick.getRawButtonPressed(1):
                     self.shooter.prime_shooter()
                     self.shoot_timer.restart()
                     self.shooter_state = "Arm"
-                elif self.joystick.getRawButtonPressed(2):
-                    self.shooter.release_note()
-                    self.shooter_state = "Releasing"
-            case "Releasing":
-                if not self.color_sensor.has_ring():
-                    self.shooter.stop_releasing_note()
-                    self.shooter_state = "Idle"
+            #     elif self.joystick.getRawButtonPressed(2):
+            #         self.shooter.release_note()
+            #         self.shooter_state = "Releasing"
+            # case "Releasing":
+            #     if not self.color_sensor.has_ring():
+            #         self.shooter.stop_releasing_note()
+            #         self.shooter_state = "Idle"
             case "Arm":
-                if self.shoot_timer.hasElapsed(3):
+                if self.shoot_timer.hasElapsed(2.5):
                     if self.joystick.getRawButtonPressed(1):
                         self.shooter.fire_out_note()
                         self.shoot_timer.restart()
