@@ -17,10 +17,16 @@ class ColorSensor():
         """
         Check for a ring in the robot.
         """
-        self.raw_color = self.colorSensor.getRawColor()
-        print(self.raw_color.red, self.raw_color.green, self.raw_color.blue)
-        if self.raw_color.blue > 120:
+        raw_color = self.colorSensor.getRawColor()
+        self.check_if_disconnected(raw_color)
+        print(raw_color.red, raw_color.green, raw_color.blue)
+        if raw_color.blue > 130:
             return True
         else:
             return False
+        
+    def check_if_disconnected(self, raw_color):
+        if raw_color.red == 0 and raw_color.green == 0 and raw_color.blue == 0:
+            self.color_sensor = ColorSensorV3(I2C.Port.kMXP)
+
             
