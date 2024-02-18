@@ -67,10 +67,10 @@ class SwerveModule():
         talonfx_configs = phoenix6.configs.TalonFXConfiguration()
         talonfx_configs.closed_loop_general.continuous_wrap = True
         talonfx_configs.feedback.sensor_to_mechanism_ratio = 150 / 7
-        talonfx_configs.closed_loop_ramps.voltage_closed_loop_ramp_period = 0.2
+        #talonfx_configs.closed_loop_ramps.voltage_closed_loop_ramp_period = 0.2
 
         # PID Configs
-        talonfx_configs.slot0.k_p = 10
+        talonfx_configs.slot0.k_p = 15
         talonfx_configs.slot0.k_i = 0 
         talonfx_configs.slot0.k_d = 0
 

@@ -24,8 +24,8 @@ class TeutonicForceRobot(wpilib.TimedRobot):
         rotation_speed = self.joystick.getZ()
 
         if magnitude > 0.2:
-            self.forward_speed = self.joystick.getX() * -1
-            self.strafe_speed = self.joystick.getY() * -1
+            self.forward_speed = self.joystick.getX()
+            self.strafe_speed = self.joystick.getY() 
         else:
             self.forward_speed = 0
             self.strafe_speed = 0

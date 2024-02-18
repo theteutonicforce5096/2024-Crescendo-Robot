@@ -65,10 +65,10 @@ class SwerveDrive():
         back_right_module_state = back_right_module_state.optimize(back_right_module_state, self.back_right_module.current_angle)
 
         # Set the Swerve Modules to the desired speeds and angles.
-        self.front_left_module.set(front_left_module_state.speed / 2, front_left_module_state.angle)
-        self.front_right_module.set(front_right_module_state.speed / 2, front_right_module_state.angle)
-        self.back_left_module.set(back_left_module_state.speed / 2, back_left_module_state.angle)
-        self.back_right_module.set(back_right_module_state.speed / 2, back_right_module_state.angle)
+        self.front_left_module.set(front_left_module_state.speed * 0.75, front_left_module_state.angle)
+        self.front_right_module.set(front_right_module_state.speed * 0.75, front_right_module_state.angle)
+        self.back_left_module.set(back_left_module_state.speed * 0.75, back_left_module_state.angle)
+        self.back_right_module.set(back_right_module_state.speed * 0.75, back_right_module_state.angle)
 
     def stop_robot(self):
         """
