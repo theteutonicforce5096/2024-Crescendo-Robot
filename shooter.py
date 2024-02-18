@@ -39,3 +39,7 @@ class Shooter():
     def move_arm_down(self):
         self.arm_left.set(phoenix5.ControlMode.PercentOutput, 0.6)
         self.arm_right.set(phoenix5.ControlMode.PercentOutput, -0.6)
+
+    def stop_arm(self):
+        self.arm_left.set(phoenix5.ControlMode.PercentOutput, 0)
+        self.arm_right.set(phoenix5.ControlMode.PercentOutput, 0)
