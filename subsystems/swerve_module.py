@@ -101,7 +101,7 @@ class SwerveModule():
         self._get_default_cancoder_value()
         self._determine_steering_motor_offset()
         self.current_angle = Rotation2d.fromDegrees(0)
-        #self.driving_motor.set_control(self.driving_pid.with_velocity(0))
+        self.driving_motor.set_control(self.driving_pid.with_velocity(0))
         self.steering_motor.set_control(self.steering_pid.with_position(self.steering_motor_offset)) 
 
     def stop(self):

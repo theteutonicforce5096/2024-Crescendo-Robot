@@ -26,14 +26,19 @@ class SwerveDrive():
         # Initialize Gyro
         self.gyro = navx.AHRS.create_spi()
 
-    def reset(self):
+    def reset_drivetrain(self):
         """
-        Reset Swerve Modules and Gyro.
+        Reset Swerve Modules.
         """
         self.front_left_module.reset()
         self.front_right_module.reset()
         self.back_left_module.reset()
         self.back_right_module.reset()
+
+    def reset_gyro(self):
+        """
+        Reset gyro.
+        """
         self.gyro.reset()
 
     def get_current_robot_angle(self):
@@ -49,13 +54,13 @@ class SwerveDrive():
 
         return current_robot_angle
 
-    def move_robot(self, forward_speed, stafe_speed, rotation_speed):
+    def move_robot(self, forward_speed, strafe_speed, rotation_speed):
         """
         Move the robot by a forward speed, strafe speed, and rotation speed.
         """
         # Get desired Swerve Modules' speeds and angles.
         current_robot_angle = self.get_current_robot_angle()
-        robot_speeds = ChassisSpeeds.fromFieldRelativeSpeeds(stafe_speed, forward_speed, rotation_speed, Rotation2d.fromDegrees(current_robot_angle))
+        robot_speeds = ChassisSpeeds.fromFieldRelativeSpeeds(strafe_speed, forward_speed, rotation_speed, Rotation2d.fromDegrees(current_robot_angle))
         front_left_module_state, front_right_module_state, back_left_module_state, back_right_module_state = self.kinematics.desaturateWheelSpeeds(self.kinematics.toSwerveModuleStates(robot_speeds), 1)
         
         # Optimize desired Swerve Modules' angles.
