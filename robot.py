@@ -14,12 +14,6 @@ class TeutonicForceRobot(wpilib.TimedRobot):
         self.strafe_speed = 0
         self.rotation_speed = 0
 
-        # Reset drivetrain and timer
-        self.drivetrain.front_left_module._configure_driving_motor()
-        self.drivetrain.front_right_module._configure_driving_motor()
-        self.drivetrain.back_left_module._configure_driving_motor()
-        self.drivetrain.back_right_module._configure_driving_motor()
-
         self.drivetrain.reset()
         self.timer.restart()
     

@@ -42,19 +42,16 @@ class SwerveModule():
 
     def _configure_driving_motor(self, inverted_module):
         # Driving Motor Configs
-        self.p = Shuffleboard.getTab("PID").add(f"P", 0).getEntry().getFloat(0)  
-        self.ramp = Shuffleboard.getTab("PID").add(f"Ramp Period", 0).getEntry().getFloat(0)
-
         talonfx_configs = phoenix6.configs.TalonFXConfiguration()
         talonfx_configs.closed_loop_general.continuous_wrap = True
-        talonfx_configs.closed_loop_ramps.voltage_closed_loop_ramp_period = self.ramp
+        talonfx_configs.closed_loop_ramps.voltage_closed_loop_ramp_period = 0.25
         if inverted_module:
             talonfx_configs.motor_output.inverted = phoenix6.signals.InvertedValue.CLOCKWISE_POSITIVE
 
         # PID Configs
         talonfx_configs.slot0.k_s = 0.05
         talonfx_configs.slot0.k_v = 0.12
-        talonfx_configs.slot0.k_p = self.p
+        talonfx_configs.slot0.k_p = 0.11
         talonfx_configs.slot0.k_i = 0 
         talonfx_configs.slot0.k_d = 0
 
@@ -72,7 +69,7 @@ class SwerveModule():
 
         # PID Configs
         talonfx_configs.slot0.k_p = 50
-        talonfx_configs.slot0.k_i = 0 
+        talonfx_configs.slot0.k_i = 0
         talonfx_configs.slot0.k_d = 0
 
         # Apply the configs to the steering motor
