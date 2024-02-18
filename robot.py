@@ -1,11 +1,12 @@
 import wpilib
-from drivetrain import SwerveDrive
+from subsystems.drivetrain import SwerveDrive
 from math import fabs
 
 class TeutonicForceRobot(wpilib.TimedRobot):
     def robotInit(self):
         self.drivetrain = SwerveDrive()
         self.joystick = wpilib.Joystick(0)
+        self.controller = wpilib.XboxController(1)
         self.timer = wpilib.Timer()
 
     def teleopInit(self):

@@ -3,7 +3,6 @@ import wpimath.controller
 from photonlibpy import photonCamera
 from rev import ColorSensorV3
 
-
 class Vision():
     
     def __init__(self, camera: str, colorSensor: wpilib.I2C.Port):
