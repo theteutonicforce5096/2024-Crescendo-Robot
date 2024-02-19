@@ -22,10 +22,10 @@ class Shooter():
     def stop_picking_up_note(self):
         self.intake_motor.set(phoenix5.ControlMode.PercentOutput, 0)
 
-    def release_note(self):
+    def drop_everything(self):
         self.intake_motor.set(phoenix5.ControlMode.PercentOutput, self.shooter_motor_speeds * -1)
 
-    def stop_releasing_note(self):
+    def stop_dropping_everything(self):
         self.intake_motor.set(phoenix5.ControlMode.PercentOutput, 0)
 
     def prime_shooter(self):
@@ -34,11 +34,6 @@ class Shooter():
     
     def fire_out_note(self):
         self.intake_motor.set(phoenix5.ControlMode.PercentOutput, self.shooter_motor_speeds)
-
-    def stop_firing_out_note(self):
-        self.intake_motor.set(phoenix5.ControlMode.PercentOutput, 0)
-        self.shoot_left_motor.set(phoenix5.ControlMode.PercentOutput, 0)
-        self.shoot_right_motor.set(phoenix5.ControlMode.PercentOutput, 0)
 
     # def move_arm_up(self):
     #     self.arm_left.set(phoenix5.ControlMode.PercentOutput, -1)

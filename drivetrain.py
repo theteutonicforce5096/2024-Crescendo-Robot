@@ -1,8 +1,8 @@
 from wpimath.geometry import Translation2d, Rotation2d
 from wpimath.kinematics import SwerveDrive4Kinematics, ChassisSpeeds
 from swerve_module import SwerveModule
-import navx
-    
+import navx 
+
 class SwerveDrive():
     """Class for controlling swerve drive on robot."""
 
@@ -26,6 +26,9 @@ class SwerveDrive():
         # Initialize Gyro
         self.gyro = navx.AHRS.create_spi()
 
+        # Drivetrain speed multiplier
+        self.drivetrain_speed = 0.5
+
     def reset_drivetrain(self):
         """
         Reset Swerve Modules.
@@ -37,9 +40,15 @@ class SwerveDrive():
 
     def reset_gyro(self):
         """
-        Reset gyro.
+        Reset Swerve Modules.
         """
         self.gyro.reset()
+
+    def change_drivetrain_speed(self, desired_speed):
+        """
+        Set drivetrain to desired speed.
+        """
+        self.drivetrain_speed = desired_speed
 
     def get_current_robot_angle(self):
         """
@@ -70,10 +79,10 @@ class SwerveDrive():
         back_right_module_state = back_right_module_state.optimize(back_right_module_state, self.back_right_module.current_angle)
 
         # Set the Swerve Modules to the desired speeds and angles.
-        self.front_left_module.set(front_left_module_state.speed * 0.75, front_left_module_state.angle)
-        self.front_right_module.set(front_right_module_state.speed * 0.75, front_right_module_state.angle)
-        self.back_left_module.set(back_left_module_state.speed * 0.75, back_left_module_state.angle)
-        self.back_right_module.set(back_right_module_state.speed * 0.75, back_right_module_state.angle)
+        self.front_left_module.set(front_left_module_state.speed * self.drivetrain_speed, front_left_module_state.angle)
+        self.front_right_module.set(front_right_module_state.speed * self.drivetrain_speed, front_right_module_state.angle)
+        self.back_left_module.set(back_left_module_state.speed * self.drivetrain_speed, back_left_module_state.angle)
+        self.back_right_module.set(back_right_module_state.speed * self.drivetrain_speed, back_right_module_state.angle)
 
     def stop_robot(self):
         """

@@ -15,7 +15,7 @@ class ColorSensor():
         self.color_sensor = ColorSensorV3(I2C.Port.kMXP)
         self.rgb_entry = Shuffleboard.getTab("ColorSensor").add(f"Color Sensor RGB", "0, 0, 0").getEntry()
     
-    def has_ring(self):
+    def detects_ring(self):
         """
         Check for a ring in the robot.
         """
