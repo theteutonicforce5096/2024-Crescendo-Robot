@@ -16,7 +16,18 @@ class TeutonicForceRobot(wpilib.TimedRobot):
         self.prime_shooter_timer = wpilib.Timer()
         self.shoot_timer = wpilib.Timer()
 
+        # Custom Variables
+        self.shooter_state = "Idle"
+        self.forward_speed = 0
+        self.strafe_speed = 0
+        self.rotation_speed = 0
+
     def autonomousInit(self):
+        self.timer.restart()
+        self.drop_timer.reset()
+        self.prime_shooter_timer.reset()
+        self.shoot_timer.reset()        
+        
         self.drivetrain.reset_drivetrain()
         self.drivetrain.reset_gyro()
 
@@ -24,21 +35,20 @@ class TeutonicForceRobot(wpilib.TimedRobot):
         pass
 
     def teleopInit(self):
-        # Default speeds
-        self.forward_speed = 0
-        self.strafe_speed = 0
-        self.rotation_speed = 0
-
-        self.drivetrain.reset_drivetrain()
-        self.drivetrain.reset_gyro()
-        self.shooter.reset()
-        
-        self.shooter_state = "Idle"
-        
         self.timer.restart()
         self.drop_timer.reset()
         self.prime_shooter_timer.reset()
         self.shoot_timer.reset()
+
+        # Reset Custom Variables
+        self.forward_speed = 0
+        self.strafe_speed = 0
+        self.rotation_speed = 0
+        self.shooter_state = "Idle"
+
+        self.drivetrain.reset_drivetrain()
+        self.drivetrain.reset_gyro()
+        self.shooter.reset()
 
     def teleopPeriodic(self):
         forward_speed = self.controller.getLeftY()
