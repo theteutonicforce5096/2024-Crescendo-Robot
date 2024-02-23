@@ -61,23 +61,23 @@ class DriveController():
             rotationSpeed = 0.0
             forwardSpeed = 0.0
         return [forwardSpeed, rotationSpeed]
-    # def alignToLoadingStation(self):
-    #     if wpilib.DriverStation.getAlliance() == wpilib.DriverStation.Alliance.kBlue:
-    #         tag = 2
-    #     else:
-    #         tag = 10
-    #     self.result = self.frontCam.getLatestResult()
-    #     if self.result.hasTargets() == True:
-    #         self.targets = self.result.getTargets()
-    #         self.bestTarget = self.result.getBestTarget()
-    #         self.yaw = self.bestTarget.getYaw()
-    #         wpilib.SmartDashboard.putNumber("Target ID", self.bestTarget.fiducialId)
-    #         if self.bestTarget.fiducialId == tag:
-    #             rotationSpeed = self.rotationPID.calculate(self.yaw, 0)
-    #             if not rotationSpeed:
-    #                 rotationSpeed = 0.0
-    #         else:
-    #             rotationSpeed = 0.0
-    #     else:
-    #         rotationSpeed = 0.0
-    #     return rotationSpeed
+    def alignToLoadingStation(self):
+        if wpilib.DriverStation.getAlliance() == wpilib.DriverStation.Alliance.kBlue:
+            tag = 2
+        else:
+            tag = 10
+        self.result = self.frontCam.getLatestResult()
+        if self.result.hasTargets() == True:
+            self.targets = self.result.getTargets()
+            self.bestTarget = self.result.getBestTarget()
+            self.yaw = self.bestTarget.getYaw()
+            wpilib.SmartDashboard.putNumber("Target ID", self.bestTarget.fiducialId)
+            if self.bestTarget.fiducialId == tag:
+                rotationSpeed = self.rotationPID.calculate(self.yaw, 0)
+                if not rotationSpeed:
+                    rotationSpeed = 0.0
+            else:
+                rotationSpeed = 0.0
+        else:
+            rotationSpeed = 0.0
+        return rotationSpeed
