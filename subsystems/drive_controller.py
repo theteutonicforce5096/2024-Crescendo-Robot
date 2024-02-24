@@ -5,7 +5,9 @@ import math
 from photonlibpy import photonCamera, photonUtils
 
 class DriveController():
-    def __init__(self):
+    def __init__(self, inFrontCamera: str, inBackCamera: str):
+        self.frontCamera = photonCamera(inFrontCamera)
+        self.backCamera = photonCamera(inBackCamera)
         self.frontCam = photonCamera.PhotonCamera('frontCamera')
         self.backCam = photonCamera.PhotonCamera('backCamera')
         self.rotationPID = wpimath.controller.PIDController(0.0, 0, 0.1)

@@ -1,9 +1,10 @@
 import wpilib
 import wpimath.controller
-from photonlibpy.photonCamera import PhotonCamera
-from photonlibpy.photonUtils import PhotonUtils
+from photonlibpy import photonCamera, photonUtils
 from rev import ColorSensorV3
 import math
+import wpimath
+import robot
 
 class Vision():
     
@@ -17,8 +18,8 @@ class Vision():
         :type colorSensor: Port
         """
         self.colorSensor = ColorSensorV3(colorSensor)
-        self.frontCamera = PhotonCamera(inFrontCamera)
-        self.backCamera = PhotonCamera(inBackCamera)
+        self.frontCamera = photonCamera(inFrontCamera)
+        self.backCamera = photonCamera(inBackCamera)
         self.rotationPID = wpimath.controller.PIDController(0.0, 0, 0.1)
         self.movementPID = wpimath.controller.PIDController(0.1, 0, 0.0)
 
@@ -73,7 +74,7 @@ class Vision():
             cameraPitch = math.radians(0)
             if self.bestTarget.fiducialId == target:
                 rotationSpeed = self.rotationPID.calculate(self.yaw, 0)
-                range = PhotonUtils.PhotonUtils.calculateDistanceToTargetMeters(cameraHeightMeters, targetHeightMeters, cameraPitch, (math.radians(self.bestTarget.getPitch())))
+                range = photonUtils.PhotonUtils.calculateDistanceToTargetMeters(cameraHeightMeters, targetHeightMeters, cameraPitch, (math.radians(self.bestTarget.getPitch())))
                 forwardSpeed = self.movementPID.calculate(range, 0.5)
                 if not forwardSpeed and not rotationSpeed:
                     rotationSpeed = 0.0
@@ -85,4 +86,10 @@ class Vision():
             rotationSpeed = 0.0
             forwardSpeed = 0.0
         return [forwardSpeed, rotationSpeed]
-            
+
+    def SpeakerDistance(self):
+        if wpilib.DriverStation.getAlliance() == wpilib.DriverStation.kBlue:
+            tag = 7
+        else:
+            tag = 4
+        self.speakerDistance = photonUtils.PhotonUtils.calculateDistanceToTargetMeters(self.backCamera)
