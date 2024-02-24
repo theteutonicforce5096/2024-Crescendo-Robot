@@ -5,9 +5,9 @@ import wpilib
 from robotpy_apriltag import AprilTagFieldLayout
 from wpimath.geometry import Transform3d, Pose3d, Pose2d
 
-from .photonPipelineResult import PhotonPipelineResult
-from .photonCamera import PhotonCamera
-from .estimatedRobotPose import EstimatedRobotPose
+from photonlibpy.photonPipelineResult import PhotonPipelineResult
+from photonlibpy.photonCamera import PhotonCamera
+from photonlibpy.estimatedRobotPose import EstimatedRobotPose
 
 
 class PoseStrategy(enum.Enum):
