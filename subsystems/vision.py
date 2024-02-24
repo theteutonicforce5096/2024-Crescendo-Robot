@@ -3,6 +3,7 @@ import wpimath.controller
 from photonlibpy.photonCamera import PhotonCamera
 from photonlibpy.photonUtils import PhotonUtils
 from rev import ColorSensorV3
+import math
 
 class Vision():
     
@@ -72,7 +73,7 @@ class Vision():
             cameraPitch = math.radians(0)
             if self.bestTarget.fiducialId == target:
                 rotationSpeed = self.rotationPID.calculate(self.yaw, 0)
-                range = photonUtils.PhotonUtils.calculateDistanceToTargetMeters(cameraHeightMeters, targetHeightMeters, cameraPitch, (math.radians(self.bestTarget.getPitch())))
+                range = PhotonUtils.PhotonUtils.calculateDistanceToTargetMeters(cameraHeightMeters, targetHeightMeters, cameraPitch, (math.radians(self.bestTarget.getPitch())))
                 forwardSpeed = self.movementPID.calculate(range, 0.5)
                 if not forwardSpeed and not rotationSpeed:
                     rotationSpeed = 0.0
