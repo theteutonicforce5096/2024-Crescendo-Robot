@@ -1,13 +1,13 @@
-from .base_auto import BaseAuto
+from autonomous.base_auto import BaseAuto
 from magicbot.state_machine import state, timed_state, AutonomousStateMachine
-from ..subsystems.drivetrain import SwerveDrive
+from subsystems.drivetrain import SwerveDrive
 
 
 class Move(BaseAuto):
-    MODE_NAME = "Move Out Of Box",
+    MODE_NAME = "Move Out Of Box"
     DEFAULT = True
 
-    drivetrain: SwerveDrive
+    drivetrain = SwerveDrive()
 
     @timed_state(duration=2, first=True)
     def moooooove(self):

@@ -1,6 +1,6 @@
 from wpimath.geometry import Translation2d, Rotation2d
 from wpimath.kinematics import SwerveDrive4Kinematics, ChassisSpeeds
-from swerve_module import SwerveModule
+from subsystems.swerve_module import SwerveModule
 import navx
     
 class SwerveDrive():

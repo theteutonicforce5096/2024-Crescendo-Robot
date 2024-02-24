@@ -7,7 +7,7 @@ import wpilib
 import wpilib.drive
 import autonomous
 from robotpy_ext.autonomous.selector import AutonomousModeSelector
-from .subsystems.drive_controller import DriveController
+from subsystems.drive_controller import DriveController
 
 class TeutonicForceRobot(MagicRobot):
     def createObjects(self):
@@ -25,9 +25,6 @@ class TeutonicForceRobot(MagicRobot):
     def autonomousInit(self):
         self.drivetrain.reset_drivetrain()
         self.drivetrain.reset_gyro()
-
-    def autonomous(self):
-        super().autonomous()
 
     def teleopInit(self):
         # Default speeds
