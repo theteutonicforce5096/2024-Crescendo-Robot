@@ -2,19 +2,19 @@ import phoenix5
 from wpilib.shuffleboard import Shuffleboard
 
 class Shooter():
-    def __init__(self):
-        self.intake_motor = phoenix5.VictorSPX(9)
-        self.shoot_left_motor = phoenix5.VictorSPX(8)
-        self.shoot_right_motor = phoenix5.VictorSPX(6)
-        self.arm_left = phoenix5.VictorSPX(10)
-        self.arm_right = phoenix5.VictorSPX(31)
-        self.shooter_motor_speeds = 1
-        self.shooter_motor_speeds_entry = Shuffleboard.getTab("Drivers").add(f"Shooters Motor Speed", self.shooter_motor_speeds).getEntry()
+    def __init__(self, intake_motor_id, shooter_left_motor_id, shooter_right_motor_id, arm_left_motor_id, arm_right_motor_id):
+        self.intake_motor = phoenix5.VictorSPX(intake_motor_id)
+        self.shooter_left_motor = phoenix5.VictorSPX(shooter_left_motor_id)
+        self.shooter_right_motor = phoenix5.VictorSPX(shooter_right_motor_id)
+        self.arm_left_motor = phoenix5.VictorSPX(arm_left_motor_id)
+        self.arm_right_motor = phoenix5.VictorSPX(arm_right_motor_id)
+        self.shooter_state = "Idle"
+        self.shooter_motor_speeds_entry = Shuffleboard.getTab("Drivers").add(f"Shooters Motor Speed", 0.5).getEntry()
 
     def reset(self):
         self.intake_motor.set(phoenix5.ControlMode.PercentOutput, 0)
-        self.shoot_left_motor.set(phoenix5.ControlMode.PercentOutput, 0)
-        self.shoot_right_motor.set(phoenix5.ControlMode.PercentOutput, 0)
+        self.shooter_left_motor.set(phoenix5.ControlMode.PercentOutput, 0)
+        self.shooter_right_motor.set(phoenix5.ControlMode.PercentOutput, 0)
 
     def pick_up_note(self):
         self.intake_motor.set(phoenix5.ControlMode.PercentOutput, self.shooter_motor_speeds)
@@ -29,8 +29,8 @@ class Shooter():
         self.intake_motor.set(phoenix5.ControlMode.PercentOutput, 0)
 
     def prime_shooter(self):
-        self.shoot_left_motor.set(phoenix5.ControlMode.PercentOutput, self.shooter_motor_speeds)
-        self.shoot_right_motor.set(phoenix5.ControlMode.PercentOutput, self.shooter_motor_speeds)
+        self.shooter_left_motor.set(phoenix5.ControlMode.PercentOutput, self.shooter_motor_speeds)
+        self.shooter_right_motor.set(phoenix5.ControlMode.PercentOutput, self.shooter_motor_speeds)
     
     def fire_out_note(self):
         self.intake_motor.set(phoenix5.ControlMode.PercentOutput, self.shooter_motor_speeds)

@@ -6,7 +6,7 @@ from color_sensor import ColorSensor
 class TeutonicForceRobot(wpilib.TimedRobot):
     def robotInit(self):
         self.drivetrain = SwerveDrive()
-        self.shooter = Shooter()
+        self.shooter = Shooter(9, 8, 6, 10, 31)
         self.color_sensor = ColorSensor()
         self.joystick = wpilib.Joystick(0)
         self.controller = wpilib.XboxController(1)
