@@ -1,10 +1,11 @@
 from wpimath.geometry import Translation2d, Rotation2d
+from wpilib.shuffleboard import Shuffleboard
 from wpimath.kinematics import SwerveDrive4Kinematics, ChassisSpeeds
 from swerve_module import SwerveModule
 import navx 
 
 class SwerveDrive():
-    """Class for controlling swerve drive on robot."""
+    """Class for controlling Swerve Drive on robot."""
 
     def __init__(self):
         """
@@ -18,16 +19,22 @@ class SwerveDrive():
 
         # Create Kinematics object and initialize Swerve Modules
         self.kinematics = SwerveDrive4Kinematics(front_left_location, front_right_location, back_left_location, back_right_location)
-        self.front_left_module = SwerveModule("FL", 23, 13, 33, "CANivore", "CANivore", "rio", -0.004395, False)
-        self.front_right_module = SwerveModule("FR", 20, 10, 30, "CANivore", "CANivore", "rio", 0.011475, True)
-        self.back_left_module = SwerveModule("BL", 22, 12, 32, "CANivore", "CANivore", "rio", -0.459717, False)
-        self.back_right_module = SwerveModule("BR", 21, 11, 31, "CANivore", "CANivore", "rio", 0.000488, True)
+        self.front_left_module = SwerveModule("FL", 23, 13, 33, "CANivore", "CANivore", "rio", -0.007080, False)
+        self.front_right_module = SwerveModule("FR", 20, 10, 30, "CANivore", "CANivore", "rio", 0.006104, True)
+        self.back_left_module = SwerveModule("BL", 22, 12, 32, "CANivore", "CANivore", "rio", -0.475830, False)
+        self.back_right_module = SwerveModule("BR", 21, 11, 31, "CANivore", "CANivore", "rio", -0.007080, True)
 
         # Initialize Gyro
         self.gyro = navx.AHRS.create_spi()
+        self.drivers_tab_gyro = Shuffleboard.getTab("Drivers").add(f"Current Robot Angle (From Gyro)", round(self.get_current_robot_angle(), 2)).withSize(2, 2).getEntry()
 
-        # Drivetrain speed multiplier
-        self.drivetrain_speed = 0.5
+        # Max Drivetrain speed
+        self.max_drivetrain_speed = 0.5
+        self.drivers_tab_speed = Shuffleboard.getTab("Drivers").add(f"Max Swerve Drive Speed", self.max_drivetrain_speed).withSize(2, 2).getEntry()
+
+        # Drivetrain state
+        self.drivetrain_state = "Disabled"
+        self.drivers_tab_state = Shuffleboard.getTab("Drivers").add(f"Swerve Drive State", self.drivetrain_state).withSize(2, 2).getEntry()
 
     def reset_drivetrain(self):
         """
@@ -40,15 +47,30 @@ class SwerveDrive():
 
     def reset_gyro(self):
         """
-        Reset Swerve Modules.
+        Reset Gyro.
         """
         self.gyro.reset()
+        self.drivers_tab_gyro.setFloat(0)
 
-    def change_drivetrain_speed(self, desired_speed):
+    def change_max_drivetrain_speed(self, speed):
         """
-        Set drivetrain to desired speed.
+        Change max drivetrain speed.
         """
-        self.drivetrain_speed = desired_speed
+        self.max_drivetrain_speed = speed
+        self.drivers_tab_speed.setFloat(self.max_drivetrain_speed)
+
+    def change_drivetrain_state(self, state):
+        """
+        Change the drivetrain's state.
+        """
+        self.drivetrain_state = state
+        self.drivers_tab_state.setString(self.drivetrain_state)
+
+    def get_drivetrain_state(self):
+        """
+        Get the drivetrain's state.
+        """
+        return self.drivetrain_state
 
     def get_current_robot_angle(self):
         """
@@ -69,8 +91,9 @@ class SwerveDrive():
         """
         # Get desired Swerve Modules' speeds and angles.
         current_robot_angle = self.get_current_robot_angle()
+        self.drivers_tab_gyro.setFloat(round(current_robot_angle, 2))
         robot_speeds = ChassisSpeeds.fromFieldRelativeSpeeds(forward_speed, strafe_speed, rotation_speed, Rotation2d.fromDegrees(current_robot_angle))
-        front_left_module_state, front_right_module_state, back_left_module_state, back_right_module_state = self.kinematics.desaturateWheelSpeeds(self.kinematics.toSwerveModuleStates(robot_speeds), 1)
+        front_left_module_state, front_right_module_state, back_left_module_state, back_right_module_state = self.kinematics.desaturateWheelSpeeds(self.kinematics.toSwerveModuleStates(robot_speeds), self.max_drivetrain_speed)
         
         # Optimize desired Swerve Modules' angles.
         front_left_module_state = front_left_module_state.optimize(front_left_module_state, self.front_left_module.current_angle)
@@ -79,10 +102,10 @@ class SwerveDrive():
         back_right_module_state = back_right_module_state.optimize(back_right_module_state, self.back_right_module.current_angle)
 
         # Set the Swerve Modules to the desired speeds and angles.
-        self.front_left_module.set(front_left_module_state.speed * self.drivetrain_speed, front_left_module_state.angle)
-        self.front_right_module.set(front_right_module_state.speed * self.drivetrain_speed, front_right_module_state.angle)
-        self.back_left_module.set(back_left_module_state.speed * self.drivetrain_speed, back_left_module_state.angle)
-        self.back_right_module.set(back_right_module_state.speed * self.drivetrain_speed, back_right_module_state.angle)
+        self.front_left_module.set(front_left_module_state.speed, front_left_module_state.angle)
+        self.front_right_module.set(front_right_module_state.speed, front_right_module_state.angle)
+        self.back_left_module.set(back_left_module_state.speed, back_left_module_state.angle)
+        self.back_right_module.set(back_right_module_state.speed, back_right_module_state.angle)
 
     def stop_robot(self):
         """
