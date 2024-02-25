@@ -88,7 +88,7 @@ class Vision():
         return [forwardSpeed, rotationSpeed]
 
     def SpeakerDistance(self):
-        if wpilib.DriverStation.getAlliance() == wpilib.DriverStation.kBlue:
+        if wpilib.DriverStation.getAlliance() == wpilib.DriverStation.Alliance.kBlue:
             tag = 7
         else:
             tag = 4
