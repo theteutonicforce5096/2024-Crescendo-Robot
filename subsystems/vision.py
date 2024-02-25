@@ -88,9 +88,12 @@ class Vision():
         return [forwardSpeed, rotationSpeed]
 
     def SpeakerDistance(self):
+        cameraHeightMeters = 0
+        cameraPitch = math.radians(0)
+        self.bestTarget = self.result.getBestTarget()
         if wpilib.DriverStation.getAlliance() == wpilib.DriverStation.Alliance.kBlue:
             tag = 7
         else:
             tag = 4
-        self.speakerDistance = photonUtils.PhotonUtils.calculateDistanceToTargetMeters(self.backCamera, tag)
+        self.speakerDistance = photonUtils.PhotonUtils.calculateDistanceToTargetMeters(cameraHeightMeters, cameraPitch, self.backCamera, (math.radians(self.bestTarget.getPitch())), tag)
         wpilib.SmartDashboard.putNumber("Target in Meters", self.speakerDistance)
