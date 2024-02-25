@@ -92,4 +92,5 @@ class Vision():
             tag = 7
         else:
             tag = 4
-        self.speakerDistance = photonUtils.PhotonUtils.calculateDistanceToTargetMeters(self.backCamera)
+        self.speakerDistance = photonUtils.PhotonUtils.calculateDistanceToTargetMeters(self.backCamera, tag)
+        wpilib.SmartDashboard.putNumber("Target in Meters", self.speakerDistance)
