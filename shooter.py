@@ -8,13 +8,19 @@ class Shooter():
         self.shooter_right_motor = phoenix5.VictorSPX(shooter_right_motor_id)
         self.arm_left_motor = phoenix5.VictorSPX(arm_left_motor_id)
         self.arm_right_motor = phoenix5.VictorSPX(arm_right_motor_id)
-        self.shooter_state = "Idle"
+        self.shooter_state = "Disabled"
         self.shooter_motor_speeds_entry = Shuffleboard.getTab("Drivers").add(f"Shooters Motor Speed", 0.5).getEntry()
 
     def reset(self):
         self.intake_motor.set(phoenix5.ControlMode.PercentOutput, 0)
         self.shooter_left_motor.set(phoenix5.ControlMode.PercentOutput, 0)
         self.shooter_right_motor.set(phoenix5.ControlMode.PercentOutput, 0)
+
+    def get_shooter_state(self):
+        return self.shooter_state
+    
+    def change_shooter_state(self, state):
+        self.shooter_state = state
 
     def pick_up_note(self):
         self.intake_motor.set(phoenix5.ControlMode.PercentOutput, self.shooter_motor_speeds)
