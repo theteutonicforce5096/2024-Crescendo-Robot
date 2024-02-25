@@ -5,7 +5,7 @@ from wpimath.geometry import Rotation2d
 class SwerveModule():
     """Class for controlling swerve module on robot."""
 
-    def __init__(self, module_position, steering_motor_id, driving_motor_id, cancoder_id, steering_motor_bus, driving_motor_bus, cancoder_bus, default_cancoder_value, inverted_module):
+    def __init__(self, module_position, steering_motor_id, driving_motor_id, cancoder_id, steering_motor_bus, driving_motor_bus, cancoder_bus, cancoder_0_position_value, inverted_module):
         """
         Constructor for Swerve Module.
 
@@ -17,8 +17,12 @@ class SwerveModule():
         :type driving_motor_id: int
         :param cancoder_id: ID of the CANcoder
         :type cancoder_id: int
-        :param default_cancoder_value: Default value of the CANcoder at 0 degrees. Only used when Shuffleboard widget is not accessible.
-        :type default_cancoder_value: float
+        :param steering_motor_bus: CANbus the steering motor is on
+        :type steering_motor_bus: str
+        :param driving_motor_bus: CANbus the driving motor is on
+        :type driving_motor_bus: str
+        :param cancoder_0_position_value: Value of the CANcoder when the module is at 0 degrees. Used as a default for Shuffleboard widget.
+        :type cancoder_0_position_value: float
         :param inverted_module: Whether the module is inverted or not.
         :type inverted_module: boolean
         """        
@@ -33,17 +37,22 @@ class SwerveModule():
         self._configure_steering_motor()
 
         # Cancoder Config
-        self.default_cancoder_value = default_cancoder_value
-        self._get_default_cancoder_value()
+        self.cancoder_0_position_value = cancoder_0_position_value
+        self._get_cancoder_0_position_value()
         
         # Swerve Module Configs
         self._determine_steering_motor_offset()   
         self.current_angle = None
 
     def _configure_driving_motor(self, inverted_module):
+        """
+        Configure the driving motor.
+    
+        :param inverted_module: Whether the module is inverted or not.
+        :type inverted_module: bool
+        """
         # Driving Motor Configs
         talonfx_configs = phoenix6.configs.TalonFXConfiguration()
-        talonfx_configs.closed_loop_general.continuous_wrap = True
         talonfx_configs.closed_loop_ramps.voltage_closed_loop_ramp_period = 0.25
         if inverted_module:
             talonfx_configs.motor_output.inverted = phoenix6.signals.InvertedValue.CLOCKWISE_POSITIVE
@@ -62,6 +71,9 @@ class SwerveModule():
         self.driving_pid = phoenix6.controls.VelocityVoltage(velocity = 0, enable_foc = False)
 
     def _configure_steering_motor(self):
+        """
+        Configure the steering motor.
+        """
         # Steering Motor Configs
         talonfx_configs = phoenix6.configs.TalonFXConfiguration()
         talonfx_configs.closed_loop_general.continuous_wrap = True
@@ -78,18 +90,18 @@ class SwerveModule():
         # Create PID object
         self.steering_pid = phoenix6.controls.PositionVoltage(position = 0, enable_foc = False)
 
-    def _get_default_cancoder_value(self):
+    def _get_cancoder_0_position_value(self):
         """
-        Get the default CANcoder value for SwerveModule from Shuffleboard.
+        Get the CANcoder value when the module is at 0 degrees from Shuffleboard.
         """
-        self.default_cancoder_value = Shuffleboard.getTab("CANcoders").add(f"{self.module_position} Default CANcoder Value", self.default_cancoder_value).getEntry().getFloat(self.default_cancoder_value)  
+        self.cancoder_0_position_value = Shuffleboard.getTab("Swerve Drive").add(f"{self.module_position} 0 Position CANcoder Value", self.cancoder_0_position_value).withSize(2, 2).getEntry().getFloat(self.cancoder_0_position_value)  
 
     def _determine_steering_motor_offset(self):
         """
         Determine the steering motor offset to allow the swerve module to face forward.
         """
         # Calculate CANcoder offsets for 0 degree position
-        cancoder_offset = self.default_cancoder_value - self.cancoder.get_absolute_position().value
+        cancoder_offset = self.cancoder_0_position_value - self.cancoder.get_absolute_position().value
 
         # Set steering motor offset
         self.steering_motor_offset = self.steering_motor.get_position().value - cancoder_offset
@@ -98,7 +110,7 @@ class SwerveModule():
         """
         Reset the swerve module's main variables and set it to hold its position.
         """
-        self._get_default_cancoder_value()
+        self._get_cancoder_0_position_value()
         self._determine_steering_motor_offset()
         self.current_angle = Rotation2d.fromDegrees(0)
         self.driving_motor.set_control(self.driving_pid.with_velocity(0))
