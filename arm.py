@@ -55,7 +55,7 @@ class Arm():
         # Maybe put in angle limit?
         self.arm_controller.setSetpoint((angle / 360) + self.encoder_0_position)
 
-    def update_position(self):
+    def update_pid_controller(self):
         """
         Update output of PID controller.
         """
