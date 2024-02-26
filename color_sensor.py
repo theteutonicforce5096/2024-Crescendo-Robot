@@ -21,13 +21,13 @@ class ColorSensor():
         """
         raw_color = self.color_sensor.getRawColor()
         self.rgb_entry.setString(f"{raw_color.red}, {raw_color.green}, {raw_color.blue}") 
-        raw_color = self.check_if_disconnected(raw_color) 
+        raw_color = self._check_if_disconnected(raw_color) 
         if raw_color.blue > 125:
             return True
         else:
             return False
         
-    def check_if_disconnected(self, raw_color):
+    def _check_if_disconnected(self, raw_color):
         if raw_color.red == 0 and raw_color.green == 0 and raw_color.blue == 0:
             self.color_sensor = ColorSensorV3(I2C.Port.kMXP)
             return self.color_sensor.getRawColor()

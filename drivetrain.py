@@ -81,6 +81,9 @@ class SwerveDrive():
     def change_max_drivetrain_speed(self, speed):
         """
         Change max drivetrain speed.
+
+        :param speed: Max speed of the drivetrain
+        :type speed: float
         """
         self.max_drivetrain_speed = speed
         self.drivers_tab_speed.setFloat(self.max_drivetrain_speed)
@@ -88,6 +91,9 @@ class SwerveDrive():
     def change_drivetrain_state(self, state):
         """
         Change the drivetrain's state.
+
+        :param state: State of the drivetrain
+        :type state: str
         """
         self.drivetrain_state = state
         self.drivers_tab_state.setString(self.drivetrain_state)
@@ -114,6 +120,13 @@ class SwerveDrive():
     def move_robot(self, forward_speed, strafe_speed, rotation_speed):
         """
         Move the robot by a forward speed, strafe speed, and rotation speed.
+
+        :param forward_speed: Desired forward speed of the robot
+        :type forward_speed: float
+        :param strafe_speed: Desired strafe speed of the robot.
+        :type strafe_speed: float
+        :param rotation_speed: Desired rotation speed of the robot.
+        :type rotation_speed: float
         """
         # Get desired Swerve Modules' speeds and angles.
         current_robot_angle = self.get_current_robot_angle()
