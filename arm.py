@@ -70,15 +70,3 @@ class Arm():
 
         self.left_motor.set_control(phoenix6.controls.VoltageOut(enable_foc = False), motor_speed + feedforward)
         self.right_motor.set_control(phoenix6.controls.VoltageOut(enable_foc = False), motor_speed + feedforward)
-
-    # def move_arm_up(self):
-    #     self.arm_left.set(phoenix5.ControlMode.PercentOutput, -1)
-    #     self.arm_right.set(phoenix5.ControlMode.PercentOutput, 1)
-
-    # def move_arm_down(self):
-    #     self.arm_left.set(phoenix5.ControlMode.PercentOutput, 1)
-    #     self.arm_right.set(phoenix5.ControlMode.PercentOutput, -1)
-
-    # def stop_arm(self):
-    #     self.arm_left.set(phoenix5.ControlMode.PercentOutput, 0)
-    #     self.arm_right.set(phoenix5.ControlMode.PercentOutput, 0)

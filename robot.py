@@ -1,45 +1,34 @@
 import wpilib
-from drivetrain import SwerveDrive
-from shooter import Shooter
+from arm import Arm
 
 class TeutonicForceRobot(wpilib.TimedRobot):
     def robotInit(self):
         # Initialize components
-        self.drivetrain = SwerveDrive()
-        self.shooter = Shooter(9, 8, 6, False, False, False)
+        self.arm = Arm()
+
+        # Initialize controllers
+        self.controller = wpilib.XboxController(0)
 
         # Initialize timer
         self.timer = wpilib.Timer()
 
     def teleopInit(self):
-        # Reset timers
+        # Reset timer
         self.timer.restart()
-        self.drivetrain.reset_timer()
-        self.shooter.reset_timers()
-
-        # Reset robot speeds.
-        self.drivetrain.reset_robot_speeds()
-
-        # Reset Drivetrain
-        self.drivetrain.reset_drivetrain()
-        self.drivetrain.reset_gyro()
-
-        # Reset shooter
-        self.shooter.reset()
-
-        # Enable Drivetrain
-        self.drivetrain.change_drivetrain_state("Enabled")
-
-        # Enable shooter
-        self.shooter.change_shooter_state("Idle")
 
     def teleopPeriodic(self):
-        self.drivetrain.update_robot_position()
-        self.shooter.update_shooter()
+        if self.controller.getAButtonPressed():
+            self.arm.set(0)
+        elif self.controller.getBButtonPressed():
+            self.arm.set(30)
+        elif self.controller.getXButtonPressed():
+            self.arm.set(45)
+        elif self.controller.getLeftBumperPressed():
+            self.arm.set(60)
+        elif self.controller.getYButtonPressed():
+            self.arm.set(90)
 
-    def disabledInit(self):
-        # Turn off drivetrain controller rumble if it is stil on.
-        self.drivetrain._set_controller_rumble(0)
+        self.arm.update_pid_controller() 
 
 if __name__ == "__main__":
     wpilib.run(TeutonicForceRobot)
