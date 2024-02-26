@@ -2,7 +2,6 @@ from wpimath.geometry import Translation2d, Rotation2d
 from wpilib.shuffleboard import Shuffleboard
 from wpimath.kinematics import SwerveDrive4Kinematics, ChassisSpeeds
 from swerve_module import SwerveModule
-from wpilib import XboxController, Timer
 import navx 
 
 class SwerveDrive():
@@ -29,17 +28,6 @@ class SwerveDrive():
         self.gyro = navx.AHRS.create_spi()
         self.drivers_tab_gyro = Shuffleboard.getTab("Drivers").add(f"Current Robot Angle (From Gyro)", round(self.get_current_robot_angle(), 2)).withSize(2, 2).getEntry()
 
-        # Initialize drivetrain controller
-        self.drivetrain_controller = XboxController(0)
-
-        # Initialize timer
-        self.drivetrain_timer = Timer()
-
-        # Set default robot speeds
-        self.forward_speed = 0
-        self.strafe_speed = 0
-        self.rotation_speed = 0
-
         # Max Drivetrain speed
         self.max_drivetrain_speed = 0.5
         self.drivers_tab_speed = Shuffleboard.getTab("Drivers").add(f"Max Swerve Drive Speed", self.max_drivetrain_speed).withSize(2, 2).getEntry()
@@ -47,20 +35,6 @@ class SwerveDrive():
         # Drivetrain state
         self.drivetrain_state = "Disabled"
         self.drivers_tab_state = Shuffleboard.getTab("Drivers").add(f"Swerve Drive State", self.drivetrain_state).withSize(2, 2).getEntry()
-
-    def reset_timer(self):
-        """
-        Reset drivetrain timer.
-        """
-        self.drivetrain_timer.reset()
-
-    def reset_robot_speeds(self):
-        """
-        Reset robot speeds.
-        """
-        self.forward_speed = 0
-        self.strafe_speed = 0
-        self.rotation_speed = 0
 
     def reset_drivetrain(self):
         """
@@ -81,9 +55,6 @@ class SwerveDrive():
     def change_max_drivetrain_speed(self, speed):
         """
         Change max drivetrain speed.
-
-        :param speed: Max speed of the drivetrain
-        :type speed: float
         """
         self.max_drivetrain_speed = speed
         self.drivers_tab_speed.setFloat(self.max_drivetrain_speed)
@@ -91,9 +62,6 @@ class SwerveDrive():
     def change_drivetrain_state(self, state):
         """
         Change the drivetrain's state.
-
-        :param state: State of the drivetrain
-        :type state: str
         """
         self.drivetrain_state = state
         self.drivers_tab_state.setString(self.drivetrain_state)
@@ -120,13 +88,6 @@ class SwerveDrive():
     def move_robot(self, forward_speed, strafe_speed, rotation_speed):
         """
         Move the robot by a forward speed, strafe speed, and rotation speed.
-
-        :param forward_speed: Desired forward speed of the robot
-        :type forward_speed: float
-        :param strafe_speed: Desired strafe speed of the robot.
-        :type strafe_speed: float
-        :param rotation_speed: Desired rotation speed of the robot.
-        :type rotation_speed: float
         """
         # Get desired Swerve Modules' speeds and angles.
         current_robot_angle = self.get_current_robot_angle()
@@ -155,94 +116,3 @@ class SwerveDrive():
         self.front_right_module.stop()
         self.back_left_module.stop()
         self.back_right_module.stop()
-
-    def _check_for_gyro_reset(self):
-        """
-        Check if gyro needs to be reset.
-        """
-        if self.drivetrain_controller.getAButtonPressed():
-            self.stop_robot()
-            self.reset_gyro()
-            self.drivetrain_timer.restart()
-            self.change_drivetrain_state("Disabled")
-
-    def _check_for_max_drivetrain_speed_change(self):
-        """
-        Check if max drivetrain speed needs to be changed.
-        """
-        if (self.drivetrain_controller.getLeftTriggerAxis() > 0.1) != (self.drivetrain_controller.getRightTriggerAxis() > 0.1):
-            self.change_max_drivetrain_speed(0.75)
-        elif self.drivetrain_controller.getLeftTriggerAxis() > 0.1 and self.drivetrain_controller.getRightTriggerAxis() > 0.1:
-            self.change_max_drivetrain_speed(1.0)
-        else:
-            self.change_max_drivetrain_speed(0.5)
-
-    def _check_for_deadzone(self, forward_speed, strafe_speed, rotation_speed):
-        """
-        Check for deadzone on forward speed, strafe speed, and rotation speed.
-
-        :param forward_speed: Desired forward speed of the robot
-        :type forward_speed: float
-        :param strafe_speed: Desired strafe speed of the robot.
-        :type strafe_speed: float
-        :param rotation_speed: Desired rotation speed of the robot.
-        :type rotation_speed: float
-        """
-        # Set deadzone on forward speed.
-        if forward_speed > 0.1 or forward_speed < -0.1:
-            self.forward_speed = forward_speed
-        else:
-            self.forward_speed = 0
-
-        # Set deadzone on strafe speed.
-        if strafe_speed > 0.1 or strafe_speed < -0.1:
-            self.strafe_speed = strafe_speed
-        else:
-            self.strafe_speed = 0
-
-        # Set deadzone on rotation speed.
-        if rotation_speed > 0.1 or rotation_speed < -0.1:
-            self.rotation_speed = rotation_speed
-        else:
-            self.rotation_speed = 0
-
-    def _set_controller_rumble(self, rumble):
-        """
-        Set the rumble of the drivetrain controller.
-
-        :param rumble: Rumble of the controller
-        :type rumble: float
-        """
-        self.drivetrain_controller.setRumble(XboxController.RumbleType.kBothRumble, rumble)  
-
-    def update_robot_position(self):
-        """
-        Update position of the robot from controller commands.
-        """ 
-        # Get speeds from drivetrain controller.
-        forward_speed = self.drivetrain_controller.getLeftY()
-        strafe_speed = self.drivetrain_controller.getLeftX()
-        rotation_speed = self.drivetrain_controller.getRightX()
-
-        self._check_for_gyro_reset()
-        self._check_for_max_drivetrain_speed_change()
-        self._check_for_deadzone(forward_speed, strafe_speed, rotation_speed)
-
-        # Move robot if drivetrain is enabled.
-        match self.get_drivetrain_state():
-            case "Enabled":
-                if self.forward_speed != 0 or self.strafe_speed != 0 or self.rotation_speed != 0:
-                    self.move_robot(self.forward_speed, self.strafe_speed, self.rotation_speed) 
-                else:
-                    self.stop_robot()
-            case "Disabled":
-                if not self.drivetrain_timer.hasElapsed(0.5):
-                    if self.forward_speed != 0 or self.strafe_speed != 0 or self.rotation_speed != 0:
-                        self._set_controller_rumble(0.75)  
-                    else:
-                        self._set_controller_rumble(0)  
-                else:
-                    self._set_controller_rumble(0)  
-                    self.reset_timer()
-                    self.change_drivetrain_state("Enabled")
-        
