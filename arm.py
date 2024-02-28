@@ -36,8 +36,6 @@ class Arm():
     def _configure_arm_motor(self, motor, inverted_module):
         # Arm Motor Configs
         talonfx_configs = phoenix6.configs.TalonFXConfiguration()
-        talonfx_configs.closed_loop_general.continuous_wrap = True
-        talonfx_configs.feedback.sensor_to_mechanism_ratio = 300 / 1
         
         if inverted_module:
             talonfx_configs.motor_output.inverted = phoenix6.signals.InvertedValue.CLOCKWISE_POSITIVE
