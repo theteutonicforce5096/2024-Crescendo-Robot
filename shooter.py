@@ -81,13 +81,13 @@ class Shooter():
         """
         Start the intake motors.
         """
-        self.intake_motor.set(phoenix5.ControlMode.PercentOutput, self.intake_motor_speed)
+        self.intake_motor.set(phoenix5.ControlMode.PercentOutput, self.intake_motor_speed * -1)
 
     def reverse_intake_motor(self):
         """
         Reverse the intake motors.
         """
-        self.intake_motor.set(phoenix5.ControlMode.PercentOutput, self.intake_motor_speed * -1)
+        self.intake_motor.set(phoenix5.ControlMode.PercentOutput, self.intake_motor_speed)
 
     def stop_intake_motor(self):
         """
@@ -99,5 +99,5 @@ class Shooter():
         """
         Turn on the flywheel motors.
         """
-        self.flywheel_left_motor.set(phoenix5.ControlMode.PercentOutput, 0.5)
-        self.flywheel_right_motor.set(phoenix5.ControlMode.PercentOutput, 0.5)
+        self.flywheel_left_motor.set(phoenix5.ControlMode.PercentOutput, 0.75)
+        self.flywheel_right_motor.set(phoenix5.ControlMode.PercentOutput, 0.75)

@@ -7,7 +7,7 @@ from math import pi, cos
 class Arm():
     """Class for controlling arm on robot."""
 
-    def __init__(self, right_motor_id, left_motor_id, right_motor_bus, left_motor_bus, encoder_id, encoder_0_position, static_gain, gravity_gain):
+    def __init__(self, left_motor_id, right_motor_id, left_motor_inverted, right_motor_inverted, encoder_id, encoder_0_position, static_gain, gravity_gain):
         """
         Constructor for Arm.
 
@@ -16,8 +16,8 @@ class Arm():
         :param left_arm_motor_id: ID of left motor on Arm
         :type left_arm_motor_id: int
         """        
-        self.right_motor = phoenix6.hardware.TalonFX(right_motor_id, right_motor_bus)
-        self.left_motor = phoenix6.hardware.TalonFX(left_motor_id, left_motor_bus)
+        self.left_motor = phoenix6.hardware.TalonFX(left_motor_id)
+        self.right_motor = phoenix6.hardware.TalonFX(right_motor_id)
         self.encoder = DutyCycleEncoder(encoder_id)
         self.encoder_0_position = encoder_0_position
 
@@ -29,9 +29,9 @@ class Arm():
         self.arm_state = "Disabled"
         self.current_angle = None
         self.arm_state_entry = Shuffleboard.getTab("Drivers").add(f"Arm Position", "None").withSize(2, 2).getEntry()
-
-        self._configure_arm_motor(self.right_motor, False)
-        self._configure_arm_motor(self.left_motor, True)
+        
+        self._configure_arm_motor(self.left_motor, left_motor_inverted)
+        self._configure_arm_motor(self.right_motor, right_motor_inverted)
 
     def _configure_arm_motor(self, motor, inverted_module):
         # Arm Motor Configs

@@ -20,9 +20,9 @@ class ColorSensor():
         Check for a ring in the robot.
         """
         raw_color = self.color_sensor.getRawColor()
-        self.rgb_entry.setString(f"{raw_color.red}, {raw_color.green}, {raw_color.blue}") 
         raw_color = self._check_if_disconnected(raw_color) 
-        if raw_color.blue > 125:
+        self.rgb_entry.setString(f"{raw_color.red}, {raw_color.green}, {raw_color.blue}") 
+        if raw_color.blue > 140:
             return True
         else:
             return False
