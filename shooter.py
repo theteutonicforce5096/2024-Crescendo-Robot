@@ -43,6 +43,7 @@ class Shooter():
         # Set Shooter State
         self.shooter_state = "Idle"
         self.drivers_tab_state = Shuffleboard.getTab("Drivers").add(f"Shooter State", self.shooter_state).withSize(2, 2).getEntry()
+        self.shooter_speed_widget = Shuffleboard.getTab("Drivers").add(f"Shooter Speed", 0.0).withSize(2, 2).getEntry()
 
     def _invert_motor(self, motor):
         """
@@ -99,5 +100,5 @@ class Shooter():
         """
         Turn on the flywheel motors.
         """
-        self.flywheel_left_motor.set(phoenix5.ControlMode.PercentOutput, 0.75)
-        self.flywheel_right_motor.set(phoenix5.ControlMode.PercentOutput, 0.75)
+        self.flywheel_left_motor.set(phoenix5.ControlMode.PercentOutput, self.shooter_speed_widget.getFloat(0))
+        self.flywheel_right_motor.set(phoenix5.ControlMode.PercentOutput, self.shooter_speed_widget.getFloat(0))

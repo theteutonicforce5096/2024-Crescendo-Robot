@@ -29,12 +29,16 @@ class Arm():
         self.right_motor = phoenix6.hardware.TalonFX(right_motor_id)
         self.encoder = DutyCycleEncoder(encoder_id)
 
-        # PID Controller
-        self.arm_controller = PIDController(1, 0 ,0)
-        self.arm_controller.enableContinuousInput(0.0, 1.0)
-        self.static_gain = 0.05
-        self.gravity_gain = 0.25
+        #self.p_widget = Shuffleboard.getTab("Arm").add(f"P", 0.0).withSize(2, 2).getEntry()
+        #self.i_widget = Shuffleboard.getTab("Arm").add(f"I", 0.0).withSize(2, 2).getEntry()
+        #self.d_widget = Shuffleboard.getTab("Arm").add(f"D", 0.0).withSize(2, 2).getEntry()
 
+        # PID Controller
+        self.arm_controller = PIDController(50, 0, 0)
+        self.arm_controller.enableContinuousInput(0, 1)
+        self.static_gain = 0
+        self.gravity_gain = 0.29
+        
         # Encoder configs
         self.encoder_0_position = Shuffleboard.getTab("Arm").add(f"0 Position Arm Encoder Value", encoder_0_position).withSize(2, 2).getEntry().getFloat(encoder_0_position)  
 
@@ -56,11 +60,15 @@ class Arm():
         # Apply the configs to the driving motor
         motor.configurator.apply(talonfx_configs) 
 
+    def _get_encoder_value(self):
+        return (self.encoder.getAbsolutePosition() * -1) + 1
+
     def reset(self):
         """
-        Reset the Arm. Set it to 45 degrees. 
+        Reset the Arm. Set it to 0 degrees. 
         """
-        self.set(45)
+        #self.arm_controller.setPID(self.p_widget.getFloat(0.0), self.i_widget.getFloat(0.0), self.d_widget.getFloat(0.0))
+        self.set(0)
 
     def set(self, angle):
         """
@@ -72,8 +80,10 @@ class Arm():
         """
         Update output of PID controller.
         """
-        encoder_position = self.encoder.getAbsolutePosition()
+        encoder_position = self._get_encoder_value()
+        print(encoder_position)
         motor_speed = self.arm_controller.calculate(encoder_position)
+        print(motor_speed)
 
         angle = encoder_position - self.encoder_0_position
         self.arm_angle_entry.setString(f"{angle * 360}") 
@@ -81,5 +91,5 @@ class Arm():
         angle_radians = 2.0 * pi * angle
         feedforward = (self.gravity_gain * cos(angle_radians)) + self.static_gain
 
-        self.left_motor.set_control(phoenix6.controls.VoltageOut(enable_foc = False), motor_speed + feedforward)
-        self.right_motor.set_control(phoenix6.controls.VoltageOut(enable_foc = False), motor_speed + feedforward)
+        self.left_motor.set_control(phoenix6.controls.VoltageOut(motor_speed + feedforward))
+        self.right_motor.set_control(phoenix6.controls.VoltageOut(motor_speed + feedforward))
