@@ -2,9 +2,8 @@ import struct
 from wpimath.geometry import Transform3d, Translation3d, Rotation3d, Quaternion
 import wpilib
 
-
 class Packet:
-    def __init__(self, data: list[int]):
+    def __init__(self, data: bytes):
         """
         * Constructs an empty packet.
         *
@@ -30,7 +29,7 @@ class Packet:
     matches the version of photonlib running in the robot code.
     """
 
-    def _getNextByte(self) -> int:
+    def _getNextByteAsInt(self) -> int:
         retVal = 0x00
 
         if not self.outOfBytes:
@@ -43,7 +42,7 @@ class Packet:
 
         return retVal
 
-    def getData(self) -> list[int]:
+    def getData(self) -> bytes:
         """
         * Returns the packet data.
         *
@@ -51,7 +50,7 @@ class Packet:
         """
         return self.packetData
 
-    def setData(self, data: list[int]):
+    def setData(self, data: bytes):
         """
         * Sets the packet data.
         *
@@ -65,7 +64,7 @@ class Packet:
         # Read ints in from the data buffer
         intList = []
         for _ in range(numBytes):
-            intList.append(self._getNextByte())
+            intList.append(self._getNextByteAsInt())
 
         # Interpret the bytes as a floating point number
         value = struct.unpack(unpackFormat, bytes(intList))[0]

@@ -4,7 +4,6 @@ from photonlibpy.multiTargetPNPResult import MultiTargetPNPResult
 from photonlibpy.packet import Packet
 from photonlibpy.photonTrackedTarget import PhotonTrackedTarget
 
-
 @dataclass
 class PhotonPipelineResult:
     latencyMillis: float = -1.0
