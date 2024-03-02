@@ -3,29 +3,27 @@ from drivetrain import SwerveDrive
 from shooter import Shooter
 from arm import Arm
 from color_sensor import ColorSensor
-import phoenix6
+from vision import Vision
 
 class TeutonicForceRobot(wpilib.TimedRobot):
     def robotInit(self):
         # Initialize components
         self.drivetrain = SwerveDrive()
-        self.shooter = Shooter(40, 41, 42, False, False, False, 0.5)
-        self.arm = Arm()
+        self.shooter = Shooter(40, 41, 42, True, False, False, 0.5)
+        self.arm = Arm(50, 51, True, False, 0, 0.1741, 0.13)
         self.color_sensor = ColorSensor()
+        self.vision = Vision()
 
         # Initialize controllers
         self.drivetrain_controller = wpilib.XboxController(0)
         self.shooter_controller = wpilib.XboxController(1)
 
-        # Initialize timer
+        # Initialize timers
         self.timer = wpilib.Timer()
         self.drivetrain_timer = wpilib.Timer()
         self.drop_timer = wpilib.Timer()
         self.prime_shooter_timer = wpilib.Timer()
         self.shoot_timer = wpilib.Timer()
-
-        self.right_motor = phoenix6.hardware.TalonFX(51)
-        self.left_motor = phoenix6.hardware.TalonFX(50)
 
         # Set default robot speeds
         self.forward_speed = 0
@@ -52,6 +50,9 @@ class TeutonicForceRobot(wpilib.TimedRobot):
         # Reset shooter
         self.shooter.reset()
 
+        # Reset Arm
+        self.arm.reset()
+
         # Enable Drivetrain
         self.drivetrain.change_drivetrain_state("Enabled")
 
@@ -71,17 +72,8 @@ class TeutonicForceRobot(wpilib.TimedRobot):
             self.drivetrain_timer.restart()
             self.drivetrain.change_drivetrain_state("Resetting Gyro")
 
-        if self.drivetrain_controller.getBButtonPressed():
-            # Forward
-            self.right_motor.set_control(phoenix6.controls.DutyCycleOut(0.25))
-            self.left_motor.set_control(phoenix6.controls.DutyCycleOut(-0.25))
-        elif self.drivetrain_controller.getXButtonPressed():
-            # Backward
-            self.right_motor.set_control(phoenix6.controls.DutyCycleOut(-0.25))
-            self.left_motor.set_control(phoenix6.controls.DutyCycleOut(0.25))
-        elif self.drivetrain_controller.getYButtonPressed():
-            self.right_motor.set_control(phoenix6.controls.DutyCycleOut(0))
-            self.left_motor.set_control(phoenix6.controls.DutyCycleOut(0))
+        if self.drivetrain_controller.getYButtonPressed():
+            self.vision.get_distance_to_speaker()
 
         # Check if max drivetrain speed needs to be changed.
         if (self.drivetrain_controller.getLeftTriggerAxis() > 0.1) != (self.drivetrain_controller.getRightTriggerAxis() > 0.1):
@@ -155,6 +147,7 @@ class TeutonicForceRobot(wpilib.TimedRobot):
             case "Drop Everything":
                 # Move Arm
                 self.shooter.reverse_intake_motor()
+                # Run shooter motors in reverse
                 self.drop_timer.restart()
                 self.shooter.change_shooter_state("Stop Dropping Everything")
             case "Stop Dropping Everything":
@@ -189,7 +182,7 @@ class TeutonicForceRobot(wpilib.TimedRobot):
                 else:
                     self.drivetrain_controller.setRumble(wpilib.XboxController.RumbleType.kBothRumble, 0) 
 
-            #self.arm.update_pid_controller() 
+        self.arm.update_pid_controller() 
 
     def disabledInit(self):
         # Turn off drivetrain controller rumble if it is stil on.

@@ -26,6 +26,11 @@ class Shooter():
         self.intake_motor = phoenix5.VictorSPX(intake_motor_id)
         self.flywheel_left_motor = phoenix5.VictorSPX(flywheel_left_motor_id)
         self.flywheel_right_motor = phoenix5.VictorSPX(flywheel_right_motor_id)
+
+        # Configure motors
+        self._configure_motor(self.intake_motor)
+        self._configure_motor(self.flywheel_left_motor)
+        self._configure_motor(self.flywheel_right_motor)
         
         # Invert motors
         if intake_motor_inverted:
@@ -49,10 +54,20 @@ class Shooter():
         """
         Invert motor.
 
-        :param motor: Motor that needs to be inverted
+        :param motor: Motor that will to be inverted
         :type motor: VictorSPX
         """
         motor.setInverted(True)
+
+    def _configure_motor(self, motor):
+        """
+        Configures a flywheel motor.
+
+        :param motor: Motor that will be configured
+        :type motor: VictorSPX
+        """
+        motor.configVoltageCompSaturation(12.0)
+        motor.enableVoltageCompensation(True)
 
     def reset(self):
         """
@@ -82,13 +97,13 @@ class Shooter():
         """
         Start the intake motors.
         """
-        self.intake_motor.set(phoenix5.ControlMode.PercentOutput, self.intake_motor_speed * -1)
+        self.intake_motor.set(phoenix5.ControlMode.PercentOutput, self.intake_motor_speed)
 
     def reverse_intake_motor(self):
         """
         Reverse the intake motors.
         """
-        self.intake_motor.set(phoenix5.ControlMode.PercentOutput, self.intake_motor_speed)
+        self.intake_motor.set(phoenix5.ControlMode.PercentOutput, self.intake_motor_speed * -1)
 
     def stop_intake_motor(self):
         """
