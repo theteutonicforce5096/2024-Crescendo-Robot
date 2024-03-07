@@ -153,8 +153,7 @@ class SwerveModule():
         """
         Set the Swerve Module to a desired speed and angle.
     
-        :param speed: Desired speed of the module. Must be between 0 and 1. Use wpimath.kinematics.SwerveDrive4Kinematics.desaturateWheelSpeeds 
-        to reduce desired speed to be between 0 and 1. 
+        :param speed: Desired speed of the module in meters per second.
         :type speed: float
         :param angle: Desired angle of the module. Must already be optimized. Use wpimath.kinematics.SwerveModuleState.optimize to optimize the angle.
         :type angle: float
@@ -166,5 +165,5 @@ class SwerveModule():
         self.current_angle = angle
 
         # Set the motors to the desired speed and angle
-        self.driving_motor.set_control(self.driving_pid.with_velocity(desired_speed * 100))
+        self.driving_motor.set_control(self.driving_pid.with_velocity((desired_speed / 5.21208) * 100))
         self.steering_motor.set_control(self.steering_pid.with_position(desired_position)) 

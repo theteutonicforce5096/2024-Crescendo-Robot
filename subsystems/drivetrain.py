@@ -112,7 +112,7 @@ class SwerveDrive():
         current_robot_angle = self.get_current_robot_angle()
         self.drivers_tab_gyro.setFloat(round(current_robot_angle, 2))
         robot_speeds = ChassisSpeeds.fromFieldRelativeSpeeds(forward_speed, strafe_speed, rotation_speed, Rotation2d.fromDegrees(current_robot_angle))
-        front_left_module_state, front_right_module_state, back_left_module_state, back_right_module_state = self.kinematics.desaturateWheelSpeeds(self.kinematics.toSwerveModuleStates(robot_speeds), self.max_drivetrain_speed)
+        front_left_module_state, front_right_module_state, back_left_module_state, back_right_module_state = self.kinematics.desaturateWheelSpeeds(self.kinematics.toSwerveModuleStates(robot_speeds), self.max_drivetrain_speed * 5.21208)
         
         # Optimize desired Swerve Modules' angles.
         front_left_module_state = front_left_module_state.optimize(front_left_module_state, self.front_left_module.current_angle)
