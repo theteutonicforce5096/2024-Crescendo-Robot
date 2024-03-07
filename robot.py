@@ -188,9 +188,9 @@ class TeutonicForceRobot(wpilib.TimedRobot):
 
         pov = self.shooter_controller.getPOV()
         if pov == 0:
-            self.arm.set(self.arm.get_arm_setpoint() + 0.25)
+            self.arm.set(self.arm.get_arm_setpoint() + 0.5)
         elif pov == 180:
-            self.arm.set(self.arm.get_arm_setpoint() - 0.25)
+            self.arm.set(self.arm.get_arm_setpoint() - 0.5)
 
         self.arm.update_pid_controller() 
 
