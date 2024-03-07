@@ -111,9 +111,13 @@ class Shooter():
         """
         self.intake_motor.set(phoenix5.ControlMode.PercentOutput, 0)
 
-    def prime_shooter(self):
+    def start_flywheel_motors(self):
         """
         Turn on the flywheel motors.
         """
-        self.flywheel_left_motor.set(phoenix5.ControlMode.PercentOutput, self.shooter_speed_widget.getFloat(0))
-        self.flywheel_right_motor.set(phoenix5.ControlMode.PercentOutput, self.shooter_speed_widget.getFloat(0))
+        self.flywheel_left_motor.set(phoenix5.ControlMode.PercentOutput, self.shooter_speed_widget.getFloat(1.0))
+        self.flywheel_right_motor.set(phoenix5.ControlMode.PercentOutput, self.shooter_speed_widget.getFloat(1.0))
+
+    def reverse_flywheel_motors(self):
+        self.flywheel_left_motor.set(phoenix5.ControlMode.PercentOutput, self.shooter_speed_widget.getFloat(1.0) * -1)
+        self.flywheel_right_motor.set(phoenix5.ControlMode.PercentOutput, self.shooter_speed_widget.getFloat(1.0) * -1)

@@ -13,7 +13,7 @@ class ColorSensor():
         :type colorSensor: Port
         """
         self.color_sensor = ColorSensorV3(I2C.Port.kMXP)
-        self.rgb_entry = Shuffleboard.getTab("ColorSensor").add(f"Color Sensor RGB", "None").withSize(2, 2).getEntry()
+        self.rgb_entry = Shuffleboard.getTab("ColorSensor").add(f"Proximity", "None").withSize(2, 2).getEntry()
     
     def detects_ring(self):
         """
@@ -28,6 +28,5 @@ class ColorSensor():
             return False
         
     def _check_if_disconnected(self):
-        raw_color = self.color_sensor.getRawColor()
-        if raw_color.red == 0 and raw_color.green == 0 and raw_color.blue == 0:
+        if not self.color_sensor.isConnected():
             self.color_sensor = ColorSensorV3(I2C.Port.kMXP)

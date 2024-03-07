@@ -43,15 +43,15 @@ class TeutonicForceRobot(wpilib.TimedRobot):
         self.strafe_speed = 0
         self.rotation_speed = 0
 
-        # Reset Drivetrain
-        self.drivetrain.reset_drivetrain()
-        self.drivetrain.reset_gyro()
-
         # Reset shooter
         self.shooter.reset()
 
         # Reset Arm
         self.arm.reset()
+
+        # Reset Drivetrain
+        self.drivetrain.reset_drivetrain()
+        self.drivetrain.reset_gyro()
 
         # Enable Drivetrain
         self.drivetrain.change_drivetrain_state("Enabled")
@@ -72,11 +72,12 @@ class TeutonicForceRobot(wpilib.TimedRobot):
             self.drivetrain_timer.restart()
             self.drivetrain.change_drivetrain_state("Resetting Gyro")
 
-        #if self.drivetrain_controller.getYButtonPressed():
-        #    self.vision.get_distance_to_speaker()
+        #self.vision.get_distance_to_speaker()
 
         # Check if max drivetrain speed needs to be changed.
-        if (self.drivetrain_controller.getLeftTriggerAxis() > 0.1) != (self.drivetrain_controller.getRightTriggerAxis() > 0.1):
+        if self.drivetrain_controller.getLeftTriggerAxis() > 0.1:
+            self.drivetrain.change_max_drivetrain_speed(0.25)
+        elif self.drivetrain_controller.getRightTriggerAxis() > 0.1:
             self.drivetrain.change_max_drivetrain_speed(0.75)
         elif self.drivetrain_controller.getLeftTriggerAxis() > 0.1 and self.drivetrain_controller.getRightTriggerAxis() > 0.1:
             self.drivetrain.change_max_drivetrain_speed(1.0)
@@ -101,13 +102,22 @@ class TeutonicForceRobot(wpilib.TimedRobot):
         else:
             self.rotation_speed = 0
 
+        # Check for shooter state overrides
         if self.shooter_controller.getYButtonPressed():
             self.shooter.change_shooter_state("Reset")
         elif self.shooter_controller.getRightBumperPressed():
             self.shooter.change_shooter_state("Force Fire")
         elif self.shooter_controller.getLeftBumperPressed():
-            self.shooter.change_shooter_state("Drop Everything")
+            self.shooter.change_shooter_state("Release Note")
 
+        # Check for arm setpoint change
+        pov = self.shooter_controller.getPOV()
+        if pov == 0:
+            self.arm.set(self.arm.get_arm_setpoint() + 0.5)
+        elif pov == 180:
+            self.arm.set(self.arm.get_arm_setpoint() - 0.5)
+
+        # Evaluate shooter state
         match self.shooter.get_shooter_state():
             case "Idle":
                 if self.shooter_controller.getAButtonPressed():
@@ -123,18 +133,18 @@ class TeutonicForceRobot(wpilib.TimedRobot):
                 if self.shooter_controller.getXButtonPressed():
                     self.drivetrain.change_drivetrain_state("Disabled")
                     self.arm.set(90)
-                    self.shooter.prime_shooter()
+                    self.shooter.start_flywheel_motors()
                     # Change Arm position
                     self.prime_shooter_timer.restart()
                     self.shooter.change_shooter_state("Armed")
                 elif self.shooter_controller.getBButtonPressed():
                     self.drivetrain.change_drivetrain_state("Disabled")
-                    self.shooter.prime_shooter()
+                    self.shooter.start_flywheel_motors()
                     # Change Arm position
                     self.prime_shooter_timer.restart()
                     self.shooter.change_shooter_state("Armed")
             case "Armed":
-                if self.prime_shooter_timer.hasElapsed(2.5):
+                if self.prime_shooter_timer.hasElapsed(1.5):
                     self.prime_shooter_timer.reset()
                     self.shooter.start_intake_motor()
                     self.shoot_timer.restart()
@@ -144,18 +154,20 @@ class TeutonicForceRobot(wpilib.TimedRobot):
                     self.shoot_timer.reset()
                     self.shooter.change_shooter_state("Reset")
             case "Force Fire":
-                self.shooter.prime_shooter()
+                self.arm.set(45)
+                self.shooter.start_flywheel_motors()
                 self.prime_shooter_timer.restart()
                 self.shooter.change_shooter_state("Armed")
-            case "Drop Everything":
-                # Move Arm
+            case "Release Note":
+                self.arm.set(45)
                 self.shooter.reverse_intake_motor()
-                # Run shooter motors in reverse
+                self.shooter.reverse_flywheel_motors()
                 self.drop_timer.restart()
-                self.shooter.change_shooter_state("Stop Dropping Everything")
-            case "Stop Dropping Everything":
+                self.shooter.change_shooter_state("Stop Releasing Note")
+            case "Stop Releasing Note":
                 # Reset
                 if self.drop_timer.hasElapsed(1):
+                    self.drop_timer.reset()
                     self.shooter.change_shooter_state("Reset")
             case "Reset":
                 self.drivetrain.change_drivetrain_state("Enabled")
@@ -163,7 +175,10 @@ class TeutonicForceRobot(wpilib.TimedRobot):
                 self.shooter.reset()
                 self.shooter.change_shooter_state("Idle")
 
-        # Move robot if drivetrain is enabled.
+        # Update arm position
+        self.arm.update_pid_controller() 
+
+        # Evaluate drivetrain state.
         match self.drivetrain.get_drivetrain_state():
             case "Enabled":
                 if self.forward_speed != 0 or self.strafe_speed != 0 or self.rotation_speed != 0:
@@ -185,14 +200,6 @@ class TeutonicForceRobot(wpilib.TimedRobot):
                     self.drivetrain_controller.setRumble(wpilib.XboxController.RumbleType.kBothRumble, 0.75)  
                 else:
                     self.drivetrain_controller.setRumble(wpilib.XboxController.RumbleType.kBothRumble, 0) 
-
-        pov = self.shooter_controller.getPOV()
-        if pov == 0:
-            self.arm.set(self.arm.get_arm_setpoint() + 0.5)
-        elif pov == 180:
-            self.arm.set(self.arm.get_arm_setpoint() - 0.5)
-
-        self.arm.update_pid_controller() 
 
     def disabledInit(self):
         # Turn off drivetrain controller rumble if it is stil on.

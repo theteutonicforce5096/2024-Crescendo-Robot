@@ -38,9 +38,9 @@ class Arm():
         # self.d_widget = Shuffleboard.getTab("Arm").add(f"D", 0.0).withSize(2, 2).getEntry()
 
         # PID Controller
-        self.arm_controller = ProfiledPIDController(100, 0, 0, TrapezoidProfile.Constraints(1/4, 1/4))
+        self.arm_controller = ProfiledPIDController(100, 0, 0, TrapezoidProfile.Constraints(1/4, 1/3))
         self.arm_controller.enableContinuousInput(0, 1)
-        self.static_gain = 0
+        #self.static_gain = 0
         self.gravity_gain = 0.3
         
         # Encoder configs
@@ -48,7 +48,6 @@ class Arm():
         self.encoder_lower_bound = Shuffleboard.getTab("Arm").add(f"Lowest Position Arm Encoder Value", encoder_lower_bound).withSize(2, 2).getEntry().getFloat(encoder_lower_bound)   
 
         # Arm Configs
-        self.arm_state = "Disabled"
         self.current_angle = None
         self.arm_setpoint = None
         self.arm_angle_entry = Shuffleboard.getTab("Drivers").add(f"Arm Angle", "None").withSize(2, 2).getEntry()
@@ -75,7 +74,7 @@ class Arm():
 
     def reset(self):
         """
-        Reset the Arm. Set it to 0 degrees. 
+        Reset the Arm. Set it to idle position. 
         """
         self.set(60)
         self.arm_controller.reset(self._get_encoder_value())
@@ -84,11 +83,13 @@ class Arm():
         """
         Sets the arm at a certain angle.
         """
-        if angle >= -14:
-            #self.arm_controller.setPID(self.p_widget.getFloat(0.0), self.i_widget.getFloat(0.0), self.d_widget.getFloat(0.0))
-            self.arm_controller.setGoal(self.encoder_0_position + (angle / 360))
-            self.arm_setpoint = angle
-            self.arm_setpoint_entry.setString(str(angle))
+        if angle < -14:
+            angle = -14
+            
+        #self.arm_controller.setPID(self.p_widget.getFloat(0.0), self.i_widget.getFloat(0.0), self.d_widget.getFloat(0.0))
+        self.arm_controller.setGoal(self.encoder_0_position + (angle / 360))
+        self.arm_setpoint = angle
+        self.arm_setpoint_entry.setString(str(angle))
         
     def update_pid_controller(self):
         """
@@ -103,10 +104,10 @@ class Arm():
         angle_radians = 2.0 * pi * angle
         feedforward = (self.gravity_gain * cos(angle_radians))
         
-        if motor_speed > 0.05:
-            feedforward += self.static_gain
-        elif motor_speed < -0.05:
-            feedforward -= self.static_gain
+        # if motor_speed > 0.05:
+        #     feedforward += self.static_gain
+        # elif motor_speed < -0.05:
+        #     feedforward -= self.static_gain
 
         desired_voltage = motor_speed + feedforward
 
