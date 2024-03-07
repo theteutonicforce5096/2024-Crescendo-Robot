@@ -62,7 +62,7 @@ class TeutonicForceRobot(wpilib.TimedRobot):
     def teleopPeriodic(self):
         # Get speeds from drivetrain controller.
         forward_speed = self.drivetrain_controller.getLeftY()
-        strafe_speed = self.drivetrain_controller.getLeftX()
+        strafe_speed = 0 #self.drivetrain_controller.getLeftX()
         rotation_speed = self.drivetrain_controller.getRightX()
 
         # Check if gyro needs to be reset.

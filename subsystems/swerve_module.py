@@ -58,17 +58,22 @@ class SwerveModule():
             talonfx_configs.motor_output.inverted = phoenix6.signals.InvertedValue.CLOCKWISE_POSITIVE
 
         # PID Configs
-        talonfx_configs.slot0.k_s = 0.05
-        talonfx_configs.slot0.k_v = 0.12
+        talonfx_configs.slot0.k_s = 0.25 
+        talonfx_configs.slot0.k_v = 0.12 
+        talonfx_configs.slot0.k_a = 0.01 
         talonfx_configs.slot0.k_p = 0.11
         talonfx_configs.slot0.k_i = 0 
-        talonfx_configs.slot0.k_d = 0
+        talonfx_configs.slot0.k_d = 0 
+
+        # Motion Magic
+        talonfx_configs.motion_magic.motion_magic_acceleration = 400 
+        talonfx_configs.motion_magic.motion_magic_jerk = 4000 
 
         # Apply the configs to the driving motor
         self.driving_motor.configurator.apply(talonfx_configs) 
 
         # Create PID object
-        self.driving_pid = phoenix6.controls.VelocityVoltage(velocity = 0, enable_foc = False)
+        self.driving_pid = phoenix6.controls.MotionMagicVelocityVoltage(velocity = 0, enable_foc = False)
 
     def _configure_steering_motor(self):
         """
