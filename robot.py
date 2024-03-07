@@ -10,7 +10,7 @@ class TeutonicForceRobot(wpilib.TimedRobot):
         # Initialize components
         self.drivetrain = SwerveDrive()
         self.shooter = Shooter(40, 41, 42, True, False, False, 0.5)
-        self.arm = Arm(50, 51, True, False, 0, 0.1830340545758513, 0.1365121784128045)
+        self.arm = Arm(50, 51, True, False, 0, 0.9853633496340838, 0.9550960488774012)
         self.color_sensor = ColorSensor()
         #self.vision = Vision()
 
@@ -112,14 +112,17 @@ class TeutonicForceRobot(wpilib.TimedRobot):
             case "Idle":
                 if self.shooter_controller.getAButtonPressed():
                     self.shooter.start_intake_motor()
+                    self.arm.set(-12)
                     self.shooter.change_shooter_state("Collecting")
             case "Collecting":
                 if self.color_sensor.detects_ring():
                     self.shooter.stop_intake_motor()
+                    self.arm.set(60)
                     self.shooter.change_shooter_state("Loaded")
             case "Loaded":
                 if self.shooter_controller.getXButtonPressed():
                     self.drivetrain.change_drivetrain_state("Disabled")
+                    self.arm.set(90)
                     self.shooter.prime_shooter()
                     # Change Arm position
                     self.prime_shooter_timer.restart()
@@ -156,6 +159,7 @@ class TeutonicForceRobot(wpilib.TimedRobot):
                     self.shooter.change_shooter_state("Reset")
             case "Reset":
                 self.drivetrain.change_drivetrain_state("Enabled")
+                self.arm.set(60)
                 self.shooter.reset()
                 self.shooter.change_shooter_state("Idle")
 
@@ -181,6 +185,12 @@ class TeutonicForceRobot(wpilib.TimedRobot):
                     self.drivetrain_controller.setRumble(wpilib.XboxController.RumbleType.kBothRumble, 0.75)  
                 else:
                     self.drivetrain_controller.setRumble(wpilib.XboxController.RumbleType.kBothRumble, 0) 
+
+        pov = self.shooter_controller.getPOV()
+        if pov == 0:
+            self.arm.set(self.arm.get_arm_setpoint() + 0.25)
+        elif pov == 180:
+            self.arm.set(self.arm.get_arm_setpoint() - 0.25)
 
         self.arm.update_pid_controller() 
 

@@ -49,6 +49,7 @@ class Shooter():
         self.shooter_state = "Idle"
         self.drivers_tab_state = Shuffleboard.getTab("Drivers").add(f"Shooter State", self.shooter_state).withSize(2, 2).getEntry()
         self.shooter_speed_widget = Shuffleboard.getTab("Drivers").add(f"Shooter Speed", 0.0).withSize(2, 2).getEntry()
+        self.intake_speed_widget = Shuffleboard.getTab("Drivers").add(f"Intake Speed", 0.0).withSize(2, 2).getEntry()
 
     def _invert_motor(self, motor):
         """
@@ -97,13 +98,13 @@ class Shooter():
         """
         Start the intake motors.
         """
-        self.intake_motor.set(phoenix5.ControlMode.PercentOutput, self.intake_motor_speed)
+        self.intake_motor.set(phoenix5.ControlMode.PercentOutput, self.intake_speed_widget.getFloat(0))
 
     def reverse_intake_motor(self):
         """
         Reverse the intake motors.
         """
-        self.intake_motor.set(phoenix5.ControlMode.PercentOutput, self.intake_motor_speed * -1)
+        self.intake_motor.set(phoenix5.ControlMode.PercentOutput, self.intake_speed_widget.getFloat(0) * -1)
 
     def stop_intake_motor(self):
         """

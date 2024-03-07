@@ -29,7 +29,7 @@ class SwerveDrive():
         self.drivers_tab_gyro = Shuffleboard.getTab("Drivers").add(f"Current Robot Angle (From Gyro)", round(self.get_current_robot_angle(), 2)).withSize(2, 2).getEntry()
 
         # Max Drivetrain speed
-        self.max_drivetrain_speed = 0.5
+        self.max_drivetrain_speed = 0.25
         self.drivers_tab_speed = Shuffleboard.getTab("Drivers").add(f"Max Swerve Drive Speed", self.max_drivetrain_speed).withSize(2, 2).getEntry()
 
         # Drivetrain state

@@ -1,7 +1,8 @@
 import phoenix6
 from wpilib.shuffleboard import Shuffleboard
 from wpilib import DutyCycleEncoder
-from wpimath.controller import PIDController
+from wpimath.controller import ProfiledPIDController
+from wpimath.trajectory import TrapezoidProfile
 from math import pi, cos
 
 class Arm():
@@ -31,15 +32,16 @@ class Arm():
         self.right_motor = phoenix6.hardware.TalonFX(right_motor_id)
         self.encoder = DutyCycleEncoder(encoder_id)
 
-        #self.p_widget = Shuffleboard.getTab("Arm").add(f"P", 0.0).withSize(2, 2).getEntry()
-        #self.i_widget = Shuffleboard.getTab("Arm").add(f"I", 0.0).withSize(2, 2).getEntry()
-        #self.d_widget = Shuffleboard.getTab("Arm").add(f"D", 0.0).withSize(2, 2).getEntry()
+        # self.s_widget = Shuffleboard.getTab("Arm").add(f"S", 0.0).withSize(2, 2).getEntry()
+        # self.p_widget = Shuffleboard.getTab("Arm").add(f"P", 0.0).withSize(2, 2).getEntry()
+        # self.i_widget = Shuffleboard.getTab("Arm").add(f"I", 0.0).withSize(2, 2).getEntry()
+        # self.d_widget = Shuffleboard.getTab("Arm").add(f"D", 0.0).withSize(2, 2).getEntry()
 
         # PID Controller
-        self.arm_controller = PIDController(100, 0, 0)
+        self.arm_controller = ProfiledPIDController(100, 0, 0, TrapezoidProfile.Constraints(1/4, 1/4))
         self.arm_controller.enableContinuousInput(0, 1)
         self.static_gain = 0
-        self.gravity_gain = 0.29
+        self.gravity_gain = 0.3
         
         # Encoder configs
         self.encoder_0_position = Shuffleboard.getTab("Arm").add(f"0 Position Arm Encoder Value", encoder_0_position).withSize(2, 2).getEntry().getFloat(encoder_0_position) 
@@ -48,6 +50,7 @@ class Arm():
         # Arm Configs
         self.arm_state = "Disabled"
         self.current_angle = None
+        self.arm_setpoint = None
         self.arm_angle_entry = Shuffleboard.getTab("Drivers").add(f"Arm Angle", "None").withSize(2, 2).getEntry()
         self.arm_setpoint_entry = Shuffleboard.getTab("Drivers").add(f"Arm Setpoint", "0").withSize(2, 2).getEntry()
         
@@ -66,44 +69,46 @@ class Arm():
 
     def _get_encoder_value(self):
         return (self.encoder.getAbsolutePosition() * -1) + 1
+    
+    def get_arm_setpoint(self):
+        return self.arm_setpoint
 
     def reset(self):
         """
         Reset the Arm. Set it to 0 degrees. 
         """
-        #self.arm_controller.setPID(self.p_widget.getFloat(0.0), self.i_widget.getFloat(0.0), self.d_widget.getFloat(0.0))
-        self.set(0)
-        self.arm_setpoint_entry.setString("0") 
+        self.set(60)
+        self.arm_controller.reset(self._get_encoder_value())
 
     def set(self, angle):
         """
         Sets the arm at a certain angle.
         """
-        self.arm_controller.setSetpoint(self.encoder_0_position + (angle / 360))
-    
-    def get_setpoint(self):
-        return self.arm_setpoint_entry.getString("0")
+        if angle >= -14:
+            #self.arm_controller.setPID(self.p_widget.getFloat(0.0), self.i_widget.getFloat(0.0), self.d_widget.getFloat(0.0))
+            self.arm_controller.setGoal(self.encoder_0_position + (angle / 360))
+            self.arm_setpoint = angle
+            self.arm_setpoint_entry.setString(str(angle))
         
     def update_pid_controller(self):
         """
         Update output of PID controller.
         """
-        self.set(float(self.get_setpoint()))
-
         encoder_position = self._get_encoder_value()
-        print(encoder_position)
         motor_speed = self.arm_controller.calculate(encoder_position)
 
         angle = encoder_position - self.encoder_0_position
         self.arm_angle_entry.setString(f"{angle * 360}") 
 
         angle_radians = 2.0 * pi * angle
-        feedforward = (self.gravity_gain * cos(angle_radians)) + self.static_gain
+        feedforward = (self.gravity_gain * cos(angle_radians))
+        
+        if motor_speed > 0.05:
+            feedforward += self.static_gain
+        elif motor_speed < -0.05:
+            feedforward -= self.static_gain
 
         desired_voltage = motor_speed + feedforward
-
-        if encoder_position <= self.encoder_lower_bound and desired_voltage < 0:
-            desired_voltage = 0
 
         self.left_motor.set_control(phoenix6.controls.VoltageOut(desired_voltage))
         self.right_motor.set_control(phoenix6.controls.VoltageOut(desired_voltage))

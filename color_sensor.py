@@ -13,23 +13,21 @@ class ColorSensor():
         :type colorSensor: Port
         """
         self.color_sensor = ColorSensorV3(I2C.Port.kMXP)
-        self.rgb_entry = Shuffleboard.getTab("ColorSensor").add(f"Color Sensor RGB", "0, 0, 0").getEntry()
+        self.rgb_entry = Shuffleboard.getTab("ColorSensor").add(f"Color Sensor RGB", "None").withSize(2, 2).getEntry()
     
     def detects_ring(self):
         """
         Check for a ring in the robot.
         """
-        raw_color = self.color_sensor.getRawColor()
-        raw_color = self._check_if_disconnected(raw_color) 
-        self.rgb_entry.setString(f"{raw_color.red}, {raw_color.green}, {raw_color.blue}") 
-        if raw_color.blue > 140:
+        self._check_if_disconnected() 
+        distance = self.color_sensor.getProximity()
+        self.rgb_entry.setString(f"{distance}") 
+        if distance > 1500:
             return True
         else:
             return False
         
-    def _check_if_disconnected(self, raw_color):
+    def _check_if_disconnected(self):
+        raw_color = self.color_sensor.getRawColor()
         if raw_color.red == 0 and raw_color.green == 0 and raw_color.blue == 0:
             self.color_sensor = ColorSensorV3(I2C.Port.kMXP)
-            return self.color_sensor.getRawColor()
-        else:
-            return raw_color
