@@ -9,7 +9,7 @@ class TeutonicForceRobot(wpilib.TimedRobot):
     def robotInit(self):
         # Initialize components
         self.drivetrain = SwerveDrive()
-        self.shooter = Shooter(40, 41, 42, True, False, False, 0.5)
+        self.shooter = Shooter(40, 41, 42, True, False, False, 0.7)
         self.arm = Arm(50, 51, True, False, 0, 0.9853633496340838, 0.9550960488774012)
         self.color_sensor = ColorSensor()
         #self.vision = Vision()
