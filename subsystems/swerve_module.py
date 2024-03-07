@@ -53,21 +53,43 @@ class SwerveModule():
         """
         # Driving Motor Configs
         talonfx_configs = phoenix6.configs.TalonFXConfiguration()
-        talonfx_configs.closed_loop_ramps.voltage_closed_loop_ramp_period = 0.25
+        #talonfx_configs.closed_loop_ramps.voltage_closed_loop_ramp_period = 0.25
         if inverted_module:
             talonfx_configs.motor_output.inverted = phoenix6.signals.InvertedValue.CLOCKWISE_POSITIVE
 
         # PID Configs
-        talonfx_configs.slot0.k_s = 0.25 
-        talonfx_configs.slot0.k_v = 0.12 
-        talonfx_configs.slot0.k_a = 0.01 
-        talonfx_configs.slot0.k_p = 0.11
+        talonfx_configs.slot0.k_s = 0
+        talonfx_configs.slot0.k_v = 0
+        talonfx_configs.slot0.k_a = 0
+        talonfx_configs.slot0.k_p = 0
         talonfx_configs.slot0.k_i = 0 
         talonfx_configs.slot0.k_d = 0 
 
         # Motion Magic
-        talonfx_configs.motion_magic.motion_magic_acceleration = 400 
-        talonfx_configs.motion_magic.motion_magic_jerk = 4000 
+        talonfx_configs.motion_magic.motion_magic_acceleration = 0
+        talonfx_configs.motion_magic.motion_magic_jerk = 0
+
+        # Apply the configs to the driving motor
+        self.driving_motor.configurator.apply(talonfx_configs) 
+
+        # Create PID object
+        self.driving_pid = phoenix6.controls.MotionMagicVelocityVoltage(velocity = 0, enable_foc = False)
+    
+    def set_pid(self, s, v, a, p, i, d, acceleration, jerk):
+        # Driving Motor Configs
+        talonfx_configs = phoenix6.configs.TalonFXConfiguration()
+
+        # PID Configs
+        talonfx_configs.slot0.k_s = s
+        talonfx_configs.slot0.k_v = v
+        talonfx_configs.slot0.k_a = a
+        talonfx_configs.slot0.k_p = p
+        talonfx_configs.slot0.k_i = i
+        talonfx_configs.slot0.k_d = d
+
+        # Motion Magic
+        talonfx_configs.motion_magic.motion_magic_acceleration = acceleration
+        talonfx_configs.motion_magic.motion_magic_jerk = jerk
 
         # Apply the configs to the driving motor
         self.driving_motor.configurator.apply(talonfx_configs) 

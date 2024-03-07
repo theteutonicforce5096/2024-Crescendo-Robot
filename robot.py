@@ -9,6 +9,7 @@ class TeutonicForceRobot(wpilib.TimedRobot):
     def robotInit(self):
         # Initialize components
         self.drivetrain = SwerveDrive()
+        self.drivetrain.set_pid()
         self.shooter = Shooter(40, 41, 42, True, False, False, 0.7)
         self.arm = Arm(50, 51, True, False, 0, 0.9853633496340838, 0.9550960488774012)
         self.color_sensor = ColorSensor()
@@ -50,6 +51,7 @@ class TeutonicForceRobot(wpilib.TimedRobot):
         self.arm.reset()
 
         # Reset Drivetrain
+        self.drivetrain.set_pid()
         self.drivetrain.reset_drivetrain()
         self.drivetrain.reset_gyro()
 
