@@ -1,7 +1,7 @@
 import wpilib
-from arm import Arm
-from shooter import Shooter
-from color_sensor import ColorSensor
+from subsystems.arm import Arm
+from subsystems.shooter import Shooter
+from subsystems.color_sensor import ColorSensor
 
 class TeutonicForceRobot(wpilib.TimedRobot):
     def robotInit(self):

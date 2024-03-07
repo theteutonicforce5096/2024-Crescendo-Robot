@@ -1,8 +1,8 @@
 import wpilib
-from arm import Arm
+from subsystems.arm import Arm
 import phoenix6
-from drivetrain import SwerveDrive
-from shooter import Shooter
+from subsystems.drivetrain import SwerveDrive
+from subsystems.shooter import Shooter
 
 class TeutonicForceRobot(wpilib.TimedRobot):
     def robotInit(self):

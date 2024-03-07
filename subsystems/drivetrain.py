@@ -1,7 +1,7 @@
 from wpimath.geometry import Translation2d, Rotation2d
 from wpilib.shuffleboard import Shuffleboard
 from wpimath.kinematics import SwerveDrive4Kinematics, ChassisSpeeds
-from swerve_module import SwerveModule
+from .swerve_module import SwerveModule
 import navx 
 
 class SwerveDrive():

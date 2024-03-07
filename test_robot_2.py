@@ -1,8 +1,8 @@
 import wpilib
-from drivetrain import SwerveDrive
-from shooter import Shooter
+from subsystems.drivetrain import SwerveDrive
+from subsystems.shooter import Shooter
 #from arm import Arm
-from color_sensor import ColorSensor
+from subsystems.color_sensor import ColorSensor
 import phoenix6
 
 class TeutonicForceRobot(wpilib.TimedRobot):

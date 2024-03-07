@@ -1,5 +1,5 @@
 import wpilib
-from arm import Arm
+from subsystems.arm import Arm
 import phoenix6
 
 class TeutonicForceRobot(wpilib.TimedRobot):
