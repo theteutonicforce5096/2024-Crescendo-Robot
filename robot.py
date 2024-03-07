@@ -3,16 +3,16 @@ from drivetrain import SwerveDrive
 from shooter import Shooter
 from arm import Arm
 from color_sensor import ColorSensor
-from vision import Vision
+#from vision import Vision
 
 class TeutonicForceRobot(wpilib.TimedRobot):
     def robotInit(self):
         # Initialize components
         self.drivetrain = SwerveDrive()
         self.shooter = Shooter(40, 41, 42, True, False, False, 0.5)
-        self.arm = Arm(50, 51, True, False, 0, 0.1741, 0.13)
+        self.arm = Arm(50, 51, True, False, 0, 0.1830340545758513, 0.1365121784128045)
         self.color_sensor = ColorSensor()
-        self.vision = Vision()
+        #self.vision = Vision()
 
         # Initialize controllers
         self.drivetrain_controller = wpilib.XboxController(0)
@@ -72,8 +72,8 @@ class TeutonicForceRobot(wpilib.TimedRobot):
             self.drivetrain_timer.restart()
             self.drivetrain.change_drivetrain_state("Resetting Gyro")
 
-        if self.drivetrain_controller.getYButtonPressed():
-            self.vision.get_distance_to_speaker()
+        #if self.drivetrain_controller.getYButtonPressed():
+        #    self.vision.get_distance_to_speaker()
 
         # Check if max drivetrain speed needs to be changed.
         if (self.drivetrain_controller.getLeftTriggerAxis() > 0.1) != (self.drivetrain_controller.getRightTriggerAxis() > 0.1):
