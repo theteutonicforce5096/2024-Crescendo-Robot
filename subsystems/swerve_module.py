@@ -73,29 +73,29 @@ class SwerveModule():
         # Create PID object
         self.driving_pid = phoenix6.controls.MotionMagicVelocityVoltage(velocity = 0, enable_foc = False)
     
-    def set_pid(self, inverted, s, v, a, p, i, d, acceleration, jerk):
-        # Driving Motor Configs
-        talonfx_configs = phoenix6.configs.TalonFXConfiguration()
-        if inverted:
-            talonfx_configs.motor_output.inverted = phoenix6.signals.InvertedValue.CLOCKWISE_POSITIVE
+    # def set_pid(self, inverted, s, v, a, p, i, d, acceleration, jerk):
+    #     # Driving Motor Configs
+    #     talonfx_configs = phoenix6.configs.TalonFXConfiguration()
+    #     if inverted:
+    #         talonfx_configs.motor_output.inverted = phoenix6.signals.InvertedValue.CLOCKWISE_POSITIVE
 
-        # PID Configs
-        talonfx_configs.slot0.k_s = s
-        talonfx_configs.slot0.k_v = v
-        talonfx_configs.slot0.k_a = a
-        talonfx_configs.slot0.k_p = p
-        talonfx_configs.slot0.k_i = i
-        talonfx_configs.slot0.k_d = d
+    #     # PID Configs
+    #     talonfx_configs.slot0.k_s = s
+    #     talonfx_configs.slot0.k_v = v
+    #     talonfx_configs.slot0.k_a = a
+    #     talonfx_configs.slot0.k_p = p
+    #     talonfx_configs.slot0.k_i = i
+    #     talonfx_configs.slot0.k_d = d
 
-        # Motion Magic
-        talonfx_configs.motion_magic.motion_magic_acceleration = acceleration
-        talonfx_configs.motion_magic.motion_magic_jerk = jerk
+    #     # Motion Magic
+    #     talonfx_configs.motion_magic.motion_magic_acceleration = acceleration
+    #     talonfx_configs.motion_magic.motion_magic_jerk = jerk
 
-        # Apply the configs to the driving motor
-        self.driving_motor.configurator.apply(talonfx_configs) 
+    #     # Apply the configs to the driving motor
+    #     self.driving_motor.configurator.apply(talonfx_configs) 
 
-        # Create PID object
-        self.driving_pid = phoenix6.controls.MotionMagicVelocityVoltage(velocity = 0, enable_foc = False)
+    #     # Create PID object
+    #     self.driving_pid = phoenix6.controls.MotionMagicVelocityVoltage(velocity = 0, enable_foc = False)
 
     def _configure_steering_motor(self):
         """
@@ -168,5 +168,5 @@ class SwerveModule():
         self.driving_motor.set_control(self.driving_pid.with_velocity((desired_speed / 5.21208) * 100))
         self.steering_motor.set_control(self.steering_pid.with_position(desired_position)) 
     
-    def set_voltage(self, voltage):
-        self.driving_motor.set_control(phoenix6.controls.VoltageOut(voltage))
+    # def set_voltage(self, voltage):
+    #     self.driving_motor.set_control(phoenix6.controls.VoltageOut(voltage))

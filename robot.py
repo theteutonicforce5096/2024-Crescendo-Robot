@@ -12,7 +12,7 @@ class TeutonicForceRobot(wpilib.TimedRobot):
         self.shooter = Shooter(40, 41, 42, True, False, False, 0.75)
         self.arm = Arm(50, 51, True, False, 0, 0.9853633496340838, 0.9550960488774012)
         self.color_sensor = ColorSensor()
-        #self.vision = Vision()
+        self.vision = Vision('backCamera')
 
         # Initialize controllers
         self.drivetrain_controller = wpilib.XboxController(0)
@@ -50,7 +50,7 @@ class TeutonicForceRobot(wpilib.TimedRobot):
         self.arm.reset()
 
         # Reset Drivetrain
-        self.drivetrain.set_pid()
+        #self.drivetrain.set_pid()
         self.drivetrain.reset_drivetrain()
         self.drivetrain.reset_gyro()
 
@@ -66,10 +66,8 @@ class TeutonicForceRobot(wpilib.TimedRobot):
             self.drivetrain.reset_gyro()
             self.drivetrain_timer.restart()
             self.drivetrain.change_drivetrain_state("Resetting Gyro")
-        elif self.drivetrain_controller.getYButtonPressed():
-            strafe_speed = 0
-
-        #self.vision.get_distance_to_speaker()
+        
+        self.vision.get_distance_to_speaker()
 
         # Check if max drivetrain speed needs to be changed.
         if self.drivetrain_controller.getLeftTriggerAxis() > 0.1 and self.drivetrain_controller.getRightTriggerAxis() > 0.1:
@@ -144,7 +142,7 @@ class TeutonicForceRobot(wpilib.TimedRobot):
                     self.prime_shooter_timer.restart()
                     self.shooter.change_shooter_state("Armed")
             case "Armed":
-                if self.prime_shooter_timer.hasElapsed(2.0):
+                if self.prime_shooter_timer.hasElapsed(2.5):
                     self.prime_shooter_timer.reset()
                     self.shooter.start_intake_motor()
                     self.shoot_timer.restart()
@@ -154,7 +152,7 @@ class TeutonicForceRobot(wpilib.TimedRobot):
                     self.shoot_timer.reset()
                     self.shooter.change_shooter_state("Reset")
             case "Force Fire":
-                self.arm.set(45)
+                #self.arm.set(45)
                 self.shooter.start_flywheel_motors()
                 self.prime_shooter_timer.restart()
                 self.shooter.change_shooter_state("Armed")

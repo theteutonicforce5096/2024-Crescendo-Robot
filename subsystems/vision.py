@@ -1,6 +1,7 @@
 from photonlibpy import photonCamera, photonUtils
 from math import radians
 from wpilib.shuffleboard import Shuffleboard 
+from wpilib import DriverStation
 
 class Vision():
     def __init__(self, inBackCamera: str):
@@ -12,14 +13,20 @@ class Vision():
         """
         self.backCamera = photonCamera(inBackCamera)
         self.backCam = photonCamera.PhotonCamera('backCamera')
-        self.speaker_distance = Shuffleboard.getTab("Drivers").add(f"Speaker Distance", 0.0).getEntry()
+        self.speaker_distance = Shuffleboard.getTab("Drivers").add(f"Distance to Speaker", "None").getEntry()
+        
+        if DriverStation.getAlliance() == DriverStation.Alliance.kBlue:
+            self.tag = 7
+        else:
+            self.tag = 4
             
     def get_distance_to_speaker(self):
         cameraHeightMeters = 0
-        targetHeightMeters = 0
+        targetHeightMeters = 1.431925
         cameraPitch = radians(0)
 
         self.bestTarget = self.backCam.getLatestResult().getBestTarget()
-        
-        distance = photonUtils.PhotonUtils.calculateDistanceToTargetMeters(cameraHeightMeters, targetHeightMeters, cameraPitch, (radians(self.bestTarget.getPitch())))
-        self.speaker_distance.setFloat(distance)
+
+        if self.bestTarget.getFiducialId() == self.tag:
+            distance = photonUtils.PhotonUtils.calculateDistanceToTargetMeters(cameraHeightMeters, targetHeightMeters, cameraPitch, (radians(self.bestTarget.getPitch())))
+            self.speaker_distance.setString(str(distance))
