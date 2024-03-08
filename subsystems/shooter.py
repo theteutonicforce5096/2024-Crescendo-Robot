@@ -47,6 +47,7 @@ class Shooter():
   
         # Set Shooter State
         self.shooter_state = "Idle"
+        self.next_shooter_state = "None"
         self.drivers_tab_state = Shuffleboard.getTab("Drivers").add(f"Shooter State", self.shooter_state).withSize(2, 2).getEntry()
         self.shooter_speed_widget = Shuffleboard.getTab("Drivers").add(f"Shooter Speed", 1.0).withSize(2, 2).getEntry()
 
@@ -77,11 +78,20 @@ class Shooter():
         self.flywheel_left_motor.set(phoenix5.ControlMode.PercentOutput, 0)
         self.flywheel_right_motor.set(phoenix5.ControlMode.PercentOutput, 0)
 
+        self.change_shooter_state("Idle")
+        self.next_shooter_state = "None"
+
     def get_shooter_state(self):
         """
         Get the shooter's state.
         """
         return self.shooter_state
+    
+    def get_next_shooter_state(self):
+        """
+        Get the next shooter state.
+        """
+        return self.next_shooter_state
     
     def change_shooter_state(self, state):
         """
@@ -92,6 +102,15 @@ class Shooter():
         """
         self.shooter_state = state
         self.drivers_tab_state.setString(self.shooter_state)
+
+    def change_next_shooter_state(self, state):
+        """
+        Change the next shooter state.
+
+        :param state: Next state of the shooter
+        :type state: str
+        """
+        self.next_shooter_state = state
 
     def start_intake_motor(self):
         """

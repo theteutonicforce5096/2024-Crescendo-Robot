@@ -168,5 +168,5 @@ class SwerveModule():
         self.driving_motor.set_control(self.driving_pid.with_velocity((desired_speed / 5.21208) * 100))
         self.steering_motor.set_control(self.steering_pid.with_position(desired_position)) 
     
-    # def set_voltage(self, voltage):
-    #     self.driving_motor.set_control(phoenix6.controls.VoltageOut(voltage))
+    def set_voltage(self, voltage):
+        self.driving_motor.set_control(phoenix6.controls.VoltageOut(voltage))

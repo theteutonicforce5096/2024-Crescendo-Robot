@@ -1,11 +1,13 @@
 import wpilib
 from wpilib.shuffleboard import Shuffleboard
 from subsystems.drivetrain import SwerveDrive
+from subsystems.arm import Arm
 
 class TeutonicForceRobot(wpilib.TimedRobot):
     def robotInit(self):
         # Initialize components
         self.drivetrain = SwerveDrive()
+        self.arm = Arm()
         self.drivetrain.reset_drivetrain()
 
         # Initialize controllers
@@ -30,5 +32,12 @@ class TeutonicForceRobot(wpilib.TimedRobot):
             self.voltage -= 0.01
         
         self.drivetrain.set_voltage(self.voltage)
+
+        # if self.drivetrain_controller.getYButtonPressed():
+        #     self.voltage += 0.01
+        # elif self.drivetrain_controller.getAButtonPressed():
+        #     self.voltage -= 0.01
+        
+        # self.arm.set_voltage(self.voltage)
         self.v_widget.setFloat(self.voltage)
 

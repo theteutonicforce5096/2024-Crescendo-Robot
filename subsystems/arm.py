@@ -38,9 +38,10 @@ class Arm():
         # self.d_widget = Shuffleboard.getTab("Arm").add(f"D", 0.0).withSize(2, 2).getEntry()
 
         # PID Controller
-        self.arm_controller = ProfiledPIDController(80, 0, 0, TrapezoidProfile.Constraints(1/4, 1/4))
+        self.arm_controller = ProfiledPIDController(60, 0, 0, TrapezoidProfile.Constraints(1/3, 2/3))
         self.arm_controller.enableContinuousInput(0, 1)
-        #self.static_gain = 0
+        self.arm_controller.setTolerance(2 / 360)
+        self.static_gain = 0
         self.gravity_gain = 0.3
         
         # Encoder configs
@@ -90,7 +91,14 @@ class Arm():
         self.arm_controller.setGoal(self.encoder_0_position + (angle / 360))
         self.arm_setpoint = angle
         self.arm_setpoint_entry.setString(str(angle))
-        
+
+    def set_voltage(self, voltage):
+        self.left_motor.set_control(phoenix6.controls.VoltageOut(voltage))
+        self.right_motor.set_control(phoenix6.controls.VoltageOut(voltage))
+
+    def reached_goal(self):
+        return self.arm_controller.atGoal()
+
     def update_pid_controller(self):
         """
         Update output of PID controller.
@@ -104,10 +112,10 @@ class Arm():
         angle_radians = 2.0 * pi * angle
         feedforward = (self.gravity_gain * cos(angle_radians))
         
-        # if motor_speed > 0.05:
-        #     feedforward += self.static_gain
-        # elif motor_speed < -0.05:
-        #     feedforward -= self.static_gain
+        if motor_speed > 0.05:
+            feedforward += self.static_gain
+        elif motor_speed < -0.05:
+            feedforward -= self.static_gain
 
         desired_voltage = motor_speed + feedforward
 
