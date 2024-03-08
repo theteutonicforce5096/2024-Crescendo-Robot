@@ -38,7 +38,7 @@ class Arm():
         # self.d_widget = Shuffleboard.getTab("Arm").add(f"D", 0.0).withSize(2, 2).getEntry()
 
         # PID Controller
-        self.arm_controller = ProfiledPIDController(100, 0, 0, TrapezoidProfile.Constraints(1/4, 1/3))
+        self.arm_controller = ProfiledPIDController(80, 0, 0, TrapezoidProfile.Constraints(1/4, 1/4))
         self.arm_controller.enableContinuousInput(0, 1)
         #self.static_gain = 0
         self.gravity_gain = 0.3

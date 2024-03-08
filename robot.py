@@ -9,8 +9,7 @@ class TeutonicForceRobot(wpilib.TimedRobot):
     def robotInit(self):
         # Initialize components
         self.drivetrain = SwerveDrive()
-        self.drivetrain.set_pid()
-        self.shooter = Shooter(40, 41, 42, True, False, False, 0.7)
+        self.shooter = Shooter(40, 41, 42, True, False, False, 0.75)
         self.arm = Arm(50, 51, True, False, 0, 0.9853633496340838, 0.9550960488774012)
         self.color_sensor = ColorSensor()
         #self.vision = Vision()
@@ -64,7 +63,7 @@ class TeutonicForceRobot(wpilib.TimedRobot):
     def teleopPeriodic(self):
         # Get speeds from drivetrain controller.
         forward_speed = self.drivetrain_controller.getLeftY()
-        strafe_speed = 0 #self.drivetrain_controller.getLeftX()
+        strafe_speed = self.drivetrain_controller.getLeftX()
         rotation_speed = self.drivetrain_controller.getRightX()
 
         # Check if gyro needs to be reset.
@@ -73,16 +72,18 @@ class TeutonicForceRobot(wpilib.TimedRobot):
             self.drivetrain.reset_gyro()
             self.drivetrain_timer.restart()
             self.drivetrain.change_drivetrain_state("Resetting Gyro")
+        elif self.drivetrain_controller.getYButtonPressed():
+            strafe_speed = 0
 
         #self.vision.get_distance_to_speaker()
 
         # Check if max drivetrain speed needs to be changed.
-        if self.drivetrain_controller.getLeftTriggerAxis() > 0.1:
-            self.drivetrain.change_max_drivetrain_speed(0.25)
+        if self.drivetrain_controller.getLeftTriggerAxis() > 0.1 and self.drivetrain_controller.getRightTriggerAxis() > 0.1:
+            self.drivetrain.change_max_drivetrain_speed(1.0)
+        elif self.drivetrain_controller.getLeftTriggerAxis() > 0.1:
+            self.drivetrain.change_max_drivetrain_speed(0.125)
         elif self.drivetrain_controller.getRightTriggerAxis() > 0.1:
             self.drivetrain.change_max_drivetrain_speed(0.75)
-        elif self.drivetrain_controller.getLeftTriggerAxis() > 0.1 and self.drivetrain_controller.getRightTriggerAxis() > 0.1:
-            self.drivetrain.change_max_drivetrain_speed(1.0)
         else:
             self.drivetrain.change_max_drivetrain_speed(0.5)
 
