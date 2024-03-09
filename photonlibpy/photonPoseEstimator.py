@@ -9,6 +9,7 @@ from .photonPipelineResult import PhotonPipelineResult
 from .photonCamera import PhotonCamera
 from .estimatedRobotPose import EstimatedRobotPose
 
+
 class PoseStrategy(enum.Enum):
     """
     Position estimation strategies that can be used by the PhotonPoseEstimator class.

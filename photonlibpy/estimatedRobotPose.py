@@ -8,6 +8,7 @@ from .photonTrackedTarget import PhotonTrackedTarget
 if TYPE_CHECKING:
     from .photonPoseEstimator import PoseStrategy
 
+
 @dataclass
 class EstimatedRobotPose:
     """An estimated pose based on pipeline result"""

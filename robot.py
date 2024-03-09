@@ -4,15 +4,19 @@ from subsystems.shooter import Shooter
 from subsystems.arm import Arm
 from subsystems.color_sensor import ColorSensor
 from subsystems.vision import Vision
+from wpilib import RobotController
 
 class TeutonicForceRobot(wpilib.TimedRobot):
     def robotInit(self):
+        # Set brownout voltage
+        RobotController.setBrownoutVoltage(6.3)
+
         # Initialize components
         self.drivetrain = SwerveDrive()
         self.shooter = Shooter(40, 41, 42, True, False, False, 0.75)
-        self.arm = Arm(50, 51, True, False, 0, 0.9853633496340838, 0.9550960488774012)
+        self.arm = Arm(50, 51, True, False, 0, 0.9873264996831624, 0.9502755237568881)
         self.color_sensor = ColorSensor()
-        self.vision = Vision('backCamera')
+        self.vision = Vision()
 
         # Initialize controllers
         self.drivetrain_controller = wpilib.XboxController(0)
@@ -49,8 +53,11 @@ class TeutonicForceRobot(wpilib.TimedRobot):
         # Reset Arm
         self.arm.reset()
 
+        # Reset Vision
+        self.vision.reset()
+
         # Reset Drivetrain
-        #self.drivetrain.set_pid()
+        self.drivetrain.set_pid()
         self.drivetrain.reset_drivetrain()
         self.drivetrain.reset_gyro()
 
@@ -73,11 +80,11 @@ class TeutonicForceRobot(wpilib.TimedRobot):
         if self.drivetrain_controller.getLeftTriggerAxis() > 0.1 and self.drivetrain_controller.getRightTriggerAxis() > 0.1:
             self.drivetrain.change_max_drivetrain_speed(1.0)
         elif self.drivetrain_controller.getLeftTriggerAxis() > 0.1:
-            self.drivetrain.change_max_drivetrain_speed(0.25)
+            self.drivetrain.change_max_drivetrain_speed(0.5)
         elif self.drivetrain_controller.getRightTriggerAxis() > 0.1:
             self.drivetrain.change_max_drivetrain_speed(0.75)
         else:
-            self.drivetrain.change_max_drivetrain_speed(0.5)
+            self.drivetrain.change_max_drivetrain_speed(0.25)
 
         # Set deadzone on forward speed.
         if forward_speed > 0.1 or forward_speed < -0.1:
@@ -116,7 +123,7 @@ class TeutonicForceRobot(wpilib.TimedRobot):
         match self.shooter.get_shooter_state():
             case "Idle":
                 if self.shooter_controller.getAButtonPressed():
-                    self.arm.set(-12)
+                    self.arm.set(-13)
                     self.shooter.change_next_shooter_state("Start Collecting")
                     self.shooter.change_shooter_state("Moving Arm")
             case "Start Collecting":
@@ -126,7 +133,7 @@ class TeutonicForceRobot(wpilib.TimedRobot):
             case "Collecting":
                 if self.color_sensor.detects_ring():
                     self.shooter.stop_intake_motor()
-                    self.arm.set(60)
+                    self.arm.set(45)
                     self.shooter.change_shooter_state("Loaded")
             case "Loaded":
                 if self.shooter_controller.getXButtonPressed():
@@ -142,7 +149,7 @@ class TeutonicForceRobot(wpilib.TimedRobot):
                     self.prime_shooter_timer.restart()
                     self.shooter.change_shooter_state("Armed")
             case "Armed":
-                if self.prime_shooter_timer.hasElapsed(2.5):
+                if self.prime_shooter_timer.hasElapsed(1.5):
                     self.prime_shooter_timer.reset()
                     self.shooter.start_intake_motor()
                     self.shoot_timer.restart()
@@ -172,7 +179,7 @@ class TeutonicForceRobot(wpilib.TimedRobot):
                     self.shooter.change_shooter_state("Reset")
             case "Reset":
                 self.drivetrain.change_drivetrain_state("Enabled")
-                self.arm.set(60)
+                self.arm.set(45)
                 self.shooter.reset()
             case "Moving Arm":
                 if self.arm.reached_goal():

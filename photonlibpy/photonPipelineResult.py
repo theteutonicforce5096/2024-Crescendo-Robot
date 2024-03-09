@@ -4,6 +4,7 @@ from photonlibpy.multiTargetPNPResult import MultiTargetPNPResult
 from photonlibpy.packet import Packet
 from photonlibpy.photonTrackedTarget import PhotonTrackedTarget
 
+
 @dataclass
 class PhotonPipelineResult:
     latencyMillis: float = -1.0
@@ -15,8 +16,6 @@ class PhotonPipelineResult:
         self.targets = []
         self.latencyMillis = packet.decodeDouble()
         targetCount = packet.decode8()
-
-        self.hasWarned = False
 
         for _ in range(targetCount):
             target = PhotonTrackedTarget()
@@ -36,16 +35,9 @@ class PhotonPipelineResult:
 
     def getTimestamp(self) -> float:
         return self.timestampSec
-    
+
     def getTargets(self) -> list[PhotonTrackedTarget]:
         return self.targets
-    
+
     def hasTargets(self) -> bool:
         return len(self.targets) > 0
-    
-    def getBestTarget(self) -> PhotonTrackedTarget:
-        if not self.hasTargets() and not self.hasWarned:
-            errorStr = "This PhotonPipelineResult object has no targets associated with it! Please check hasTargets() \nbefore calling this method. For more information, please review the PhotonLib \ndocumentation at https://docs.photonvision.org"
-            self.hasWarned = True
-            raise Exception(errorStr)
-        return self.targets[0] if self.hasTargets() else None

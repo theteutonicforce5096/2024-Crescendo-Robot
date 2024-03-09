@@ -2,6 +2,7 @@ import struct
 from wpimath.geometry import Transform3d, Translation3d, Rotation3d, Quaternion
 import wpilib
 
+
 class Packet:
     def __init__(self, data: bytes):
         """

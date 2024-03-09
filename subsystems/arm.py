@@ -38,7 +38,7 @@ class Arm():
         # self.d_widget = Shuffleboard.getTab("Arm").add(f"D", 0.0).withSize(2, 2).getEntry()
 
         # PID Controller
-        self.arm_controller = ProfiledPIDController(60, 0, 0, TrapezoidProfile.Constraints(1/3, 2/3))
+        self.arm_controller = ProfiledPIDController(70, 0, 0, TrapezoidProfile.Constraints(1/3, 2/3))
         self.arm_controller.enableContinuousInput(0, 1)
         self.arm_controller.setTolerance(2 / 360)
         self.static_gain = 0
@@ -77,7 +77,7 @@ class Arm():
         """
         Reset the Arm. Set it to idle position. 
         """
-        self.set(60)
+        self.set(45)
         self.arm_controller.reset(self._get_encoder_value())
 
     def set(self, angle):
