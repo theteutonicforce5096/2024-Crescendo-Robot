@@ -13,7 +13,7 @@ class TeutonicForceRobot(wpilib.TimedRobot):
 
         # Initialize components
         self.drivetrain = SwerveDrive()
-        self.shooter = Shooter(40, 41, 42, True, False, False, 0.75)
+        self.shooter = Shooter(40, 41, 42, True, False, False)
         self.arm = Arm(50, 51, True, False, 0, 0.9873264996831624, 0.9502755237568881)
         self.color_sensor = ColorSensor()
         self.vision = Vision()
@@ -129,7 +129,7 @@ class TeutonicForceRobot(wpilib.TimedRobot):
                     self.shooter.change_next_shooter_state("Start Collecting")
                     self.shooter.change_shooter_state("Moving Arm")
             case "Start Collecting":
-                self.shooter.start_intake_motor()
+                self.shooter.set_intake_motor(0.75)
                 self.shooter.change_next_shooter_state("None")
                 self.shooter.change_shooter_state("Collecting")
             case "Collecting":
@@ -154,7 +154,7 @@ class TeutonicForceRobot(wpilib.TimedRobot):
             case "Armed":
                 if self.prime_shooter_timer.hasElapsed(1.5):
                     self.prime_shooter_timer.reset()
-                    self.shooter.start_intake_motor()
+                    self.shooter.set_intake_motor(1)
                     self.shoot_timer.restart()
                     self.shooter.change_next_shooter_state("None")
                     self.shooter.change_shooter_state("Fire")
@@ -163,7 +163,7 @@ class TeutonicForceRobot(wpilib.TimedRobot):
                     self.shoot_timer.reset()
                     self.shooter.change_shooter_state("Reset")
             case "Force Fire":
-                self.shooter.start_flywheel_motors()
+                self.shooter.set_flywheel_motors(0.85)
                 self.prime_shooter_timer.restart()
                 self.shooter.change_shooter_state("Armed")
             case "Release Note":
@@ -173,7 +173,7 @@ class TeutonicForceRobot(wpilib.TimedRobot):
                 self.shooter.change_shooter_state("Moving Arm")
             case "Start Releasing Note":
                 self.shooter.reverse_flywheel_motors()
-                self.shooter.reverse_intake_motor()
+                self.shooter.set_intake_motor(-1)
                 self.drop_timer.restart()
                 self.shooter.change_next_shooter_state("None")
                 self.shooter.change_shooter_state("Stop Releasing Note")

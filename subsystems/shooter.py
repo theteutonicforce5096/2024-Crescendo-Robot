@@ -3,7 +3,7 @@ from wpilib.shuffleboard import Shuffleboard
 
 class Shooter():
     """Class for controlling shooter on robot."""
-    def __init__(self, intake_motor_id, flywheel_left_motor_id, flywheel_right_motor_id, intake_motor_inverted, flywheel_left_inverted, flywheel_right_inverted, intake_motor_speed):
+    def __init__(self, intake_motor_id, flywheel_left_motor_id, flywheel_right_motor_id, intake_motor_inverted, flywheel_left_inverted, flywheel_right_inverted):
         """
         Constructor for Swerve Module.
 
@@ -19,8 +19,6 @@ class Shooter():
         :type flywheel_left_inverted: boolean
         :param flywheel_right_inverted: Whether the motor is inverted or not.
         :type flywheel_right_inverted: boolean
-        :param intake_motor_speed: Speed of the intake motor.
-        :type intake_motor_speed: float
         """        
         # Hardware initialization
         self.intake_motor = phoenix5.VictorSPX(intake_motor_id)
@@ -41,9 +39,6 @@ class Shooter():
 
         if flywheel_right_inverted:
             self._invert_motor(self.flywheel_right_motor)
-
-        # Intake motor speed
-        self.intake_motor_speed = intake_motor_speed
   
         # Set Shooter State
         self.shooter_state = "Idle"
@@ -112,23 +107,30 @@ class Shooter():
         """
         self.next_shooter_state = state
 
-    def start_intake_motor(self):
+    def set_intake_motor(self, speed):
         """
-        Start the intake motors.
-        """
-        self.intake_motor.set(phoenix5.ControlMode.PercentOutput, self.intake_motor_speed)
+        Set the intake motors to a specific speed.
 
-    def reverse_intake_motor(self):
+        :param speed: Desired speed of the intake motors.
+        :type speed: float
         """
-        Reverse the intake motors.
-        """
-        self.intake_motor.set(phoenix5.ControlMode.PercentOutput, self.intake_motor_speed * -1)
+        self.intake_motor.set(phoenix5.ControlMode.PercentOutput, speed)
 
     def stop_intake_motor(self):
         """
         Stop the intake motors.
         """
         self.intake_motor.set(phoenix5.ControlMode.PercentOutput, 0)
+
+    def set_flywheel_motors(self, speed):
+        """
+        Set the flywheel motors to a specific speed.
+
+        :param speed: Desired speed of the flywheel motors.
+        :type speed: float
+        """
+        self.flywheel_left_motor.set(phoenix5.ControlMode.PercentOutput, speed)
+        self.flywheel_right_motor.set(phoenix5.ControlMode.PercentOutput, speed)
 
     def start_flywheel_motors(self):
         """
