@@ -11,7 +11,6 @@ class Vision():
         :param camera: Name of the camera. Can be found in the PhotonVision dashboard.
         :type camera: str
         """
-        #self.backCamera = photonCamera('main'))
         self.camera = photonCamera.PhotonCamera('main')
         self.speaker_distance = Shuffleboard.getTab("Drivers").add(f"Distance to Speaker", "None").withSize(2, 2).getEntry()
         self.speaker_angle = Shuffleboard.getTab("Drivers").add(f"Angle to Speaker", "None").withSize(2, 2).getEntry()
@@ -36,17 +35,13 @@ class Vision():
         cameraPitch = radians(33)
 
         result = self.camera.getLatestResult()
-        print("I am here")
         if result.hasTargets() == True:
             targets = result.getTargets()
             for target in targets:
-                print("Scanning")
                 if target.getFiducialId() == self.tag:
-                    print("Found")
                     distance = photonUtils.PhotonUtils.calculateDistanceToTargetMeters(cameraHeightMeters, targetHeightMeters, cameraPitch, (radians(target.getPitch())))
                     self.speaker_distance.setString(str(distance))
                     self.speaker_angle.setString(str(target.getYaw()))
-                    print(target.getPitch())
                 else:
                     self.speaker_distance.setString("None")
                     self.speaker_angle.setString("None")

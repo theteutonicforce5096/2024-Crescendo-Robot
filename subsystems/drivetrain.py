@@ -36,15 +36,6 @@ class SwerveDrive():
         self.drivetrain_state = "Disabled"
         self.drivers_tab_state = Shuffleboard.getTab("Drivers").add(f"Swerve Drive State", self.drivetrain_state).withSize(2, 2).getEntry()
 
-        self.s_widget = Shuffleboard.getTab("PID").add(f"S", 0.18).withSize(2, 2).getEntry()
-        self.v_widget = Shuffleboard.getTab("PID").add(f"V", 0.13757366).withSize(2, 2).getEntry()
-        self.a_widget = Shuffleboard.getTab("PID").add(f"A", 0.01267852).withSize(2, 2).getEntry()
-        self.p_widget = Shuffleboard.getTab("PID").add(f"P", 0.11).withSize(2, 2).getEntry()
-        self.i_widget = Shuffleboard.getTab("PID").add(f"I", 0.0).withSize(2, 2).getEntry()
-        self.d_widget = Shuffleboard.getTab("PID").add(f"D", 0.0).withSize(2, 2).getEntry()
-        self.acceleration_widget = Shuffleboard.getTab("PID").add(f"Acceleration", 100.0).withSize(2, 2).getEntry()
-        self.jerk_widget = Shuffleboard.getTab("PID").add(f"Jerk", 1500.0).withSize(2, 2).getEntry()
-
     def reset_drivetrain(self):
         """
         Reset Swerve Modules.
@@ -54,16 +45,6 @@ class SwerveDrive():
         self.back_left_module.reset()
         self.back_right_module.reset()
         self.change_drivetrain_state("Enabled")
-
-    def set_pid(self):
-        self.front_left_module.set_pid(False, self.s_widget.getFloat(0.0), self.v_widget.getFloat(0.0), self.a_widget.getFloat(0.0), self.p_widget.getFloat(0.0),
-                                   self.i_widget.getFloat(0.0), self.d_widget.getFloat(0.0), self.acceleration_widget.getFloat(0.0), self.jerk_widget.getFloat(0.0))
-        self.front_right_module.set_pid(True, self.s_widget.getFloat(0.0), self.v_widget.getFloat(0.0), self.a_widget.getFloat(0.0), self.p_widget.getFloat(0.0),
-                                   self.i_widget.getFloat(0.0), self.d_widget.getFloat(0.0), self.acceleration_widget.getFloat(0.0), self.jerk_widget.getFloat(0.0))
-        self.back_left_module.set_pid(False, self.s_widget.getFloat(0.0), self.v_widget.getFloat(0.0), self.a_widget.getFloat(0.0), self.p_widget.getFloat(0.0),
-                                   self.i_widget.getFloat(0.0), self.d_widget.getFloat(0.0), self.acceleration_widget.getFloat(0.0), self.jerk_widget.getFloat(0.0))
-        self.back_right_module.set_pid(True, self.s_widget.getFloat(0.0), self.v_widget.getFloat(0.0), self.a_widget.getFloat(0.0), self.p_widget.getFloat(0.0),
-                                   self.i_widget.getFloat(0.0), self.d_widget.getFloat(0.0), self.acceleration_widget.getFloat(0.0), self.jerk_widget.getFloat(0.0))
 
     def reset_gyro(self):
         """
@@ -126,12 +107,6 @@ class SwerveDrive():
         self.front_right_module.set(self.max_drivetrain_speed * front_right_module_state.speed, front_right_module_state.angle)
         self.back_left_module.set(self.max_drivetrain_speed * back_left_module_state.speed, back_left_module_state.angle)
         self.back_right_module.set(self.max_drivetrain_speed * back_right_module_state.speed, back_right_module_state.angle)
-
-    def set_voltage(self, voltage):
-        self.front_left_module.set_voltage(voltage)
-        self.front_right_module.set_voltage(voltage)
-        self.back_left_module.set_voltage(voltage)
-        self.back_right_module.set_voltage(voltage)
 
     def stop_robot(self):
         """

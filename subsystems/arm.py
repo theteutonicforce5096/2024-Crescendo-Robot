@@ -38,9 +38,8 @@ class Arm():
         # self.d_widget = Shuffleboard.getTab("Arm").add(f"D", 0.0).withSize(2, 2).getEntry()
 
         # PID Controller
-        self.arm_controller = ProfiledPIDController(70, 0, 0, TrapezoidProfile.Constraints(1/3, 2/3))
+        self.arm_controller = ProfiledPIDController(75, 0, 0, TrapezoidProfile.Constraints(1/3, 2/3))
         self.arm_controller.enableContinuousInput(0, 1)
-        self.arm_controller.setTolerance(2 / 360)
         self.static_gain = 0
         self.gravity_gain = 0.3
         
@@ -77,24 +76,55 @@ class Arm():
         """
         Reset the Arm. Set it to idle position. 
         """
-        self.set(45)
+        self.set_carry_position()
         self.arm_controller.reset(self._get_encoder_value())
 
     def set(self, angle):
         """
         Sets the arm at a certain angle.
         """
-        if angle < -14:
-            angle = -14
+        if angle < -14.5:
+            angle = -14.5
+        elif angle > 95:
+            angle = 95
             
         #self.arm_controller.setPID(self.p_widget.getFloat(0.0), self.i_widget.getFloat(0.0), self.d_widget.getFloat(0.0))
         self.arm_controller.setGoal(self.encoder_0_position + (angle / 360))
         self.arm_setpoint = angle
         self.arm_setpoint_entry.setString(str(angle))
 
+    def set_carry_position(self):
+        """
+        Sets the arm to the carrying position.
+        """
+        self.set(45)
+
+    def set_collecting_position(self):
+        """
+        Sets the arm to the collecting position.
+        """
+        self.set(-13)
+        self.set_tolerance(5)
+
+    def set_amp_shooting_position(self):
+        """
+        Sets the arm to the collecting position.
+        """
+        self.set(-13)
+        self.set_tolerance(1)
+
     def set_voltage(self, voltage):
         self.left_motor.set_control(phoenix6.controls.VoltageOut(voltage))
         self.right_motor.set_control(phoenix6.controls.VoltageOut(voltage))
+
+    def set_tolerance(self, tolerance):
+        """
+        Sets the tolerance of the arm.
+
+        :param tolerance: Tolerance of the arm in degrees.
+        :type: float
+        """
+        self.arm_controller.setTolerance(tolerance / 360)
 
     def reached_goal(self):
         return self.arm_controller.atGoal()

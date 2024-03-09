@@ -55,6 +55,7 @@ class SwerveModule():
         if inverted_module:
             talonfx_configs.motor_output.inverted = phoenix6.signals.InvertedValue.CLOCKWISE_POSITIVE
         
+        # Supply limit
         talonfx_configs.current_limits.supply_current_limit = 80
 
         # PID Configs
@@ -67,32 +68,7 @@ class SwerveModule():
 
         # Motion Magic
         talonfx_configs.motion_magic.motion_magic_acceleration = 100
-        talonfx_configs.motion_magic.motion_magic_jerk = 250
-
-        # Apply the configs to the driving motor
-        self.driving_motor.configurator.apply(talonfx_configs) 
-
-        # Create PID object
-        self.driving_pid = phoenix6.controls.MotionMagicVelocityVoltage(velocity = 0, enable_foc = False)
-    
-    def set_pid(self, inverted, s, v, a, p, i, d, acceleration, jerk):
-        # Driving Motor Configs
-        talonfx_configs = phoenix6.configs.TalonFXConfiguration()
-        if inverted:
-            talonfx_configs.motor_output.inverted = phoenix6.signals.InvertedValue.CLOCKWISE_POSITIVE
-        talonfx_configs.current_limits.supply_current_limit = 80
-
-        # PID Configs
-        talonfx_configs.slot0.k_s = s
-        talonfx_configs.slot0.k_v = v
-        talonfx_configs.slot0.k_a = a
-        talonfx_configs.slot0.k_p = p
-        talonfx_configs.slot0.k_i = i
-        talonfx_configs.slot0.k_d = d
-
-        # Motion Magic
-        talonfx_configs.motion_magic.motion_magic_acceleration = acceleration
-        talonfx_configs.motion_magic.motion_magic_jerk = jerk
+        talonfx_configs.motion_magic.motion_magic_jerk = 1500
 
         # Apply the configs to the driving motor
         self.driving_motor.configurator.apply(talonfx_configs) 
@@ -109,11 +85,11 @@ class SwerveModule():
         talonfx_configs.closed_loop_general.continuous_wrap = True
         talonfx_configs.feedback.sensor_to_mechanism_ratio = 150 / 7
         
+        # Supply limit
         talonfx_configs.current_limits.supply_current_limit = 80
 
-
         # PID Configs
-        talonfx_configs.slot0.k_p = 50
+        talonfx_configs.slot0.k_p = 100
         talonfx_configs.slot0.k_i = 0
         talonfx_configs.slot0.k_d = 0
 
@@ -173,6 +149,3 @@ class SwerveModule():
         # Set the motors to the desired speed and angle
         self.driving_motor.set_control(self.driving_pid.with_velocity((desired_speed / 5.21208) * 100))
         self.steering_motor.set_control(self.steering_pid.with_position(desired_position)) 
-    
-    def set_voltage(self, voltage):
-        self.driving_motor.set_control(phoenix6.controls.VoltageOut(voltage))

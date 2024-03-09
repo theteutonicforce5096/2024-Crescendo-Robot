@@ -79,7 +79,7 @@ class Shooter():
         self.flywheel_right_motor.set(phoenix5.ControlMode.PercentOutput, 0)
 
         self.change_shooter_state("Idle")
-        self.next_shooter_state = "None"
+        self.change_next_shooter_state("None")
 
     def get_shooter_state(self):
         """
