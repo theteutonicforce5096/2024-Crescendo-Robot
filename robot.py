@@ -3,6 +3,7 @@ from subsystems.drivetrain import SwerveDrive
 from subsystems.shooter import Shooter
 from subsystems.arm import Arm
 from subsystems.color_sensor import ColorSensor
+from subsystems.photoelectric_sensor import PhotoelectricSensor
 from subsystems.vision import Vision
 from wpilib import RobotController
 
@@ -16,6 +17,7 @@ class TeutonicForceRobot(wpilib.TimedRobot):
         self.shooter = Shooter(40, 41, 42, True, False, False)
         self.arm = Arm(50, 51, True, False, 0, 0.9873264996831624, 0.9502755237568881)
         self.color_sensor = ColorSensor()
+        #self.photoelectric_sensor = PhotoelectricSensor()
         self.vision = Vision()
 
         # Initialize controllers
@@ -56,6 +58,9 @@ class TeutonicForceRobot(wpilib.TimedRobot):
         # Reset Vision
         self.vision.reset()
 
+        # Reset Photoelectric sensor
+        #self.photoelectric_sensor.reset()
+
         # Reset Drivetrain
         self.drivetrain.reset_drivetrain()
         self.drivetrain.reset_gyro()
@@ -63,6 +68,7 @@ class TeutonicForceRobot(wpilib.TimedRobot):
     def teleopPeriodic(self):
         print(f"Arm: {self.arm.left_motor.get_supply_current()}")
         print(f"Steering: {self.drivetrain.front_right_module.steering_motor.get_supply_current()}")
+        print(f"Driving: {self.drivetrain.front_right_module.driving_motor.get_supply_current()}")
 
         # Get speeds from drivetrain controller.
         forward_speed = self.drivetrain_controller.getLeftY()
@@ -76,7 +82,7 @@ class TeutonicForceRobot(wpilib.TimedRobot):
             self.drivetrain_timer.restart()
             self.drivetrain.change_drivetrain_state("Resetting Gyro")
         
-        self.vision.get_distance_to_speaker()
+        distance = self.vision.get_distance_to_speaker()
 
         # Check if max drivetrain speed needs to be changed.
         if self.drivetrain_controller.getLeftTriggerAxis() > 0.1 and self.drivetrain_controller.getRightTriggerAxis() > 0.1:
@@ -133,8 +139,8 @@ class TeutonicForceRobot(wpilib.TimedRobot):
                 self.shooter.change_next_shooter_state("None")
                 self.shooter.change_shooter_state("Collecting")
             case "Collecting":
-                if self.color_sensor.detects_ring():
-                    self.shooter.stop_intake_motor()
+                if self.color_sensor.detects_ring(): # if self.photoelectric_sensor.detects_ring():
+                    self.shooter.set_intake_motor(0)
                     self.arm.set_carry_position()
                     self.shooter.change_shooter_state("Loaded")
             case "Loaded":
@@ -146,11 +152,15 @@ class TeutonicForceRobot(wpilib.TimedRobot):
                     self.shooter.change_next_shooter_state("Armed")
                     self.shooter.change_shooter_state("Moving Arm")
                 elif self.shooter_controller.getBButtonPressed():
-                    self.drivetrain.change_drivetrain_state("Disabled")
-                    self.shooter.start_flywheel_motors()
-                    # Change Arm position
-                    self.prime_shooter_timer.restart()
-                    self.shooter.change_shooter_state("Armed")
+                    distance = self.vision.get_distance_to_speaker()
+                    if distance != None:
+                        self.drivetrain.change_drivetrain_state("Disabled")
+                        arm_angle, flywheel_speed = self.shooter.predict_speaker_shooting_state(distance)
+                        self.shooter.set_flywheel_motors(flywheel_speed)
+                        self.prime_shooter_timer.restart()
+                        self.arm.set_speaker_shooting_position(arm_angle)
+                        self.shooter.change_next_shooter_state("Armed")
+                        self.shooter.change_shooter_state("Moving Arm")
             case "Armed":
                 if self.prime_shooter_timer.hasElapsed(1.5):
                     self.prime_shooter_timer.reset()
@@ -168,17 +178,16 @@ class TeutonicForceRobot(wpilib.TimedRobot):
                 self.shooter.change_shooter_state("Armed")
             case "Release Note":
                 self.arm.set_carry_position()
-                self.arm.set_tolerance(2)
                 self.shooter.change_next_shooter_state("Start Releasing Note")
                 self.shooter.change_shooter_state("Moving Arm")
             case "Start Releasing Note":
-                self.shooter.reverse_flywheel_motors()
+                self.shooter.set_flywheel_motors(-1)
                 self.shooter.set_intake_motor(-1)
                 self.drop_timer.restart()
                 self.shooter.change_next_shooter_state("None")
                 self.shooter.change_shooter_state("Stop Releasing Note")
             case "Stop Releasing Note":
-                if self.drop_timer.hasElapsed(1):
+                if self.drop_timer.hasElapsed(0.75):
                     self.drop_timer.reset()
                     self.shooter.change_shooter_state("Reset")
             case "Reset":

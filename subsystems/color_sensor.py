@@ -3,14 +3,11 @@ from wpilib import I2C
 from wpilib.shuffleboard import Shuffleboard
 
 class ColorSensor():
+    """Class for using color sensor on robot."""
+    
     def __init__(self):
         """
-        Initializer for the Vision module.
-
-        :param camera: Name of the camera. Can be found in the PhotonVision dashboard.
-        :type camera: str
-        :param colorSensor: Location of the color sensor port on the board.
-        :type colorSensor: Port
+        Constructor for Color Sensor.
         """
         self.color_sensor = ColorSensorV3(I2C.Port.kMXP)
         self.rgb_entry = Shuffleboard.getTab("ColorSensor").add(f"Proximity", "None").withSize(2, 2).getEntry()

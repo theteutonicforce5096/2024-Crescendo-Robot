@@ -62,16 +62,15 @@ class Shooter():
         :param motor: Motor that will be configured
         :type motor: VictorSPX
         """
-        motor.configVoltageCompSaturation(12.0)
         motor.enableVoltageCompensation(True)
+        motor.configVoltageCompSaturation(12.0)
 
     def reset(self):
         """
         Reset motors.
         """
-        self.intake_motor.set(phoenix5.ControlMode.PercentOutput, 0)
-        self.flywheel_left_motor.set(phoenix5.ControlMode.PercentOutput, 0)
-        self.flywheel_right_motor.set(phoenix5.ControlMode.PercentOutput, 0)
+        self.set_intake_motor(0)
+        self.set_flywheel_motors(0)
 
         self.change_shooter_state("Idle")
         self.change_next_shooter_state("None")
@@ -116,12 +115,6 @@ class Shooter():
         """
         self.intake_motor.set(phoenix5.ControlMode.PercentOutput, speed)
 
-    def stop_intake_motor(self):
-        """
-        Stop the intake motors.
-        """
-        self.intake_motor.set(phoenix5.ControlMode.PercentOutput, 0)
-
     def set_flywheel_motors(self, speed):
         """
         Set the flywheel motors to a specific speed.
@@ -139,6 +132,13 @@ class Shooter():
         self.flywheel_left_motor.set(phoenix5.ControlMode.PercentOutput, self.shooter_speed_widget.getFloat(1.0))
         self.flywheel_right_motor.set(phoenix5.ControlMode.PercentOutput, self.shooter_speed_widget.getFloat(1.0))
 
-    def reverse_flywheel_motors(self):
-        self.flywheel_left_motor.set(phoenix5.ControlMode.PercentOutput, self.shooter_speed_widget.getFloat(1.0) * -1)
-        self.flywheel_right_motor.set(phoenix5.ControlMode.PercentOutput, self.shooter_speed_widget.getFloat(1.0) * -1)
+    def predict_speaker_shooting_state(self, distance):
+        """
+        Predict the arm angle and flywheel speed for shooting at the speaker.
+
+        :param: distance: Distance, in meters, away from the Speaker.
+        :type distance: float
+        """
+        arm_angle = distance * 5 + 1
+        flywheel_speed = distance * 2 + 3
+        return arm_angle, flywheel_speed

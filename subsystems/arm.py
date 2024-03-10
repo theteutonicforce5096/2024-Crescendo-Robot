@@ -40,6 +40,7 @@ class Arm():
         # PID Controller
         self.arm_controller = ProfiledPIDController(75, 0, 0, TrapezoidProfile.Constraints(1/3, 2/3))
         self.arm_controller.enableContinuousInput(0, 1)
+        self.set_tolerance(2)
         self.static_gain = 0
         self.gravity_gain = 0.3
         
@@ -60,6 +61,7 @@ class Arm():
         # Arm Motor Configs
         talonfx_configs = phoenix6.configs.TalonFXConfiguration()
         
+        talonfx_configs.motor_output.neutral_mode = phoenix6.signals.NeutralModeValue.BRAKE
         if inverted_module:
             talonfx_configs.motor_output.inverted = phoenix6.signals.InvertedValue.CLOCKWISE_POSITIVE
 
@@ -77,6 +79,7 @@ class Arm():
         Reset the Arm. Set it to idle position. 
         """
         self.set_carry_position()
+        self.set_tolerance(2)
         self.arm_controller.reset(self._get_encoder_value())
 
     def set(self, angle):
@@ -98,6 +101,7 @@ class Arm():
         Sets the arm to the carrying position.
         """
         self.set(45)
+        self.set_tolerance(2)
 
     def set_collecting_position(self):
         """
@@ -108,10 +112,17 @@ class Arm():
 
     def set_amp_shooting_position(self):
         """
-        Sets the arm to the collecting position.
+        Sets the arm to the Amp shooting position.
         """
         self.set(-13)
         self.set_tolerance(1)
+
+    def set_speaker_shooting_position(self, arm_angle):
+        """
+        Sets the arm to the Speaker shooting position.
+        """
+        self.set(arm_angle)
+        self.set_tolerance(0.5)
 
     def set_voltage(self, voltage):
         self.left_motor.set_control(phoenix6.controls.VoltageOut(voltage))
