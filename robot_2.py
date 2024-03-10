@@ -8,7 +8,6 @@ class TeutonicForceRobot(wpilib.TimedRobot):
         # Initialize components
         self.drivetrain = SwerveDrive()
         self.arm = Arm(50, 51, True, False, 0, 0.9853633496340838, 0.9550960488774012)
-        self.drivetrain.reset_drivetrain()
 
         # Initialize controllers
         self.drivetrain_controller = wpilib.XboxController(0)
@@ -26,13 +25,7 @@ class TeutonicForceRobot(wpilib.TimedRobot):
         self.voltage = 0.0
 
     def teleopPeriodic(self):
-        # if self.drivetrain_controller.getYButtonPressed():
-        #     self.voltage += 1
-        # elif self.drivetrain_controller.getAButtonPressed():
-        #     self.voltage -= 1
-        
-        # self.drivetrain.set_voltage(self.voltage)
-
+        print(f"Arm: {self.arm.left_motor.get_supply_current()}")
         if self.drivetrain_controller.getYButtonPressed():
             self.voltage += 0.01
         elif self.drivetrain_controller.getAButtonPressed():

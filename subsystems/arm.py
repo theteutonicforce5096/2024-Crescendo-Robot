@@ -32,10 +32,7 @@ class Arm():
         self.right_motor = phoenix6.hardware.TalonFX(right_motor_id)
         self.encoder = DutyCycleEncoder(encoder_id)
 
-        # self.s_widget = Shuffleboard.getTab("Arm").add(f"S", 0.0).withSize(2, 2).getEntry()
-        # self.p_widget = Shuffleboard.getTab("Arm").add(f"P", 0.0).withSize(2, 2).getEntry()
-        # self.i_widget = Shuffleboard.getTab("Arm").add(f"I", 0.0).withSize(2, 2).getEntry()
-        # self.d_widget = Shuffleboard.getTab("Arm").add(f"D", 0.0).withSize(2, 2).getEntry()
+        self.p_widget = Shuffleboard.getTab("Arm").add(f"P", 0.0).withSize(2, 2).getEntry()
 
         # PID Controller
         self.arm_controller = ProfiledPIDController(75, 0, 0, TrapezoidProfile.Constraints(1/3, 2/3))

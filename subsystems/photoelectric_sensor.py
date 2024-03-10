@@ -10,7 +10,7 @@ class PhotoelectricSensor():
         """
         Constructor for photoelectric sensor.
         """
-        self.photoelectric_sensor = DigitalOutput(0)
+        #self.photoelectric_sensor = DigitalOutput(1)
         self.dio_entry = Shuffleboard.getTab("Drivers").add(f"Ring Detected (Photoelectric Sensor)", "None").withSize(2, 2).getEntry()
 
     def reset(self):
@@ -20,9 +20,10 @@ class PhotoelectricSensor():
         """
         Check for a ring in the robot.
         """
-        if self.photoelectric_sensor.get() == False:
-            self.dio_entry.setString("True")
-            return True
-        else:
-            self.dio_entry.setString("False")
-            return False
+        # if self.photoelectric_sensor.get() == False:
+        #     self.dio_entry.setString("True")
+        #     return True
+        # else:
+        #     self.dio_entry.setString("False")
+        #     return False
+        return False

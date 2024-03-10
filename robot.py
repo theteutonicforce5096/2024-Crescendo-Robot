@@ -2,7 +2,6 @@ import wpilib
 from subsystems.drivetrain import SwerveDrive
 from subsystems.shooter import Shooter
 from subsystems.arm import Arm
-from subsystems.color_sensor import ColorSensor
 from subsystems.photoelectric_sensor import PhotoelectricSensor
 from subsystems.vision import Vision
 from wpilib import RobotController
@@ -16,8 +15,7 @@ class TeutonicForceRobot(wpilib.TimedRobot):
         self.drivetrain = SwerveDrive()
         self.shooter = Shooter(40, 41, 42, True, False, False)
         self.arm = Arm(50, 51, True, False, 0, 0.9873264996831624, 0.9502755237568881)
-        self.color_sensor = ColorSensor()
-        #self.photoelectric_sensor = PhotoelectricSensor()
+        self.photoelectric_sensor = PhotoelectricSensor()
         self.vision = Vision()
 
         # Initialize controllers
@@ -59,7 +57,7 @@ class TeutonicForceRobot(wpilib.TimedRobot):
         self.vision.reset()
 
         # Reset Photoelectric sensor
-        #self.photoelectric_sensor.reset()
+        self.photoelectric_sensor.reset()
 
         # Reset Drivetrain
         self.drivetrain.reset_drivetrain()
@@ -139,7 +137,7 @@ class TeutonicForceRobot(wpilib.TimedRobot):
                 self.shooter.change_next_shooter_state("None")
                 self.shooter.change_shooter_state("Collecting")
             case "Collecting":
-                if self.color_sensor.detects_ring(): # if self.photoelectric_sensor.detects_ring():
+                if self.photoelectric_sensor.detects_ring():
                     self.shooter.set_intake_motor(0)
                     self.arm.set_carry_position()
                     self.shooter.change_shooter_state("Loaded")
