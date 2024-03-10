@@ -32,7 +32,7 @@ class Vision():
     def get_distance_to_speaker(self):
         cameraHeightMeters = 0.43815
         targetHeightMeters = 1.431925
-        cameraPitch = radians(33)
+        cameraPitch = radians(45)
 
         result = self.camera.getLatestResult()
         if result.hasTargets() == True:

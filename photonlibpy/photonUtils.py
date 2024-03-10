@@ -1,4 +1,4 @@
-import math
+from math import sin
 
 class PhotonUtils():
     def calculateDistanceToTargetMeters(cameraHeightMeters: float, targetHeightMeters: float, cameraPitchRadians: float, targetPitchRadians: float):
@@ -10,4 +10,4 @@ class PhotonUtils():
         :param cameraPitchRadians: The pitch of the camera from the horizontal plane in radians. Positive values up.
         :param targetPitchRadians: The pitch of the target in the camera's lens in radians. Positive values up.
         """
-        return (targetHeightMeters - cameraHeightMeters) / math.tan(cameraPitchRadians + targetPitchRadians)
+        return (targetHeightMeters - cameraHeightMeters) / sin(cameraPitchRadians + targetPitchRadians)
