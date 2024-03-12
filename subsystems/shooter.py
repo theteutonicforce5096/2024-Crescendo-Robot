@@ -63,6 +63,7 @@ class Shooter():
         :type motor: VictorSPX
         """
         motor.enableVoltageCompensation(True)
+        # TODO: The context help for enableVoltageCompensation() says that the voltage compensation saturation value must be set FIRST.
         motor.configVoltageCompSaturation(12.0)
 
     def reset(self):

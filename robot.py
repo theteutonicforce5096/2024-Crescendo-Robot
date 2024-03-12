@@ -5,6 +5,7 @@ from subsystems.arm import Arm
 from subsystems.photoelectric_sensor import PhotoelectricSensor
 from subsystems.vision import Vision
 from wpilib import RobotController
+import phoenix5
 
 class TeutonicForceRobot(wpilib.TimedRobot):
     def robotInit(self):
@@ -34,6 +35,13 @@ class TeutonicForceRobot(wpilib.TimedRobot):
         self.strafe_speed = 0
         self.rotation_speed = 0
 
+        # Initialize climbing motor
+        # TODO: May want to move the climber motor implementation into its own class
+        self.climber = phoenix5.VictorSPX(60)
+        self.climber.configVoltageCompSaturation(12.0)
+        self.climber.enableVoltageCompensation(True)
+        self.climber.setNeutralMode(phoenix5.NeutralMode.Brake)
+
     def teleopInit(self):
         # Reset timers
         self.timer.restart()
@@ -62,6 +70,9 @@ class TeutonicForceRobot(wpilib.TimedRobot):
         # Reset Drivetrain
         self.drivetrain.reset_drivetrain()
         self.drivetrain.reset_gyro()
+
+        # Reset the climber motor
+        self.climber.set(phoenix5.VictorSPXControlMode.PercentOutput, 0.0)
 
     def teleopPeriodic(self):
         print(f"Arm: {self.arm.left_motor.get_supply_current()}")
@@ -220,7 +231,18 @@ class TeutonicForceRobot(wpilib.TimedRobot):
                 if self.forward_speed != 0 or self.strafe_speed != 0 or self.rotation_speed != 0:
                     self.drivetrain_controller.setRumble(wpilib.XboxController.RumbleType.kBothRumble, 0.75)  
                 else:
-                    self.drivetrain_controller.setRumble(wpilib.XboxController.RumbleType.kBothRumble, 0) 
+                    self.drivetrain_controller.setRumble(wpilib.XboxController.RumbleType.kBothRumble, 0)
+        
+        # Run the climber motor
+        # If the signs of the commands don't look right, it's because the Y axis of the thumbstick
+        # always gives an inverted result.
+        climber_command = self.shooter_controller.getRightY()
+        if climber_command >= 0.5:
+            self.climber.set(phoenix5.VictorSPXControlMode.PercentOutput, -0.2)
+        elif climber_command <= -0.5:
+            self.climber.set(phoenix5.VictorSPXControlMode.PercentOutput, 0.2)
+        else:
+            self.climber.set(phoenix5.VictorSPXControlMode.PercentOutput, 0.0)
 
     def disabledInit(self):
         # Turn off drivetrain controller rumble if it is stil on.
