@@ -19,7 +19,7 @@ class ShootNScoot(BaseAuto):
     Default = False
 
     drivetrain = SwerveDrive()
-    shooter = Shooter()
+    shooter = Shooter(40, 41, 42, False, False, False, 0.7)
 
     @timed_state(duration=2, first=True, next_state="scoot")
     def shoot(self):
