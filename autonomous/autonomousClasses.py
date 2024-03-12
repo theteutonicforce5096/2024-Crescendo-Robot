@@ -28,4 +28,4 @@ class ShootNScoot(BaseAuto):
     @timed_state(duration=2)
     def scoot(self):
         self.drivetrain.move_robot(0.1, 0, 0)
-        #hey
+        
