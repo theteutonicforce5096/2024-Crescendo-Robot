@@ -121,7 +121,7 @@ class TeutonicForceRobot(wpilib.TimedRobot):
         else:
             self.rotation_speed = 0
 
-        # Check for shooter state overrides
+        #Check for shooter state overrides
         if self.shooter_controller.getYButtonPressed():
             self.shooter.change_shooter_state("Reset")
         elif self.shooter_controller.getRightBumperPressed():
@@ -158,6 +158,7 @@ class TeutonicForceRobot(wpilib.TimedRobot):
                     self.arm.set_amp_shooting_position()
                     self.shooter.start_flywheel_motors()
                     self.prime_shooter_timer.restart()
+                    # Move arm
                     self.shooter.change_next_shooter_state("Armed")
                     self.shooter.change_shooter_state("Moving Arm")
                 elif self.shooter_controller.getBButtonPressed():
@@ -229,7 +230,7 @@ class TeutonicForceRobot(wpilib.TimedRobot):
                     self.drivetrain.change_drivetrain_state("Enabled")
             case "Disabled":
                 if self.forward_speed != 0 or self.strafe_speed != 0 or self.rotation_speed != 0:
-                    self.drivetrain_controller.setRumble(wpilib.XboxController.RumbleType.kBothRumble, 0.75)  
+                    self.drivetrain_controller.setRumble(wpilib.XboxController.RumbleType.kBothRumble, 0.75)
                 else:
                     self.drivetrain_controller.setRumble(wpilib.XboxController.RumbleType.kBothRumble, 0)
         
