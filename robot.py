@@ -37,10 +37,10 @@ class TeutonicForceRobot(wpilib.TimedRobot):
 
         # Initialize climbing motor
         # TODO: May want to move the climber motor implementation into its own class
-        self.climber = phoenix5.VictorSPX(60)
-        self.climber.configVoltageCompSaturation(12.0)
-        self.climber.enableVoltageCompensation(True)
-        self.climber.setNeutralMode(phoenix5.NeutralMode.Brake)
+        # self.climber = phoenix5.VictorSPX(60)
+        # self.climber.configVoltageCompSaturation(12.0)
+        # self.climber.enableVoltageCompensation(True)
+        # self.climber.setNeutralMode(phoenix5.NeutralMode.Brake)
 
     def teleopInit(self):
         # Reset timers
@@ -72,7 +72,7 @@ class TeutonicForceRobot(wpilib.TimedRobot):
         self.drivetrain.reset_gyro()
 
         # Reset the climber motor
-        self.climber.set(phoenix5.VictorSPXControlMode.PercentOutput, 0.0)
+        # self.climber.set(phoenix5.VictorSPXControlMode.PercentOutput, 0.0)
 
     def teleopPeriodic(self):
         print(f"Arm: {self.arm.left_motor.get_supply_current()}")
@@ -154,6 +154,7 @@ class TeutonicForceRobot(wpilib.TimedRobot):
                     self.shooter.change_shooter_state("Loaded")
             case "Loaded":
                 if self.shooter_controller.getXButtonPressed():
+                    self.drivetrain.stop_robot()
                     self.drivetrain.change_drivetrain_state("Disabled")
                     self.arm.set_amp_shooting_position()
                     self.shooter.set_flywheel_motors(1.0)
@@ -162,6 +163,7 @@ class TeutonicForceRobot(wpilib.TimedRobot):
                     self.shooter.change_next_shooter_state("Armed")
                     self.shooter.change_shooter_state("Moving Arm")
                 elif self.shooter_controller.getBButtonPressed():
+                    self.drivetrain.stop_robot()
                     distance = self.vision.get_distance_to_speaker()
                     if distance != None:
                         self.drivetrain.change_drivetrain_state("Disabled")
@@ -237,13 +239,13 @@ class TeutonicForceRobot(wpilib.TimedRobot):
         # Run the climber motor
         # If the signs of the commands don't look right, it's because the Y axis of the thumbstick
         # always gives an inverted result.
-        climber_command = self.shooter_controller.getRightY()
-        if climber_command >= 0.5:
-            self.climber.set(phoenix5.VictorSPXControlMode.PercentOutput, -0.2)
-        elif climber_command <= -0.5:
-            self.climber.set(phoenix5.VictorSPXControlMode.PercentOutput, 0.2)
-        else:
-            self.climber.set(phoenix5.VictorSPXControlMode.PercentOutput, 0.0)
+        # climber_command = self.shooter_controller.getRightY()
+        # if climber_command >= 0.5:
+        #     self.climber.set(phoenix5.VictorSPXControlMode.PercentOutput, -0.2)
+        # elif climber_command <= -0.5:
+        #     self.climber.set(phoenix5.VictorSPXControlMode.PercentOutput, 0.2)
+        # else:
+        #     self.climber.set(phoenix5.VictorSPXControlMode.PercentOutput, 0.0)
 
     def disabledInit(self):
         # Turn off drivetrain controller rumble if it is stil on.

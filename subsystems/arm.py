@@ -112,14 +112,14 @@ class Arm():
         Sets the arm to the Amp shooting position.
         """
         self.set(90)
-        self.set_tolerance(1)
+        self.set_tolerance(0.5)
 
     def set_speaker_shooting_position(self, arm_angle):
         """
         Sets the arm to the Speaker shooting position.
         """
         self.set(arm_angle)
-        self.set_tolerance(0.5)
+        self.set_tolerance(0.25)
 
     def set_voltage(self, voltage):
         self.left_motor.set_control(phoenix6.controls.VoltageOut(voltage))

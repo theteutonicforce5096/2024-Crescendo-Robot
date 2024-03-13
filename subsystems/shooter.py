@@ -141,6 +141,6 @@ class Shooter():
         :param: distance: Distance, in meters, away from the Speaker.
         :type distance: float
         """
-        arm_angle = distance * 5 + 1
-        flywheel_speed = distance * 2 + 3
+        arm_angle = (9.9128234 * distance) - 30.15892857142858
+        flywheel_speed = (0.01111148 * distance**2) + (-0.03785358 * distance) + 0.8383695335635847
         return arm_angle, flywheel_speed
