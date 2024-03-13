@@ -44,7 +44,6 @@ class Shooter():
         self.shooter_state = "Idle"
         self.next_shooter_state = "None"
         self.drivers_tab_state = Shuffleboard.getTab("Drivers").add(f"Shooter State", self.shooter_state).withSize(2, 2).getEntry()
-        self.shooter_speed_widget = Shuffleboard.getTab("Drivers").add(f"Shooter Speed", 1.0).withSize(2, 2).getEntry()
 
     def _invert_motor(self, motor):
         """
@@ -113,6 +112,11 @@ class Shooter():
         :param speed: Desired speed of the intake motors.
         :type speed: float
         """
+        if speed > 1:
+            speed = 1
+        elif speed < -1:
+            speed = -1
+
         self.intake_motor.set(phoenix5.ControlMode.PercentOutput, speed)
 
     def set_flywheel_motors(self, speed):
@@ -122,15 +126,13 @@ class Shooter():
         :param speed: Desired speed of the flywheel motors.
         :type speed: float
         """
+        if speed > 1:
+            speed = 1
+        elif speed < -1:
+            speed = -1
+            
         self.flywheel_left_motor.set(phoenix5.ControlMode.PercentOutput, speed)
         self.flywheel_right_motor.set(phoenix5.ControlMode.PercentOutput, speed)
-
-    def start_flywheel_motors(self):
-        """
-        Turn on the flywheel motors.
-        """
-        self.flywheel_left_motor.set(phoenix5.ControlMode.PercentOutput, self.shooter_speed_widget.getFloat(1.0))
-        self.flywheel_right_motor.set(phoenix5.ControlMode.PercentOutput, self.shooter_speed_widget.getFloat(1.0))
 
     def predict_speaker_shooting_state(self, distance):
         """

@@ -83,8 +83,8 @@ class Arm():
         """
         Sets the arm at a certain angle.
         """
-        if angle < -14.5:
-            angle = -14.5
+        if angle < -15:
+            angle = -15
         elif angle > 95:
             angle = 95
             
@@ -111,7 +111,7 @@ class Arm():
         """
         Sets the arm to the Amp shooting position.
         """
-        self.set(-13)
+        self.set(90)
         self.set_tolerance(1)
 
     def set_speaker_shooting_position(self, arm_angle):

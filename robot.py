@@ -144,7 +144,7 @@ class TeutonicForceRobot(wpilib.TimedRobot):
                     self.shooter.change_next_shooter_state("Start Collecting")
                     self.shooter.change_shooter_state("Moving Arm")
             case "Start Collecting":
-                self.shooter.set_intake_motor(0.75)
+                self.shooter.set_intake_motor(1.0)
                 self.shooter.change_next_shooter_state("None")
                 self.shooter.change_shooter_state("Collecting")
             case "Collecting":
@@ -156,7 +156,7 @@ class TeutonicForceRobot(wpilib.TimedRobot):
                 if self.shooter_controller.getXButtonPressed():
                     self.drivetrain.change_drivetrain_state("Disabled")
                     self.arm.set_amp_shooting_position()
-                    self.shooter.start_flywheel_motors()
+                    self.shooter.set_flywheel_motors(1.0)
                     self.prime_shooter_timer.restart()
                     # Move arm
                     self.shooter.change_next_shooter_state("Armed")
