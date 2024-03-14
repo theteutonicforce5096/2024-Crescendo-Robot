@@ -109,7 +109,7 @@ class Arm():
         """
         Sets the arm to the Amp shooting position.
         """
-        #self.set(90)
+        self.set(95)
         self.set_tolerance(0.5)
 
     def set_speaker_shooting_position(self, arm_angle):

@@ -57,7 +57,7 @@ class SwerveModule():
         
         # Supply limit
         talonfx_configs.current_limits.stator_current_limit_enable = True
-        talonfx_configs.current_limits.stator_current_limit = 60
+        talonfx_configs.current_limits.stator_current_limit = 55
 
         # PID Configs
         talonfx_configs.slot0.k_s = 0.18
