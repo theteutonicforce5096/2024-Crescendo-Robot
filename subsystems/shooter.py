@@ -142,5 +142,5 @@ class Shooter():
         :type distance: float
         """
         arm_angle = (9.9128234 * distance) - 30.15892857142858
-        flywheel_speed = (0.01111148 * distance**2) + (-0.03785358 * distance) + 0.8383695335635847
+        flywheel_speed = (0.01111148 * distance ** 2) + (-0.03785358 * distance) + 0.8383695335635847
         return arm_angle, flywheel_speed

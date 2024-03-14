@@ -56,8 +56,8 @@ class SwerveModule():
             talonfx_configs.motor_output.inverted = phoenix6.signals.InvertedValue.CLOCKWISE_POSITIVE
         
         # Supply limit
-        talonfx_configs.current_limits.supply_current_limit_enable = True
-        talonfx_configs.current_limits.supply_current_limit = 80
+        talonfx_configs.current_limits.stator_current_limit_enable = True
+        talonfx_configs.current_limits.stator_current_limit = 60
 
         # PID Configs
         talonfx_configs.slot0.k_s = 0.18
@@ -87,8 +87,8 @@ class SwerveModule():
         talonfx_configs.feedback.sensor_to_mechanism_ratio = 150 / 7
         
         # Supply limit
-        talonfx_configs.current_limits.supply_current_limit_enable = True
-        talonfx_configs.current_limits.supply_current_limit = 80
+        talonfx_configs.current_limits.stator_current_limit_enable = True
+        talonfx_configs.current_limits.stator_current_limit = 25
 
         # PID Configs
         talonfx_configs.slot0.k_p = 100

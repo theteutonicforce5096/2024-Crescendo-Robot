@@ -1,4 +1,5 @@
 from wpimath.geometry import Translation2d, Rotation2d
+from wpimath.controller import PIDController
 from wpilib.shuffleboard import Shuffleboard
 from wpimath.kinematics import SwerveDrive4Kinematics, ChassisSpeeds
 from .swerve_module import SwerveModule
@@ -31,6 +32,11 @@ class SwerveDrive():
         # Max Drivetrain speed
         self.max_drivetrain_speed = 0.25
         self.drivers_tab_speed = Shuffleboard.getTab("Drivers").add(f"Max Swerve Drive Speed", self.max_drivetrain_speed).withSize(2, 2).getEntry()
+
+        # Pid Controller for Aligning
+        self.rotation_controller = PIDController(1, 0, 0)
+        self.rotation_controller.enableContinuousInput(0, 360)
+        self.rotation_controller.setTolerance(2)
 
         # Drivetrain state
         self.drivetrain_state = "Disabled"
@@ -117,3 +123,5 @@ class SwerveDrive():
         self.front_right_module.stop()
         self.back_left_module.stop()
         self.back_right_module.stop()
+        
+    def align_robot(self):

@@ -5,7 +5,7 @@ from subsystems.arm import Arm
 from subsystems.photoelectric_sensor import PhotoelectricSensor
 from subsystems.vision import Vision
 from wpilib import RobotController
-import phoenix5
+#import phoenix5
 
 class TeutonicForceRobot(wpilib.TimedRobot):
     def robotInit(self):
@@ -15,8 +15,8 @@ class TeutonicForceRobot(wpilib.TimedRobot):
         # Initialize components
         self.drivetrain = SwerveDrive()
         self.shooter = Shooter(40, 41, 42, True, False, False)
-        self.arm = Arm(50, 51, True, False, 0, 0.9873264996831624, 0.9502755237568881)
-        self.photoelectric_sensor = PhotoelectricSensor()
+        self.arm = Arm(50, 51, True, False, 0, 0.9873264996831624)
+        self.photoelectric_sensor = PhotoelectricSensor(1)
         self.vision = Vision()
 
         # Initialize controllers
@@ -64,9 +64,6 @@ class TeutonicForceRobot(wpilib.TimedRobot):
         # Reset Vision
         self.vision.reset()
 
-        # Reset Photoelectric sensor
-        self.photoelectric_sensor.reset()
-
         # Reset Drivetrain
         self.drivetrain.reset_drivetrain()
         self.drivetrain.reset_gyro()
@@ -75,15 +72,11 @@ class TeutonicForceRobot(wpilib.TimedRobot):
         # self.climber.set(phoenix5.VictorSPXControlMode.PercentOutput, 0.0)
 
     def teleopPeriodic(self):
-        print(f"Arm: {self.arm.left_motor.get_supply_current()}")
-        print(f"Steering: {self.drivetrain.front_right_module.steering_motor.get_supply_current()}")
-        print(f"Driving: {self.drivetrain.front_right_module.driving_motor.get_supply_current()}")
-
         # Get speeds from drivetrain controller.
         forward_speed = self.drivetrain_controller.getLeftY()
         strafe_speed = self.drivetrain_controller.getLeftX()
         rotation_speed = self.drivetrain_controller.getRightX()
-
+        
         # Check if gyro needs to be reset.
         if self.drivetrain_controller.getAButtonPressed():
             self.drivetrain.stop_robot()
@@ -91,8 +84,6 @@ class TeutonicForceRobot(wpilib.TimedRobot):
             self.drivetrain_timer.restart()
             self.drivetrain.change_drivetrain_state("Resetting Gyro")
         
-        distance = self.vision.get_distance_to_speaker()
-
         # Check if max drivetrain speed needs to be changed.
         if self.drivetrain_controller.getLeftTriggerAxis() > 0.1 and self.drivetrain_controller.getRightTriggerAxis() > 0.1:
             self.drivetrain.change_max_drivetrain_speed(1.0)
@@ -140,11 +131,14 @@ class TeutonicForceRobot(wpilib.TimedRobot):
         match self.shooter.get_shooter_state():
             case "Idle":
                 if self.shooter_controller.getAButtonPressed():
-                    self.arm.set_collecting_position()
-                    self.shooter.change_next_shooter_state("Start Collecting")
-                    self.shooter.change_shooter_state("Moving Arm")
+                    if self.photoelectric_sensor.detects_ring():
+                        self.shooter.change_shooter_state("Loaded")
+                    else:
+                        self.arm.set_collecting_position()
+                        self.shooter.change_next_shooter_state("Start Collecting")
+                        self.shooter.change_shooter_state("Moving Arm")
             case "Start Collecting":
-                self.shooter.set_intake_motor(1.0)
+                self.shooter.set_intake_motor(1)
                 self.shooter.change_next_shooter_state("None")
                 self.shooter.change_shooter_state("Collecting")
             case "Collecting":
@@ -157,22 +151,25 @@ class TeutonicForceRobot(wpilib.TimedRobot):
                     self.drivetrain.stop_robot()
                     self.drivetrain.change_drivetrain_state("Disabled")
                     self.arm.set_amp_shooting_position()
-                    self.shooter.set_flywheel_motors(1.0)
+                    self.shooter.set_flywheel_motors(0.5)
                     self.prime_shooter_timer.restart()
                     # Move arm
                     self.shooter.change_next_shooter_state("Armed")
                     self.shooter.change_shooter_state("Moving Arm")
                 elif self.shooter_controller.getBButtonPressed():
                     self.drivetrain.stop_robot()
-                    distance = self.vision.get_distance_to_speaker()
+                    distance, yaw = self.vision.get_data_to_speaker()
+                    print(yaw)
                     if distance != None:
                         self.drivetrain.change_drivetrain_state("Disabled")
                         arm_angle, flywheel_speed = self.shooter.predict_speaker_shooting_state(distance)
                         self.shooter.set_flywheel_motors(flywheel_speed)
                         self.prime_shooter_timer.restart()
                         self.arm.set_speaker_shooting_position(arm_angle)
+                        if yaw > 0:
+                            self.drivetrain.rotation_controller.setSetpoint(self.drivetrain.get_current_robot_angle() + yaw)
                         self.shooter.change_next_shooter_state("Armed")
-                        self.shooter.change_shooter_state("Moving Arm")
+                        self.shooter.change_shooter_state("Ready Robot For Speaker")
             case "Armed":
                 if self.prime_shooter_timer.hasElapsed(1.5):
                     self.prime_shooter_timer.reset()
@@ -209,6 +206,14 @@ class TeutonicForceRobot(wpilib.TimedRobot):
             case "Moving Arm":
                 if self.arm.reached_goal():
                     self.shooter.change_shooter_state(self.shooter.get_next_shooter_state())
+            case "Ready Robot For Speaker":
+                rotation_speed = self.vision.align_to_speaker()
+                if rotation_speed == None and self.arm.reached_goal():
+                    self.shooter.change_shooter_state(self.shooter.get_next_shooter_state())
+                elif rotation_speed == None:
+                    self.drivetrain.move_robot(0, 0, 0) 
+                else:
+                    self.drivetrain.move_robot(0, 0, rotation_speed) 
 
         # Update arm position
         self.arm.update_pid_controller() 

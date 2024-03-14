@@ -8,7 +8,7 @@ from math import pi, cos
 class Arm():
     """Class for controlling arm on robot."""
 
-    def __init__(self, left_motor_id, right_motor_id, left_motor_inverted, right_motor_inverted, encoder_id, encoder_0_position, encoder_lower_bound):
+    def __init__(self, left_motor_id, right_motor_id, left_motor_inverted, right_motor_inverted, encoder_id, encoder_0_position):
         """
         Constructor for Arm.
 
@@ -24,26 +24,24 @@ class Arm():
         :type encoder_id: int
         :param encoder_0_position: Value of the Encoder when the Arm is at 0 degrees (parallel to the ground). Used as a default for Shuffleboard widget.
         :type encoder_0_position: float
-        :param encoder_lower_bound: Value of the Encoder when the Arm is at its lowest possible position. Used as a default for Shuffleboard widget.
-        :type encoder_lower_bound: float
         """        
         # Hardware initialization
         self.left_motor = phoenix6.hardware.TalonFX(left_motor_id)
         self.right_motor = phoenix6.hardware.TalonFX(right_motor_id)
         self.encoder = DutyCycleEncoder(encoder_id)
 
-        self.p_widget = Shuffleboard.getTab("Arm").add(f"P", 0.0).withSize(2, 2).getEntry()
+        #self.p_widget = Shuffleboard.getTab("Arm").add(f"P", 0.0).withSize(2, 2).getEntry()
+        #self.i_widget = Shuffleboard.getTab("Arm").add(f"I", 0.0).withSize(2, 2).getEntry()
+        #self.d_widget = Shuffleboard.getTab("Arm").add(f"D", 0.0).withSize(2, 2).getEntry()
 
         # PID Controller
-        self.arm_controller = ProfiledPIDController(75, 0, 0, TrapezoidProfile.Constraints(1/3, 2/3))
+        self.arm_controller = ProfiledPIDController(130, 0, 0, TrapezoidProfile.Constraints(1/3, 2/3))
         self.arm_controller.enableContinuousInput(0, 1)
         self.set_tolerance(2)
-        self.static_gain = 0
         self.gravity_gain = 0.3
         
         # Encoder configs
         self.encoder_0_position = Shuffleboard.getTab("Arm").add(f"0 Position Arm Encoder Value", encoder_0_position).withSize(2, 2).getEntry().getFloat(encoder_0_position) 
-        self.encoder_lower_bound = Shuffleboard.getTab("Arm").add(f"Lowest Position Arm Encoder Value", encoder_lower_bound).withSize(2, 2).getEntry().getFloat(encoder_lower_bound)   
 
         # Arm Configs
         self.current_angle = None
@@ -83,8 +81,8 @@ class Arm():
         """
         Sets the arm at a certain angle.
         """
-        if angle < -15:
-            angle = -15
+        if angle < -12.5:
+            angle = -12.5
         elif angle > 95:
             angle = 95
             
@@ -104,14 +102,14 @@ class Arm():
         """
         Sets the arm to the collecting position.
         """
-        self.set(-13)
+        self.set(-12.5)
         self.set_tolerance(5)
 
     def set_amp_shooting_position(self):
         """
         Sets the arm to the Amp shooting position.
         """
-        self.set(90)
+        #self.set(90)
         self.set_tolerance(0.5)
 
     def set_speaker_shooting_position(self, arm_angle):
@@ -120,10 +118,6 @@ class Arm():
         """
         self.set(arm_angle)
         self.set_tolerance(0.25)
-
-    def set_voltage(self, voltage):
-        self.left_motor.set_control(phoenix6.controls.VoltageOut(voltage))
-        self.right_motor.set_control(phoenix6.controls.VoltageOut(voltage))
 
     def set_tolerance(self, tolerance):
         """
@@ -149,11 +143,6 @@ class Arm():
 
         angle_radians = 2.0 * pi * angle
         feedforward = (self.gravity_gain * cos(angle_radians))
-        
-        if motor_speed > 0.05:
-            feedforward += self.static_gain
-        elif motor_speed < -0.05:
-            feedforward -= self.static_gain
 
         desired_voltage = motor_speed + feedforward
 

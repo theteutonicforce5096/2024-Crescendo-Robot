@@ -7,7 +7,7 @@ class TeutonicForceRobot(wpilib.TimedRobot):
     def robotInit(self):
         # Initialize components
         self.drivetrain = SwerveDrive()
-        self.arm = Arm(50, 51, True, False, 0, 0.9853633496340838, 0.9550960488774012)
+        self.arm = Arm(50, 51, True, False, 0, 0.9853633496340838)
 
         # Initialize controllers
         self.drivetrain_controller = wpilib.XboxController(0)
