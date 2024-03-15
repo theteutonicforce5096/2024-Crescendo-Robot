@@ -22,7 +22,7 @@ class Vision():
 
         self.camera_height = 0.43815
         self.target_height = 1.431925
-        self.camera_pitch = radians(32)
+        self.camera_pitch = radians(30)
 
     def reset(self):
         self.speaker_distance.setString("None")
