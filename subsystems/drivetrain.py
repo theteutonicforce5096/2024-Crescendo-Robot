@@ -96,7 +96,7 @@ class SwerveDrive():
             rotation_speed = -1
             
         self.change_max_drivetrain_speed(0.25)
-        self.move_robot(0, 0, rotation_speed)
+        self.move_robot(0, 0, rotation_speed * -1)
 
     def get_current_robot_angle(self):
         """
@@ -114,6 +114,9 @@ class SwerveDrive():
     def move_robot(self, forward_speed, strafe_speed, rotation_speed):
         """
         Move the robot by a forward speed, strafe speed, and rotation speed.
+        Forward speed is positive toward the opponent's alliance station wall.
+        Strafe speed is positive toward the left field boundary.
+        Rotation speed is positive in the counterclockwise direction.
         """
         # Get desired Swerve Modules' speeds and angles.
         current_robot_angle = self.get_current_robot_angle()
