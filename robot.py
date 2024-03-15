@@ -127,7 +127,7 @@ class TeutonicForceRobot(wpilib.TimedRobot):
                 self.shooter.reset()     
                 self.autonomous_state = "Move Robot"
             case "Move Robot":
-                self.drivetrain.move_robot(-0.5, 0, 0)
+                self.drivetrain.move_robot(-1, 0, 0)
                 self.auto_timer.restart()
                 self.autonomous_state = "Moving Robot"
             case "Moving Robot":
