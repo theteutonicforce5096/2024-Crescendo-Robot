@@ -30,12 +30,12 @@ class Arm():
         self.right_motor = phoenix6.hardware.TalonFX(right_motor_id)
         self.encoder = DutyCycleEncoder(encoder_id)
 
-        #self.p_widget = Shuffleboard.getTab("Arm").add(f"P", 0.0).withSize(2, 2).getEntry()
-        #self.i_widget = Shuffleboard.getTab("Arm").add(f"I", 0.0).withSize(2, 2).getEntry()
-        #self.d_widget = Shuffleboard.getTab("Arm").add(f"D", 0.0).withSize(2, 2).getEntry()
+        # self.p_widget = Shuffleboard.getTab("Arm").add(f"P", 125.0).withSize(2, 2).getEntry()
+        # self.i_widget = Shuffleboard.getTab("Arm").add(f"I", 0.0).withSize(2, 2).getEntry()
+        # self.d_widget = Shuffleboard.getTab("Arm").add(f"D", 0.0).withSize(2, 2).getEntry()
 
         # PID Controller
-        self.arm_controller = ProfiledPIDController(130, 0, 0, TrapezoidProfile.Constraints(1/3, 2/3))
+        self.arm_controller = ProfiledPIDController(125, 0, 0, TrapezoidProfile.Constraints(1/3, 1/3))
         self.arm_controller.enableContinuousInput(0, 1)
         self.set_tolerance(2)
         self.gravity_gain = 0.3
@@ -81,8 +81,8 @@ class Arm():
         """
         Sets the arm at a certain angle.
         """
-        if angle < -12.5:
-            angle = -12.5
+        if angle < -13.5:
+            angle = -13.5
         elif angle > 95:
             angle = 95
             
@@ -95,21 +95,21 @@ class Arm():
         """
         Sets the arm to the carrying position.
         """
-        self.set(45)
+        self.set(20) #45
         self.set_tolerance(2)
 
     def set_collecting_position(self):
         """
         Sets the arm to the collecting position.
         """
-        self.set(-12.5)
+        self.set(-13)
         self.set_tolerance(5)
 
     def set_amp_shooting_position(self):
         """
         Sets the arm to the Amp shooting position.
         """
-        self.set(90)
+        self.set(95)
         self.set_tolerance(0.5)
 
     def set_speaker_shooting_position(self, arm_angle):

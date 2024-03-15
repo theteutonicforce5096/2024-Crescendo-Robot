@@ -5,7 +5,7 @@ from subsystems.arm import Arm
 from subsystems.photoelectric_sensor import PhotoelectricSensor
 from subsystems.vision import Vision
 
-class TeutonicForceRobot(wpilib.TimedRobot):
+class TheRinger(wpilib.TimedRobot):
     def robotInit(self):
         # Set brownout voltage
         wpilib.RobotController.setBrownoutVoltage(6.3)
@@ -13,7 +13,7 @@ class TeutonicForceRobot(wpilib.TimedRobot):
         # Initialize components
         self.drivetrain = SwerveDrive()
         self.shooter = Shooter(40, 41, 42, True, False, False)
-        self.arm = Arm(50, 51, True, False, 0, 0.9873264996831624)
+        self.arm = Arm(50, 51, True, False, 0, 0.9716994992924874)
         self.photoelectric_sensor = PhotoelectricSensor(1)
         self.vision = Vision()
 
@@ -105,7 +105,7 @@ class TeutonicForceRobot(wpilib.TimedRobot):
                     self.ready_robot_timer.restart()
                     self.autonomous_state = "Moving Arm"
             case "Moving Arm":
-                if self.ready_robot_timer.hasElapsed(2):
+                if self.ready_robot_timer.hasElapsed(3):
                     self.ready_robot_timer.reset()
                     self.autonomous_state = "Armed"
                 elif self.arm.reached_goal():
@@ -123,13 +123,14 @@ class TeutonicForceRobot(wpilib.TimedRobot):
                     self.autonomous_state = "Reset Shooter"
             case "Reset Shooter":
                 self.arm.set_carry_position()
-                self.shooter.reset()   
-                if self.location == 'center':  
-                    self.autonomous_state = "Move Robot"
-                elif self.location == 'left':
-                    self.autonomous_state = "Move Robot/Rotate Right"
-                elif self.location == 'Right':
-                    self.autonomous_state = "Move Robot/Rotate Left"
+                self.shooter.reset()  
+                self.autonomous_state = "Stop Robot" 
+                # if self.location == 'center':  
+                #     self.autonomous_state = "Move Robot"
+                # elif self.location == 'left':
+                #     self.autonomous_state = "Move Robot/Rotate Right"
+                # elif self.location == 'right':
+                #     self.autonomous_state = "Move Robot/Rotate Left"
             case "Move Robot":
                 self.drivetrain.move_robot(-1, 0, 0)
                 self.auto_timer.restart()
@@ -143,7 +144,7 @@ class TeutonicForceRobot(wpilib.TimedRobot):
                 self.auto_timer.restart()
                 self.autonomous_state = "Moving Robot"
             case "Moving Robot":
-                if self.auto_timer.hasElapsed(3):
+                if self.auto_timer.hasElapsed(2):
                     self.drivetrain.stop_robot()
                     self.auto_timer.reset()
                     self.autonomous_state = "Stop Robot"
@@ -273,12 +274,10 @@ class TeutonicForceRobot(wpilib.TimedRobot):
                     if distance != None and yaw != None:
                         self.drivetrain.change_drivetrain_state("Disabled")
                         arm_angle, flywheel_speed = self.shooter.predict_speaker_shooting_state(distance)
-                        if yaw > 0:
-                            self.drivetrain.set_align_to_speaker_controller(self.drivetrain.get_current_robot_angle() + yaw)
-                        elif yaw < 0:
-                            self.drivetrain.set_align_to_speaker_controller(self.drivetrain.get_current_robot_angle() + yaw)
-                        else:
-                            self.drivetrain.set_align_to_speaker_controller(self.drivetrain.get_current_robot_angle())
+                        #if yaw != 0:
+                        #    self.drivetrain.set_align_to_speaker_controller(self.drivetrain.get_current_robot_angle() + yaw)
+                        #else:
+                        #    self.drivetrain.set_align_to_speaker_controller(self.drivetrain.get_current_robot_angle())
 
                         self.shooter.set_flywheel_motors(flywheel_speed)
                         self.prime_shooter_timer.restart()
@@ -333,19 +332,19 @@ class TeutonicForceRobot(wpilib.TimedRobot):
                         self.ready_robot_timer.reset()
                         self.shooter.change_shooter_state(self.shooter.get_next_shooter_state())
             case "Ready Robot For Speaker":
-                if self.ready_robot_timer.hasElapsed(2):
+                if self.ready_robot_timer.hasElapsed(3):
                     self.drivetrain.stop_robot()
                     self.ready_robot_timer.reset()
                     self.shooter.change_shooter_state(self.shooter.get_next_shooter_state())
-                elif self.drivetrain.reached_align_to_speaker_goal() and self.arm.reached_goal():
+                elif self.arm.reached_goal():#self.drivetrain.reached_align_to_speaker_goal() and self.arm.reached_goal():
                     self.drivetrain.stop_robot()
                     self.ready_robot_timer.reset()
                     self.shooter.change_shooter_state(self.shooter.get_next_shooter_state())
-                else:
-                    if self.drivetrain.reached_align_to_speaker_goal():
-                        self.drivetrain.stop_robot()
-                    else:
-                        self.drivetrain.update_align_to_speaker_controller()
+                #else:
+                #    if self.drivetrain.reached_align_to_speaker_goal():
+                #        self.drivetrain.stop_robot()
+                #    else:
+                #        self.drivetrain.update_align_to_speaker_controller()
 
         # Update arm position
         self.arm.update_pid_controller() 
@@ -377,5 +376,18 @@ class TeutonicForceRobot(wpilib.TimedRobot):
         # Turn off drivetrain controller rumble if it is stil on.
         self.drivetrain_controller.setRumble(wpilib.XboxController.RumbleType.kBothRumble, 0)  
 
+    def testInit(self):
+        self.arm.set(-12)
+
+    def testPeriodic(self):
+        pov = self.shooter_controller.getPOV()
+        if pov == 0:
+           self.arm.set(self.arm.get_arm_setpoint() + 0.5)
+        elif pov == 180:
+           self.arm.set(self.arm.get_arm_setpoint() - 0.5)
+
+        self.arm.update_pid_controller() 
+        print(self.arm._get_encoder_value())
+
 if __name__ == "__main__":
-    wpilib.run(TeutonicForceRobot)
+    wpilib.run(TheRinger)
