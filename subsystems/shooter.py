@@ -2,51 +2,145 @@ import phoenix5
 from wpilib.shuffleboard import Shuffleboard
 
 class Shooter():
-    def __init__(self):
-        self.intake_motor = phoenix5.VictorSPX(9)
-        self.shoot_left_motor = phoenix5.VictorSPX(8)
-        self.shoot_right_motor = phoenix5.VictorSPX(6)
-        self.arm_left = phoenix5.VictorSPX(10)
-        self.arm_right = phoenix5.VictorSPX(31)
-        self.shooter_motor_speeds = 0.5
+    """Class for controlling shooter on robot."""
+    def __init__(self, intake_motor_id, flywheel_left_motor_id, flywheel_right_motor_id, intake_motor_inverted, flywheel_left_inverted, flywheel_right_inverted):
+        """
+        Constructor for Swerve Module.
+
+        :param intake_motor_id: ID of the intake motor
+        :type intake_motor_id: int
+        :param flywheel_left_motor_id: ID of the flywheel left motor
+        :type flywheel_left_motor_id: int
+        :param flywheel_right_motor_id: ID of the flywheel right motor
+        :type flywheel_right_motor_id: int
+        :param intake_motor_inverted: Whether the motor is inverted or not.
+        :type intake_motor_inverted: boolean
+        :param flywheel_left_inverted: Whether the motor is inverted or not.
+        :type flywheel_left_inverted: boolean
+        :param flywheel_right_inverted: Whether the motor is inverted or not.
+        :type flywheel_right_inverted: boolean
+        """        
+        # Hardware initialization
+        self.intake_motor = phoenix5.VictorSPX(intake_motor_id)
+        self.flywheel_left_motor = phoenix5.VictorSPX(flywheel_left_motor_id)
+        self.flywheel_right_motor = phoenix5.VictorSPX(flywheel_right_motor_id)
+
+        # Configure motors
+        self._configure_motor(self.intake_motor)
+        self._configure_motor(self.flywheel_left_motor)
+        self._configure_motor(self.flywheel_right_motor)
+        
+        # Invert motors
+        if intake_motor_inverted:
+            self._invert_motor(self.intake_motor)
+
+        if flywheel_left_inverted:
+            self._invert_motor(self.flywheel_left_motor)
+
+        if flywheel_right_inverted:
+            self._invert_motor(self.flywheel_right_motor)
+  
+        # Set Shooter State
+        self.shooter_state = "Idle"
+        self.next_shooter_state = "None"
+        self.drivers_tab_state = Shuffleboard.getTab("Drivers").add(f"Shooter State", self.shooter_state).withSize(2, 2).getEntry()
+
+    def _invert_motor(self, motor):
+        """
+        Invert motor.
+
+        :param motor: Motor that will to be inverted
+        :type motor: VictorSPX
+        """
+        motor.setInverted(True)
+
+    def _configure_motor(self, motor):
+        """
+        Configures a flywheel motor.
+
+        :param motor: Motor that will be configured
+        :type motor: VictorSPX
+        """
+        motor.configVoltageCompSaturation(12.0)
+        motor.enableVoltageCompensation(True)
 
     def reset(self):
-        self.intake_motor.set(phoenix5.ControlMode.PercentOutput, 0)
-        self.shoot_left_motor.set(phoenix5.ControlMode.PercentOutput, 0)
-        self.shoot_right_motor.set(phoenix5.ControlMode.PercentOutput, 0)
+        """
+        Reset motors.
+        """
+        self.set_intake_motor(0)
+        self.set_flywheel_motors(0)
 
-    def pick_up_note(self):
-        self.intake_motor.set(phoenix5.ControlMode.PercentOutput, self.shooter_motor_speeds)
+        self.change_shooter_state("Idle")
+        self.change_next_shooter_state("None")
 
-    def stop_picking_up_note(self):
-        self.intake_motor.set(phoenix5.ControlMode.PercentOutput, 0)
-
-    def release_note(self):
-        self.intake_motor.set(phoenix5.ControlMode.PercentOutput, self.shooter_motor_speeds * -1)
-
-    def stop_releasing_note(self):
-        self.intake_motor.set(phoenix5.ControlMode.PercentOutput, 0)
-
-    def prime_shooter(self):
-        self.shoot_left_motor.set(phoenix5.ControlMode.PercentOutput, self.shooter_motor_speeds)
-        self.shoot_right_motor.set(phoenix5.ControlMode.PercentOutput, self.shooter_motor_speeds)
+    def get_shooter_state(self):
+        """
+        Get the shooter's state.
+        """
+        return self.shooter_state
     
-    def fire_out_note(self):
-        self.intake_motor.set(phoenix5.ControlMode.PercentOutput, self.shooter_motor_speeds)
+    def get_next_shooter_state(self):
+        """
+        Get the next shooter state.
+        """
+        return self.next_shooter_state
+    
+    def change_shooter_state(self, state):
+        """
+        Change the shooter's state.
 
-    def stop_firing_out_note(self):
-        self.intake_motor.set(phoenix5.ControlMode.PercentOutput, 0)
-        self.shoot_left_motor.set(phoenix5.ControlMode.PercentOutput, 0)
-        self.shoot_right_motor.set(phoenix5.ControlMode.PercentOutput, 0)
+        :param state: State of the shooter
+        :type state: str
+        """
+        self.shooter_state = state
+        self.drivers_tab_state.setString(self.shooter_state)
 
-    def move_arm_up(self):
-        self.arm_left.set(phoenix5.ControlMode.PercentOutput, -1)
-        self.arm_right.set(phoenix5.ControlMode.PercentOutput, 1)
+    def change_next_shooter_state(self, state):
+        """
+        Change the next shooter state.
 
-    def move_arm_down(self):
-        self.arm_left.set(phoenix5.ControlMode.PercentOutput, 1)
-        self.arm_right.set(phoenix5.ControlMode.PercentOutput, -1)
+        :param state: Next state of the shooter
+        :type state: str
+        """
+        self.next_shooter_state = state
 
-    def stop_arm(self):
-        self.arm_left.set(phoenix5.ControlMode.PercentOutput, 0)
-        self.arm_right.set(phoenix5.ControlMode.PercentOutput, 0)
+    def set_intake_motor(self, speed):
+        """
+        Set the intake motors to a specific speed.
+
+        :param speed: Desired speed of the intake motors.
+        :type speed: float
+        """
+        if speed > 1:
+            speed = 1
+        elif speed < -1:
+            speed = -1
+
+        self.intake_motor.set(phoenix5.ControlMode.PercentOutput, speed)
+
+    def set_flywheel_motors(self, speed):
+        """
+        Set the flywheel motors to a specific speed.
+
+        :param speed: Desired speed of the flywheel motors.
+        :type speed: float
+        """
+        if speed > 1:
+            speed = 1
+        elif speed < -1:
+            speed = -1
+            
+        self.flywheel_left_motor.set(phoenix5.ControlMode.PercentOutput, speed)
+        self.flywheel_right_motor.set(phoenix5.ControlMode.PercentOutput, speed)
+
+    def predict_speaker_shooting_state(self, distance):
+        """
+        Predict the arm angle and flywheel speed for shooting at the speaker.
+
+        :param: distance: Distance, in meters, away from the Speaker.
+        :type distance: float
+        """
+        arm_angle = (9.9128234 * distance) - 30.15892857142858
+        flywheel_speed = (0.01111148 * distance ** 2) + (-0.03785358 * distance) + 0.8383695335635847
+        return arm_angle, flywheel_speed

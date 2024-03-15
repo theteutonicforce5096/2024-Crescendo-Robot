@@ -1,99 +1,50 @@
-import wpilib
-import wpimath.controller
 from photonlibpy import photonCamera, photonUtils
-from rev import ColorSensorV3
-import math
-import wpimath
-import robot
+from math import radians
+from wpilib.shuffleboard import Shuffleboard 
+from wpilib import DriverStation
 
 class Vision():
-    
-    def __init__(self, inFrontCamera: str, inBackCamera: str, colorSensor: wpilib.I2C.Port):
+    def __init__(self):
         """
         Initializer for the Vision module.
 
         :param camera: Name of the camera. Can be found in the PhotonVision dashboard.
         :type camera: str
-        :param colorSensor: Location of the color sensor port on the board.
-        :type colorSensor: Port
         """
-        self.colorSensor = ColorSensorV3(colorSensor)
-        self.frontCamera = photonCamera(inFrontCamera)
-        self.backCamera = photonCamera(inBackCamera)
-        self.rotationPID = wpimath.controller.PIDController(0.0, 0, 0.1)
-        self.movementPID = wpimath.controller.PIDController(0.1, 0, 0.0)
-
-    def updateColorSensor(self):
-        """
-        Update the color sensor defined in the initialization.
-        """
-        self.proximity = self.colorSensor.getProximity()
-        wpilib.SmartDashboard.putNumber("Proximity", self.proximity)
-        self.rawDetectColor = self.colorSensor.getRawColor()
-        wpilib.SmartDashboard.putNumber("Raw Red", self.rawDetectColor.red)
-        wpilib.SmartDashboard.putNumber("Raw Green", self.rawDetectColor.green)
-        wpilib.SmartDashboard.putNumber("Raw Blue", self.rawDetectColor.blue)
-
-    def hasRing(self) -> bool:
-        """
-        Check for a ring in the robot.
-        """
-        self.rawDetectColor = self.colorSensor.getRawColor()
-        if self.rawDetectColor.red > 50 and self.rawDetectColor.green > 50 and self.rawDetectColor.blue > 50:
-            return True
+        self.camera = photonCamera.PhotonCamera('main')
+        self.speaker_distance = Shuffleboard.getTab("Drivers").add(f"Distance to Speaker", "None").withSize(2, 2).getEntry()
+        self.speaker_yaw = Shuffleboard.getTab("Drivers").add(f"Yaw to Speaker", "None").withSize(2, 2).getEntry()
+        
+        if DriverStation.getAlliance() == DriverStation.Alliance.kBlue:
+            self.tag = 7
         else:
-            return False
+            self.tag = 4
 
-    def updateCameraPosition(self):
-        self.result = self.cam.getLatestResult()
-        if self.result.hasTargets() == True:
-            self.targets = self.result.getTargets()
-            self.bestTarget = self.result.getBestTarget()
-            self.cameraPos = self.bestTarget.getBestCameraToTarget()
-            wpilib.SmartDashboard.putNumber("X Position (relative to tag)", self.cameraPos.x)
-            wpilib.SmartDashboard.putNumber("Y Position (relative to tag)", self.cameraPos.y)
-            wpilib.SmartDashboard.putNumber("Z Position (relative to tag)", self.cameraPos.z)
+        self.camera_height = 0.43815
+        self.target_height = 1.431925
+        self.camera_pitch = radians(32)
 
-    def moveToTarget(self, target: int):
-        """
-        Move the robot to a given target.
-
-        :param target: The target to move to. Must be a tag ID.
-        :type target: int
-        """
-        rotationSpeed = 0
-        self.result = self.cam.getLatestResult()
-        if self.result.hasTargets() == True:
-            self.targets = self.result.getTargets()
-            self.bestTarget = self.result.getBestTarget()
-            self.pose = wpimath.objectToRobotPose(self.bestTarget)
-            self.yaw = self.bestTarget.getYaw()
-            wpilib.SmartDashboard.putNumber("Target ID", self.bestTarget.fiducialId)
-            cameraHeightMeters = 0
-            targetHeightMeters = 0
-            cameraPitch = math.radians(0)
-            if self.bestTarget.fiducialId == target:
-                rotationSpeed = self.rotationPID.calculate(self.yaw, 0)
-                range = photonUtils.PhotonUtils.calculateDistanceToTargetMeters(cameraHeightMeters, targetHeightMeters, cameraPitch, (math.radians(self.bestTarget.getPitch())))
-                forwardSpeed = self.movementPID.calculate(range, 0.5)
-                if not forwardSpeed and not rotationSpeed:
-                    rotationSpeed = 0.0
-                    forwardSpeed = 0.0
-            else:
-                rotationSpeed = 0.0
-                forwardSpeed = 0.0
+    def reset(self):
+        self.speaker_distance.setString("None")
+        self.speaker_yaw.setString("None")
+        
+        if DriverStation.getAlliance() == DriverStation.Alliance.kBlue:
+            self.tag = 7
         else:
-            rotationSpeed = 0.0
-            forwardSpeed = 0.0
-        return [forwardSpeed, rotationSpeed]
+            self.tag = 4
 
-    def SpeakerDistance(self):
-        cameraHeightMeters = 0
-        cameraPitch = math.radians(0)
-        self.bestTarget = self.result.getBestTarget()
-        if wpilib.DriverStation.getAlliance() == wpilib.DriverStation.Alliance.kBlue:
-            tag = 7
-        else:
-            tag = 4
-        self.speakerDistance = photonUtils.PhotonUtils.calculateDistanceToTargetMeters(cameraHeightMeters, cameraPitch, self.backCamera, (math.radians(self.bestTarget.getPitch())), tag)
-        wpilib.SmartDashboard.putNumber("Target in Meters", self.speakerDistance)
+    def get_data_to_speaker(self):
+        result = self.camera.getLatestResult()
+        if result.hasTargets() == True:
+            targets = result.getTargets()
+            for target in targets:
+                if target.getFiducialId() == self.tag:
+                    distance = photonUtils.PhotonUtils.calculateDistanceToTargetMeters(self.camera_height, self.target_height, self.camera_pitch, (radians(target.getPitch())))
+                    yaw = target.getYaw()
+                    self.speaker_distance.setString(str(distance))
+                    self.speaker_yaw.setString(str(yaw))
+                    return distance, yaw
+
+        self.speaker_distance.setString("Can't find AprilTag.")
+        self.speaker_yaw.setString("Can't find AprilTag.")
+        return None, None

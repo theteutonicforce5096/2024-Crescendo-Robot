@@ -1,117 +1,286 @@
 import wpilib
 from subsystems.drivetrain import SwerveDrive
 from subsystems.shooter import Shooter
-from subsystems.color_sensor import ColorSensor
-from magicbot import MagicRobot
-import wpilib
-import wpilib.drive
-import autonomous
-from robotpy_ext.autonomous.selector import AutonomousModeSelector
-from subsystems.drive_controller import DriveController
+from subsystems.arm import Arm
+from subsystems.photoelectric_sensor import PhotoelectricSensor
+from subsystems.vision import Vision
 
-class TeutonicForceRobot(MagicRobot):
-    def createObjects(self):
+class TeutonicForceRobot(wpilib.TimedRobot):
+    def robotInit(self):
+        # Set brownout voltage
+        wpilib.RobotController.setBrownoutVoltage(6.3)
+
+        # Initialize components
         self.drivetrain = SwerveDrive()
-        self.shooter = Shooter()
-        self.color_sensor = ColorSensor()
-        self.joystick = wpilib.Joystick(0)
-        self.controller = wpilib.XboxController(1)
+        self.shooter = Shooter(40, 41, 42, True, False, False)
+        self.arm = Arm(50, 51, True, False, 0, 0.9873264996831624)
+        self.photoelectric_sensor = PhotoelectricSensor(1)
+        self.vision = Vision()
 
+        # Initialize controllers
+        self.drivetrain_controller = wpilib.XboxController(0)
+        self.shooter_controller = wpilib.XboxController(1)
+
+        # Initialize timers
         self.timer = wpilib.Timer()
-        self.shoot_timer = wpilib.Timer()
-        self.cancel_intake_timer = wpilib.Timer()
-        self.drivecontrol = DriveController()
+        self.drivetrain_timer = wpilib.Timer()
+        self.drop_timer = wpilib.Timer()
+        self.prime_shooter_timer = wpilib.Timer()
+        self.shoot_timer = wpilib.Timer()        
+        self.ready_robot_timer = wpilib.Timer()
 
-    def autonomousInit(self):
-        self.drivetrain.reset_drivetrain()
-        self.drivetrain.reset_gyro()
-
-    def teleopInit(self):
-        # Default speeds
+        # Set default robot speeds
         self.forward_speed = 0
         self.strafe_speed = 0
         self.rotation_speed = 0
 
+    def autonomousInit(self):
+        # Reset timers
+        self.timer.restart()
+        self.drivetrain_timer.reset()
+        self.drop_timer.reset()
+        self.prime_shooter_timer.reset()
+        self.shoot_timer.reset()
+        self.ready_robot_timer.reset() 
+
+        # Reset robot speeds.
+        self.forward_speed = 0
+        self.strafe_speed = 0
+        self.rotation_speed = 0
+
+        # Reset shooter
+        self.shooter.reset()
+
+        # Reset Arm
+        self.arm.reset()
+
+        # Reset Vision
+        self.vision.reset()
+
+        # Reset Drivetrain
         self.drivetrain.reset_drivetrain()
         self.drivetrain.reset_gyro()
-        self.shooter.reset()
-        
-        self.shooter_state = "Idle"
-        
+
+    def autonomousPeriodic(self):
+        pass
+
+    def teleopInit(self):
+        # Reset timers
         self.timer.restart()
+        self.drivetrain_timer.reset()
+        self.drop_timer.reset()
+        self.prime_shooter_timer.reset()
         self.shoot_timer.reset()
-        self.cancel_intake_timer.reset()
+        self.ready_robot_timer.reset()
+
+        # Reset robot speeds.
+        self.forward_speed = 0
+        self.strafe_speed = 0
+        self.rotation_speed = 0
+
+        # Reset shooter
+        self.shooter.reset()
+
+        # Reset Arm
+        self.arm.reset()
 
     def teleopPeriodic(self):
-        forward_speed = self.joystick.getX()
-        strafe_speed = self.joystick.getY()
-        rotation_speed = self.joystick.getZ()
-        self.shooter.shooter_motor_speeds = ((self.joystick.getRawAxis(3) * -1) + 1) / 2
+        # Get speeds from drivetrain controller.
+        forward_speed = self.drivetrain_controller.getLeftY()
+        strafe_speed = self.drivetrain_controller.getLeftX()
+        rotation_speed = self.drivetrain_controller.getRightX()
+        
+        # Check if gyro needs to be reset.
+        if self.drivetrain_controller.getAButtonPressed():
+            self.drivetrain.stop_robot()
+            self.drivetrain.reset_gyro()
+            self.drivetrain_timer.restart()
+            self.drivetrain.change_drivetrain_state("Resetting Gyro")
+        
+        # Check if max drivetrain speed needs to be changed.
+        if self.drivetrain_controller.getLeftTriggerAxis() > 0.1 and self.drivetrain_controller.getRightTriggerAxis() > 0.1:
+            self.drivetrain.change_max_drivetrain_speed(1.0)
+        elif self.drivetrain_controller.getLeftTriggerAxis() > 0.1:
+            self.drivetrain.change_max_drivetrain_speed(0.5)
+        elif self.drivetrain_controller.getRightTriggerAxis() > 0.1:
+            self.drivetrain.change_max_drivetrain_speed(0.75)
+        else:
+            self.drivetrain.change_max_drivetrain_speed(0.25)
 
+        # Set deadzone on forward speed.
         if forward_speed > 0.1 or forward_speed < -0.1:
             self.forward_speed = forward_speed
         else:
             self.forward_speed = 0
 
+        # Set deadzone on strafe speed.
         if strafe_speed > 0.1 or strafe_speed < -0.1:
             self.strafe_speed = strafe_speed
         else:
             self.strafe_speed = 0
 
-        if rotation_speed > 0.2 or rotation_speed < -0.2:
-            self.rotation_speed = rotation_speed 
+        # Set deadzone on rotation speed.
+        if rotation_speed > 0.1 or rotation_speed < -0.1:
+            self.rotation_speed = rotation_speed
         else:
             self.rotation_speed = 0
 
-        # if self.joystick.getRawButton(0):
-        #     self.forward_speed, self.rotation_speed = self.drivecontrol.alignToAmp()
+        #Check for shooter state overrides
+        if self.shooter_controller.getYButtonPressed():
+            self.shooter.change_shooter_state("Reset")
+        elif self.shooter_controller.getRightBumperPressed():
+            self.shooter.change_shooter_state("Force Fire")
+        elif self.shooter_controller.getLeftBumperPressed():
+            self.shooter.change_shooter_state("Release Note")
 
-        # if self.joystick.getRawButton(0):
-        #     self.rotation_speed = self.drivecontrol.alignToSpeaker()
+        # Check for arm setpoint change
+        pov = self.shooter_controller.getPOV()
+        if pov == 0:
+            self.arm.set(self.arm.get_arm_setpoint() + 0.5)
+        elif pov == 180:
+            self.arm.set(self.arm.get_arm_setpoint() - 0.5)
 
-
-        if self.forward_speed != 0 or self.strafe_speed != 0 or self.rotation_speed != 0:
-            self.drivetrain.move_robot(self.forward_speed, self.strafe_speed, self.rotation_speed) 
-        else:
-            self.drivetrain.stop_robot()
-
-        if self.joystick.getRawButtonPressed(11):
-            self.drivetrain.gyro.reset()
-        
-        match self.shooter_state:
+        # Evaluate shooter state
+        match self.shooter.get_shooter_state():
             case "Idle":
-                if self.controller.getAButtonPressed():
-                    self.shooter.pick_up_note()
-                    self.shooter_state = "Collecting"
+                if self.shooter_controller.getAButtonPressed():
+                    if self.photoelectric_sensor.detects_ring():
+                        self.shooter.change_shooter_state("Loaded")
+                    else:
+                        self.arm.set_collecting_position()
+                        self.shooter.change_next_shooter_state("Start Collecting")
+                        self.shooter.change_shooter_state("Moving Arm")
+            case "Start Collecting":
+                self.shooter.set_intake_motor(1)
+                self.shooter.change_next_shooter_state("None")
+                self.shooter.change_shooter_state("Collecting")
             case "Collecting":
-                if self.color_sensor.has_ring():
-                    self.shooter.stop_picking_up_note()
-                    self.shooter_state = "Load"
-                
-                if self.controller.getYButtonPressed():
-                    self.shooter.release_note()
-                    self.cancel_intake_timer.restart()
+                if self.photoelectric_sensor.detects_ring():
+                    self.shooter.set_intake_motor(0)
+                    self.arm.set_carry_position()
+                    self.shooter.change_shooter_state("Loaded")
+            case "Loaded":
+                if self.shooter_controller.getXButtonPressed():
+                    self.drivetrain.stop_robot()
+                    self.drivetrain.change_drivetrain_state("Disabled")
 
-                if self.cancel_intake_timer.hasElapsed(0.1):
-                    self.shooter.stop_releasing_note()
-                    self.cancel_intake_timer.reset()
-                    self.shooter_state = "Load"
-            case "Load":
-                if self.controller.getXButtonPressed():
-                    self.shooter.prime_shooter()
+                    self.arm.set_amp_shooting_position()
+                    self.shooter.set_flywheel_motors(0.5)
+
+                    self.prime_shooter_timer.restart()
+                    self.ready_robot_timer.restart()
+
+                    self.shooter.change_next_shooter_state("Armed")
+                    self.shooter.change_shooter_state("Ready Robot For Amp")
+                elif self.shooter_controller.getBButtonPressed():
+                    self.drivetrain.stop_robot()
+                    distance, yaw = self.vision.get_data_to_speaker()
+                    if distance != None and yaw != None:
+                        self.drivetrain.change_drivetrain_state("Disabled")
+                        arm_angle, flywheel_speed = self.shooter.predict_speaker_shooting_state(distance)
+                        if yaw > 0:
+                            self.drivetrain.set_align_to_speaker_controller(self.drivetrain.get_current_robot_angle() - yaw)
+                        elif yaw < 0:
+                            self.drivetrain.set_align_to_speaker_controller(self.drivetrain.get_current_robot_angle() - yaw)
+                        else:
+                            self.drivetrain.set_align_to_speaker_controller(self.drivetrain.get_current_robot_angle())
+
+                        self.shooter.set_flywheel_motors(flywheel_speed)
+                        self.prime_shooter_timer.restart()
+                        
+                        self.arm.set_speaker_shooting_position(arm_angle)
+                        self.ready_robot_timer.restart()
+
+                        self.shooter.change_next_shooter_state("Armed")
+                        self.shooter.change_shooter_state("Ready Robot For Speaker")
+            case "Armed":
+                if self.prime_shooter_timer.hasElapsed(1.5):
+                    self.shooter.set_intake_motor(1)
+                    self.prime_shooter_timer.reset()
                     self.shoot_timer.restart()
-                    self.shooter_state = "Arm"
-            case "Arm":
-                if self.shoot_timer.hasElapsed(2.5):
-                    if self.controller.getBButtonPressed():
-                        self.shooter.fire_out_note()
-                        self.shoot_timer.restart()
-                        self.shooter_state = "Fire"
+                    self.shooter.change_next_shooter_state("None")
+                    self.shooter.change_shooter_state("Fire")
             case "Fire":
                 if self.shoot_timer.hasElapsed(0.5):
-                    self.shooter.stop_firing_out_note()
                     self.shoot_timer.reset()
-                    self.shooter_state = "Idle"
+                    self.shooter.change_shooter_state("Reset")
+            case "Force Fire":
+                self.shooter.set_flywheel_motors(0.85)
+                self.prime_shooter_timer.restart()
+                self.shooter.change_shooter_state("Armed")
+            case "Release Note":
+                self.arm.set_carry_position()
+                self.shooter.change_next_shooter_state("Start Releasing Note")
+                self.shooter.change_shooter_state("Moving Arm")
+            case "Start Releasing Note":
+                self.shooter.set_flywheel_motors(-1)
+                self.shooter.set_intake_motor(-1)
+                self.drop_timer.restart()
+                self.shooter.change_next_shooter_state("None")
+                self.shooter.change_shooter_state("Stop Releasing Note")
+            case "Stop Releasing Note":
+                if self.drop_timer.hasElapsed(0.75):
+                    self.drop_timer.reset()
+                    self.shooter.change_shooter_state("Reset")
+            case "Reset":
+                self.drivetrain.change_drivetrain_state("Enabled")
+                self.arm.set_carry_position()
+                self.shooter.reset()
+            case "Moving Arm":
+                if self.arm.reached_goal():
+                    self.shooter.change_shooter_state(self.shooter.get_next_shooter_state())
+            case "Ready Robot For Amp":
+                if self.ready_robot_timer.hasElapsed(2):
+                    self.ready_robot_timer.reset()
+                    self.shooter.change_shooter_state(self.shooter.get_next_shooter_state())
+                else:
+                    if self.arm.reached_goal():
+                        self.ready_robot_timer.reset()
+                        self.shooter.change_shooter_state(self.shooter.get_next_shooter_state())
+            case "Ready Robot For Speaker":
+                if self.ready_robot_timer.hasElapsed(2):
+                    self.drivetrain.stop_robot()
+                    self.ready_robot_timer.reset()
+                    self.shooter.change_shooter_state(self.shooter.get_next_shooter_state())
+                elif self.drivetrain.reached_align_to_speaker_goal() and self.arm.reached_goal():
+                    self.drivetrain.stop_robot()
+                    self.ready_robot_timer.reset()
+                    self.shooter.change_shooter_state(self.shooter.get_next_shooter_state())
+                else:
+                    if self.drivetrain.reached_align_to_speaker_goal():
+                        self.drivetrain.stop_robot()
+                    else:
+                        self.drivetrain.update_align_to_speaker_controller()
+
+        # Update arm position
+        self.arm.update_pid_controller() 
+
+        # Evaluate drivetrain state.
+        match self.drivetrain.get_drivetrain_state():
+            case "Enabled":
+                if self.forward_speed != 0 or self.strafe_speed != 0 or self.rotation_speed != 0:
+                    self.drivetrain.move_robot(self.forward_speed, self.strafe_speed, self.rotation_speed) 
+                else:
+                    self.drivetrain.stop_robot()
+            case "Resetting Gyro":
+                if not self.drivetrain_timer.hasElapsed(0.5):
+                    if self.forward_speed != 0 or self.strafe_speed != 0 or self.rotation_speed != 0:
+                        self.drivetrain_controller.setRumble(wpilib.XboxController.RumbleType.kBothRumble, 0.75)  
+                    else:
+                        self.drivetrain_controller.setRumble(wpilib.XboxController.RumbleType.kBothRumble, 0)  
+                else:
+                    self.drivetrain_controller.setRumble(wpilib.XboxController.RumbleType.kBothRumble, 0)  
+                    self.drivetrain_timer.reset()
+                    self.drivetrain.change_drivetrain_state("Enabled")
+            case "Disabled":
+                if self.forward_speed != 0 or self.strafe_speed != 0 or self.rotation_speed != 0:
+                    self.drivetrain_controller.setRumble(wpilib.XboxController.RumbleType.kBothRumble, 0.75)
+                else:
+                    self.drivetrain_controller.setRumble(wpilib.XboxController.RumbleType.kBothRumble, 0)
+
+    def teleopExit(self):
+        # Turn off drivetrain controller rumble if it is stil on.
+        self.drivetrain_controller.setRumble(wpilib.XboxController.RumbleType.kBothRumble, 0)  
 
 if __name__ == "__main__":
     wpilib.run(TeutonicForceRobot)
