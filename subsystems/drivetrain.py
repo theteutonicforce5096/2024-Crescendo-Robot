@@ -96,7 +96,7 @@ class SwerveDrive():
             rotation_speed = -1
             
         self.change_max_drivetrain_speed(0.25)
-        self.move_robot(0, 0, rotation_speed * -1)
+        self.move_robot(0, 0, rotation_speed)
 
     def get_current_robot_angle(self):
         """

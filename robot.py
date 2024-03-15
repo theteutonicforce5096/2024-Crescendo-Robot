@@ -190,9 +190,9 @@ class TeutonicForceRobot(wpilib.TimedRobot):
                         self.drivetrain.change_drivetrain_state("Disabled")
                         arm_angle, flywheel_speed = self.shooter.predict_speaker_shooting_state(distance)
                         if yaw > 0:
-                            self.drivetrain.set_align_to_speaker_controller(self.drivetrain.get_current_robot_angle() - yaw)
+                            self.drivetrain.set_align_to_speaker_controller(self.drivetrain.get_current_robot_angle() + yaw)
                         elif yaw < 0:
-                            self.drivetrain.set_align_to_speaker_controller(self.drivetrain.get_current_robot_angle() - yaw)
+                            self.drivetrain.set_align_to_speaker_controller(self.drivetrain.get_current_robot_angle() + yaw)
                         else:
                             self.drivetrain.set_align_to_speaker_controller(self.drivetrain.get_current_robot_angle())
 
