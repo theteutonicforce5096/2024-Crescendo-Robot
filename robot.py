@@ -62,11 +62,17 @@ class TeutonicForceRobot(wpilib.TimedRobot):
         # Location of robot
         if wpilib.DriverStation.getLocation() == 2:
             self.location = 'center'
-        else:
-            self.location = 'side'
+        elif wpilib.DriverStation.getLocation() == 1:
+            self.location = 'left'
+        elif wpilib.DriverStation.getLocation() == 3:
+            self.location = 'right'
 
         # State of autonomous
         self.autonomous_state = "Idle"
+
+        # Reset Drivetrain
+        self.drivetrain.reset_drivetrain()
+        self.drivetrain.reset_gyro()
             
         # Reset shooter
         self.shooter.reset()
@@ -77,17 +83,10 @@ class TeutonicForceRobot(wpilib.TimedRobot):
         # Reset Vision
         self.vision.reset()
 
-        # Reset Drivetrain
-        self.drivetrain.reset_drivetrain()
-        self.drivetrain.reset_gyro()
-
     def autonomousPeriodic(self):
         match self.autonomous_state:
             case "Idle":
-                if self.location == "center":
-                    self.autonomous_state = "Fire Note"
-                else:
-                    self.autonomous_state = "Move Robot"
+                self.autonomous_state = "Fire Note"
             case "Fire Note":
                 distance, yaw = self.vision.get_data_to_speaker()
                 if distance != None and yaw != None:
@@ -124,16 +123,32 @@ class TeutonicForceRobot(wpilib.TimedRobot):
                     self.autonomous_state = "Reset Shooter"
             case "Reset Shooter":
                 self.arm.set_carry_position()
-                self.shooter.reset()     
-                self.autonomous_state = "Move Robot"
+                self.shooter.reset()   
+                if self.location == 'center':  
+                    self.autonomous_state = "Move Robot"
+                elif self.location == 'left':
+                    self.autonomous_state = "Move Robot/Rotate Right"
+                elif self.location == 'Right':
+                    self.autonomous_state = "Move Robot/Rotate Left"
             case "Move Robot":
                 self.drivetrain.move_robot(-1, 0, 0)
                 self.auto_timer.restart()
                 self.autonomous_state = "Moving Robot"
+            case "Move Robot/Rotate Right":
+                self.drivetrain.move_robot(-1, 0, -0.5)
+                self.auto_timer.restart()
+                self.autonomous_state = "Moving Robot"
+            case "Move Robot/Rotate Left":
+                self.drivetrain.move_robot(-1, 0, 0.5)
+                self.auto_timer.restart()
+                self.autonomous_state = "Moving Robot"
             case "Moving Robot":
-                if self.auto_timer.hasElapsed(1):
+                if self.auto_timer.hasElapsed(3):
                     self.drivetrain.stop_robot()
                     self.auto_timer.reset()
+                    self.autonomous_state = "Stop Robot"
+            case "Stop Robot":
+                pass
 
         self.arm.update_pid_controller()     
 
@@ -150,12 +165,19 @@ class TeutonicForceRobot(wpilib.TimedRobot):
         self.forward_speed = 0
         self.strafe_speed = 0
         self.rotation_speed = 0
-
+        
+        # Reset Drivetrain
+        self.drivetrain.reset_drivetrain()
+        self.drivetrain.reset_gyro()
+        
         # Reset shooter
         self.shooter.reset()
 
         # Reset Arm
         self.arm.reset()
+
+        # Reset Vision
+        self.vision.reset()
 
     def teleopPeriodic(self):
         # Get speeds from drivetrain controller.
