@@ -28,11 +28,21 @@ class TeutonicForceRobot(wpilib.TimedRobot):
         self.prime_shooter_timer = wpilib.Timer()
         self.shoot_timer = wpilib.Timer()        
         self.ready_robot_timer = wpilib.Timer()
+        self.auto_timer = wpilib.Timer()
 
         # Set default robot speeds
         self.forward_speed = 0
         self.strafe_speed = 0
         self.rotation_speed = 0
+        
+        # Location of robot
+        if wpilib.DriverStation.getLocation() == 2:
+            self.location = 'center'
+        else:
+            self.location = 'side'
+
+        # State of autonomous
+        self.autonomous_state = "None"
 
     def autonomousInit(self):
         # Reset timers
@@ -42,12 +52,22 @@ class TeutonicForceRobot(wpilib.TimedRobot):
         self.prime_shooter_timer.reset()
         self.shoot_timer.reset()
         self.ready_robot_timer.reset() 
+        self.auto_timer.reset()
 
         # Reset robot speeds.
         self.forward_speed = 0
         self.strafe_speed = 0
         self.rotation_speed = 0
 
+        # Location of robot
+        if wpilib.DriverStation.getLocation() == 2:
+            self.location = 'center'
+        else:
+            self.location = 'side'
+
+        # State of autonomous
+        self.autonomous_state = "Idle"
+            
         # Reset shooter
         self.shooter.reset()
 
@@ -62,7 +82,60 @@ class TeutonicForceRobot(wpilib.TimedRobot):
         self.drivetrain.reset_gyro()
 
     def autonomousPeriodic(self):
-        pass
+        match self.autonomous_state:
+            case "Idle":
+                if self.location == "center":
+                    self.autonomous_state = "Fire Note"
+                else:
+                    self.autonomous_state = "Move Robot"
+            case "Fire Note":
+                distance, yaw = self.vision.get_data_to_speaker()
+                if distance != None and yaw != None:
+                    arm_angle, flywheel_speed = self.shooter.predict_speaker_shooting_state(distance)
+                    self.shooter.set_flywheel_motors(flywheel_speed)
+                    self.prime_shooter_timer.restart()
+                    
+                    self.arm.set_speaker_shooting_position(arm_angle)
+                    self.ready_robot_timer.restart()
+                    self.autonomous_state = "Moving Arm"
+                else:
+                    self.shooter.set_flywheel_motors(0.8)
+                    self.prime_shooter_timer.restart()
+                    
+                    self.arm.set_speaker_shooting_position(-12.5)
+                    self.ready_robot_timer.restart()
+                    self.autonomous_state = "Moving Arm"
+            case "Moving Arm":
+                if self.ready_robot_timer.hasElapsed(2):
+                    self.ready_robot_timer.reset()
+                    self.autonomous_state = "Armed"
+                elif self.arm.reached_goal():
+                    self.ready_robot_timer.reset()
+                    self.autonomous_state = "Armed"
+            case "Armed":
+                if self.prime_shooter_timer.hasElapsed(1.5):
+                    self.shooter.set_intake_motor(1)
+                    self.prime_shooter_timer.reset()
+                    self.shoot_timer.restart()
+                    self.autonomous_state = "Fire"
+            case "Fire":
+                if self.shoot_timer.hasElapsed(0.5):
+                    self.shoot_timer.reset()
+                    self.autonomous_state = "Reset Shooter"
+            case "Reset Shooter":
+                self.arm.set_carry_position()
+                self.shooter.reset()     
+                self.autonomous_state = "Move Robot"
+            case "Move Robot":
+                self.drivetrain.move_robot(-0.5, 0, 0)
+                self.auto_timer.restart()
+                self.autonomous_state = "Moving Robot"
+            case "Moving Robot":
+                if self.auto_timer.hasElapsed(1):
+                    self.drivetrain.stop_robot()
+                    self.auto_timer.reset()
+
+        self.arm.update_pid_controller()     
 
     def teleopInit(self):
         # Reset timers
@@ -179,9 +252,9 @@ class TeutonicForceRobot(wpilib.TimedRobot):
                         self.drivetrain.change_drivetrain_state("Disabled")
                         arm_angle, flywheel_speed = self.shooter.predict_speaker_shooting_state(distance)
                         if yaw > 0:
-                            self.drivetrain.set_align_to_speaker_controller(self.drivetrain.get_current_robot_angle() - yaw)
+                            self.drivetrain.set_align_to_speaker_controller(self.drivetrain.get_current_robot_angle() + yaw)
                         elif yaw < 0:
-                            self.drivetrain.set_align_to_speaker_controller(self.drivetrain.get_current_robot_angle() - yaw)
+                            self.drivetrain.set_align_to_speaker_controller(self.drivetrain.get_current_robot_angle() + yaw)
                         else:
                             self.drivetrain.set_align_to_speaker_controller(self.drivetrain.get_current_robot_angle())
 
