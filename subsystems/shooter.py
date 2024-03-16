@@ -1,5 +1,6 @@
 import phoenix5
 from wpilib.shuffleboard import Shuffleboard
+from math import atan, degrees
 
 class Shooter():
     """Class for controlling shooter on robot."""
@@ -44,6 +45,11 @@ class Shooter():
         self.shooter_state = "Idle"
         self.next_shooter_state = "None"
         self.drivers_tab_state = Shuffleboard.getTab("Drivers").add(f"Shooter State", self.shooter_state).withSize(2, 2).getEntry()
+
+        # Arm offset
+        self.arm_offset = 40
+        self.speaker_height = 2.05
+        self.camera_height = 0.43815
 
     def _invert_motor(self, motor):
         """
@@ -141,6 +147,9 @@ class Shooter():
         :param: distance: Distance, in meters, away from the Speaker.
         :type distance: float
         """
+        #arm_angle = degrees(atan((self.speaker_height - self.camera_height) / distance))
+        #arm_angle -= self.arm_offset
         arm_angle = (9.9128234 * distance) - 30.15892857142858
         flywheel_speed = (0.01111148 * distance ** 2) + (-0.03785358 * distance) + 0.8383695335635847
+        #flywheel_speed = 1.0
         return arm_angle, flywheel_speed

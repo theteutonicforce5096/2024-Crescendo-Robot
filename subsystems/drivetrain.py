@@ -21,9 +21,9 @@ class SwerveDrive():
         # Create Kinematics object and initialize Swerve Modules
         self.kinematics = SwerveDrive4Kinematics(front_left_location, front_right_location, back_left_location, back_right_location)
         self.front_left_module = SwerveModule("FL", 23, 13, 33, "CANivore", "CANivore", "rio", -0.007080, False)
-        self.front_right_module = SwerveModule("FR", 20, 10, 30, "CANivore", "CANivore", "rio", 0.006104, True)
-        self.back_left_module = SwerveModule("BL", 22, 12, 32, "CANivore", "CANivore", "rio", -0.475830, False)
-        self.back_right_module = SwerveModule("BR", 21, 11, 31, "CANivore", "CANivore", "rio", -0.007080, True)
+        self.front_right_module = SwerveModule("FR", 20, 10, 30, "CANivore", "CANivore", "rio", 0.012451, True)
+        self.back_left_module = SwerveModule("BL", 22, 12, 32, "CANivore", "CANivore", "rio", -0.474609, False)
+        self.back_right_module = SwerveModule("BR", 21, 11, 31, "CANivore", "CANivore", "rio", -0.011475, True)
 
         # Initialize Gyro
         self.gyro = navx.AHRS.create_spi()

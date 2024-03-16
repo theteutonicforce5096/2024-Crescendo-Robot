@@ -35,7 +35,7 @@ class Arm():
         # self.d_widget = Shuffleboard.getTab("Arm").add(f"D", 0.0).withSize(2, 2).getEntry()
 
         # PID Controller
-        self.arm_controller = ProfiledPIDController(125, 0, 0, TrapezoidProfile.Constraints(1/3, 1/3))
+        self.arm_controller = ProfiledPIDController(125, 0, 0, TrapezoidProfile.Constraints(1/3, 2/3))
         self.arm_controller.enableContinuousInput(0, 1)
         self.set_tolerance(2)
         self.gravity_gain = 0.3
@@ -81,10 +81,10 @@ class Arm():
         """
         Sets the arm at a certain angle.
         """
-        if angle < -13.5:
-            angle = -13.5
-        elif angle > 95:
-            angle = 95
+        if angle < -13:
+            angle = -13
+        elif angle > 97.5:
+            angle = 97.5
             
         #self.arm_controller.setPID(self.p_widget.getFloat(0.0), self.i_widget.getFloat(0.0), self.d_widget.getFloat(0.0))
         self.arm_controller.setGoal(self.encoder_0_position + (angle / 360))
@@ -102,14 +102,14 @@ class Arm():
         """
         Sets the arm to the collecting position.
         """
-        self.set(-13)
+        self.set(-12)
         self.set_tolerance(5)
 
     def set_amp_shooting_position(self):
         """
         Sets the arm to the Amp shooting position.
         """
-        self.set(95)
+        self.set(97.5)
         self.set_tolerance(0.5)
 
     def set_speaker_shooting_position(self, arm_angle):
