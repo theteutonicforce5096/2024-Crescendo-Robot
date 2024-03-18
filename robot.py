@@ -7,10 +7,17 @@ from subsystems.vision import Vision
 import math
 from wpimath.kinematics import ChassisSpeeds
 from wpimath.geometry  import Rotation2d
-from wpilib import DataLogManager
+from wpilib import DataLogManager, DriverStation
 
 class TheRinger(wpilib.TimedRobot):
     def robotInit(self):
+        
+        # Starts recording to data log
+        DataLogManager.start()
+
+        # Record both DS control and joystick data
+        DriverStation.startDataLog(DataLogManager.getLog())
+
         # Set brownout voltage
         wpilib.RobotController.setBrownoutVoltage(6.3)
 
@@ -385,7 +392,7 @@ class TheRinger(wpilib.TimedRobot):
 
     def teleopExit(self):
         # Turn off drivetrain controller rumble if it is stil on.
-        self.drivetrain_controller.setRumble(wpilib.XboxController.RumbleType.kBothRumble, 0)  
+        self.drivetrain_controller.setRumble(wpilib.XboxController.RumbleType.kBothRumble, 0)
 
     def testInit(self):
         self.arm.set(0)
@@ -402,4 +409,3 @@ class TheRinger(wpilib.TimedRobot):
 
 if __name__ == "__main__":
     wpilib.run(TheRinger)
-    DataLogManager.start()
