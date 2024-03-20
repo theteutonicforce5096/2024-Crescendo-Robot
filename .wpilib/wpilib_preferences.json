@@ -1,1 +1,6 @@
-{"robotHostname": "10.50.96.2"}
+{
+    "enableCppIntellisense": false,
+    "currentLanguage": "java",
+    "projectYear": "2024",
+    "teamNumber": 5096
+}
