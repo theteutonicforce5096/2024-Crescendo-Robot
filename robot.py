@@ -4,13 +4,20 @@ from subsystems.shooter import Shooter
 from subsystems.arm import Arm
 from subsystems.photoelectric_sensor import PhotoelectricSensor
 from subsystems.vision import Vision
+import wpimath
 import math
 from wpimath.kinematics import ChassisSpeeds
 from wpimath.geometry  import Rotation2d
 from wpilib import DataLogManager, DriverStation
+from wpilib import SmartDashboard, Field2d
 
 class TheRinger(wpilib.TimedRobot):
     def robotInit(self):
+
+        self.field = Field2d()
+
+        # Do this in either robot or subsystem init
+        SmartDashboard.putData("Field", self.field)
         
         # Starts recording to data log
         DataLogManager.start()
@@ -54,6 +61,10 @@ class TheRinger(wpilib.TimedRobot):
 
         # State of autonomous
         self.autonomous_state = "None"
+
+    def robotPeriodic(self):
+        # Do this in either robot periodic or subsystem periodic
+        self.field.setRobotPose(self.odometry.getPose())
 
     def autonomousInit(self):
         # Reset timers
@@ -163,8 +174,31 @@ class TheRinger(wpilib.TimedRobot):
             case "Stop Robot":
                 pass
 
-        self.arm.update_pid_controller()  
-        pass   
+        self.arm.update_pid_controller()
+        
+        #Translation2d and Pose2d still need to be written, Translation2d coordinate values can be changed
+        self.trajectory = wpimath.trajectory.TrajectoryGenerator.generateTrajectory(
+            wpimath.geometry.Pose2d(0, 0, wpimath.geometry.Rotation2d.fromDegrees(0)),
+            [
+                wpimath.geometry.Translation2d(1, 1),
+                wpimath.geometry.Translation2d(2, -1),
+            ],
+            wpimath.geometry.Pose2d(3, 0, wpimath.geometry.Rotation2d.fromDegrees(0)),
+            wpimath.trajectory.TrajectoryConfig(
+                wpimath.units.feetToMeters(3.0), wpimath.units.feetToMeters(3.0)
+            ),
+        )
+
+        # Create Field2d for robot and trajectory visualizations.
+        self.field = wpilib.Field2d()
+
+        # Create and push Field2d to SmartDashboard.
+        wpilib.SmartDashboard.putData(self.field)
+
+        # Push the trajectory to Field2d.
+        self.field.getObject("traj").setTrajectory(self.trajectory)
+
+        pass
 
     def teleopInit(self):
         # Reset timers
