@@ -1,14 +1,15 @@
-from wpimath.geometry import Translation2d, Rotation2d
+from wpimath.geometry import Translation2d, Rotation2d, Pose2d
 from wpimath.controller import PIDController
 from wpilib.shuffleboard import Shuffleboard
 from wpimath.kinematics import SwerveDrive4Kinematics, ChassisSpeeds
+from wpimath.estimator import SwerveDrive4PoseEstimator
 from .swerve_module import SwerveModule
 import navx 
 
 class SwerveDrive():
     """Class for controlling Swerve Drive on robot."""
 
-    def __init__(self):
+    def __init__(self, x, y, rotation):
         """
         Constructor for Swerve Drive.
         """        
@@ -27,13 +28,23 @@ class SwerveDrive():
 
         # Initialize Gyro
         self.gyro = navx.AHRS.create_spi()
-        self.drivers_tab_gyro = Shuffleboard.getTab("Drivers").add(f"Current Robot Angle (From Gyro)", round(self.get_current_robot_angle(), 2)).withSize(2, 2).getEntry()
+        self.drivers_tab_gyro = Shuffleboard.getTab("Drivers").add(f"Current Robot Angle (From Gyro)", "None").withSize(2, 2).getEntry()
+
+        # Create Odometry Object
+        self.odometry = SwerveDrive4PoseEstimator(self.kinematics, self.get_current_robot_angle(),
+                                                    (
+                                                        self.front_left_module.get_position(),
+                                                        self.front_right_module.get_position(),
+                                                        self.back_left_module.get_position(),
+                                                        self.back_right_module.get_position()
+                                                    ),
+        Pose2d(x, y, Rotation2d.fromDegrees(rotation)))
 
         # Max Drivetrain speed
         self.max_drivetrain_speed = 0.25
         self.drivers_tab_speed = Shuffleboard.getTab("Drivers").add(f"Max Swerve Drive Speed", self.max_drivetrain_speed).withSize(2, 2).getEntry()
 
-        # Pid Controller for Aligning to Speaker
+        # PID Controller for Aligning to Speaker
         self.align_to_speaker_controller = PIDController(1/20, 0, 0)
         self.align_to_speaker_controller.enableContinuousInput(-180, 180)
         self.align_to_speaker_controller.setTolerance(2)
@@ -58,6 +69,14 @@ class SwerveDrive():
         """
         self.gyro.reset()
         self.drivers_tab_gyro.setFloat(0)
+        pose = self.update_odometry()
+        self.odometry.resetPosition(self.gyro.getRotation2d(),
+                                            (
+                                                self.front_left_module.get_position(),
+                                                self.front_right_module.get_position(),
+                                                self.back_left_module.get_position(),
+                                                self.back_right_module.get_position()
+                                            ), pose)
 
     def change_max_drivetrain_speed(self, speed):
         """
@@ -101,15 +120,28 @@ class SwerveDrive():
     def get_current_robot_angle(self):
         """
         Get the current robot angle relative to the field using the gyro.
+        """        
+        self.drivers_tab_gyro.setFloat(round((-self.gyro.getAngle() % 360, 2)))
+        return self.gyro.getRotation2d()
+    
+    def update_swerve_modules_position(self):
         """
-        # Scale the gyro angle from -360 to 360 scale to -180 to 180 scale.
-        current_robot_angle = (self.gyro.getAngle() * -1) % 360
-        if current_robot_angle > 180: 
-            current_robot_angle -= 360
-        elif current_robot_angle < -180:
-            current_robot_angle += 360
+        Update the swerve modules position.
+        """
+        self.front_left_module.update_position()
+        self.front_right_module.update_position()
+        self.back_left_module.update_position()
+        self.back_right_module.update_position()
 
-        return current_robot_angle
+    def update_odometry(self):
+        pose = self.odometry.update(self.gyro.getRotation2d(),
+                                            (
+                                                self.front_left_module.get_position(),
+                                                self.front_right_module.get_position(),
+                                                self.back_left_module.get_position(),
+                                                self.back_right_module.get_position()
+                                            ))
+        return pose
 
     def move_robot(self, forward_speed, strafe_speed, rotation_speed):
         """
@@ -120,15 +152,14 @@ class SwerveDrive():
         """
         # Get desired Swerve Modules' speeds and angles.
         current_robot_angle = self.get_current_robot_angle()
-        self.drivers_tab_gyro.setFloat(round(current_robot_angle, 2))
-        robot_speeds = ChassisSpeeds.fromFieldRelativeSpeeds(forward_speed * 5.21208, strafe_speed * 5.21208, rotation_speed * 14.6934998988, Rotation2d.fromDegrees(current_robot_angle))
+        robot_speeds = ChassisSpeeds.fromFieldRelativeSpeeds(forward_speed * 5.21208, strafe_speed * 5.21208, rotation_speed * 14.6934998988, current_robot_angle)
         front_left_module_state, front_right_module_state, back_left_module_state, back_right_module_state = self.kinematics.desaturateWheelSpeeds(self.kinematics.toSwerveModuleStates(robot_speeds), 5.21208)
         
         # Optimize desired Swerve Modules' angles.
-        front_left_module_state = front_left_module_state.optimize(front_left_module_state, self.front_left_module.current_angle)
-        front_right_module_state = front_right_module_state.optimize(front_right_module_state, self.front_right_module.current_angle)
-        back_left_module_state = back_left_module_state.optimize(back_left_module_state, self.back_left_module.current_angle)
-        back_right_module_state = back_right_module_state.optimize(back_right_module_state, self.back_right_module.current_angle)
+        front_left_module_state = front_left_module_state.optimize(front_left_module_state, self.front_left_module.get_angle())
+        front_right_module_state = front_right_module_state.optimize(front_right_module_state, self.front_right_module.get_angle())
+        back_left_module_state = back_left_module_state.optimize(back_left_module_state, self.back_left_module.get_angle())
+        back_right_module_state = back_right_module_state.optimize(back_right_module_state, self.back_right_module.get_angle())
 
         # Set the Swerve Modules to the desired speeds and angles.
         self.front_left_module.set(self.max_drivetrain_speed * front_left_module_state.speed, front_left_module_state.angle)

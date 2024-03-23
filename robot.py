@@ -11,7 +11,7 @@ class TheRinger(wpilib.TimedRobot):
         wpilib.RobotController.setBrownoutVoltage(6.3)
 
         # Initialize components
-        self.drivetrain = SwerveDrive()
+        self.drivetrain = SwerveDrive(5, 13.5, 0)
         self.shooter = Shooter(40, 41, 42, True, False, False)
         self.arm = Arm(50, 51, True, False, 0, 0.9960985499024637)
         self.photoelectric_sensor = PhotoelectricSensor(1)
@@ -153,7 +153,8 @@ class TheRinger(wpilib.TimedRobot):
                 pass
 
         self.arm.update_pid_controller()  
-        pass   
+        self.drivetrain.update_swerve_modules_position()
+        pose = self.drivetrain.update_odometry()
 
     def teleopInit(self):
         # Reset timers
@@ -352,6 +353,10 @@ class TheRinger(wpilib.TimedRobot):
 
         # # Update arm position
         self.arm.update_pid_controller() 
+
+        # Update odometry
+        self.drivetrain.update_swerve_modules_position()
+        pose = self.drivetrain.update_odometry()
 
         # Evaluate drivetrain state.
         match self.drivetrain.get_drivetrain_state():
