@@ -263,24 +263,24 @@ class TheRinger(wpilib.TimedRobot):
                     self.drivetrain.stop_robot()
                     self.drivetrain.change_drivetrain_state("Disabled")
 
-        #             self.arm.set_amp_shooting_position()
-        #             self.shooter.set_flywheel_motors(0.5)
+                    self.arm.set_amp_shooting_position()
+                    self.shooter.set_flywheel_motors(0.5)
 
-        #             self.prime_shooter_timer.restart()
-        #             self.ready_robot_timer.restart()
+                    self.prime_shooter_timer.restart()
+                    self.ready_robot_timer.restart()
 
-        #             self.shooter.change_next_shooter_state("Armed")
-        #             self.shooter.change_shooter_state("Ready Robot For Amp")
-        #         elif self.shooter_controller.getBButtonPressed():
-        #             self.drivetrain.stop_robot()
-        #             distance, yaw = self.vision.get_data_to_speaker()
-        #             if distance != None and yaw != None:
-        #                 self.drivetrain.change_drivetrain_state("Disabled")
-        #                 arm_angle, flywheel_speed = self.shooter.predict_speaker_shooting_state(distance)
-        #                 #if yaw != 0:
-        #                 #    self.drivetrain.set_align_to_speaker_controller(self.drivetrain.get_current_robot_angle() + yaw)
-        #                 #else:
-        #                 #    self.drivetrain.set_align_to_speaker_controller(self.drivetrain.get_current_robot_angle())
+                    self.shooter.change_next_shooter_state("Armed")
+                    self.shooter.change_shooter_state("Ready Robot For Amp")
+                elif self.shooter_controller.getBButtonPressed():
+                    self.drivetrain.stop_robot()
+                    distance, yaw = self.vision.get_data_to_speaker()
+                    if distance != None and yaw != None:
+                        self.drivetrain.change_drivetrain_state("Disabled")
+                        arm_angle, flywheel_speed = self.shooter.predict_speaker_shooting_state(distance)
+                        #if yaw != 0:
+                        #    self.drivetrain.set_align_to_speaker_controller(self.drivetrain.get_current_robot_angle() + yaw)
+                        #else:
+                        #    self.drivetrain.set_align_to_speaker_controller(self.drivetrain.get_current_robot_angle())
 
                         self.shooter.set_flywheel_motors(flywheel_speed)
                         self.prime_shooter_timer.restart()
@@ -288,69 +288,69 @@ class TheRinger(wpilib.TimedRobot):
                         self.arm.set_speaker_shooting_position(arm_angle)
                         self.ready_robot_timer.restart()
 
-        #                 self.shooter.change_next_shooter_state("Armed")
-        #                 self.shooter.change_shooter_state("Ready Robot For Speaker")
-        #     case "Armed":
-        #         if self.prime_shooter_timer.hasElapsed(1):
-        #             self.shooter.set_intake_motor(1)
-        #             self.prime_shooter_timer.reset()
-        #             self.shoot_timer.restart()
-        #             self.shooter.change_next_shooter_state("None")
-        #             self.shooter.change_shooter_state("Fire")
-        #     case "Fire":
-        #         if self.shoot_timer.hasElapsed(1):
-        #             self.shoot_timer.reset()
-        #             self.shooter.change_shooter_state("Reset")
-        #     case "Force Fire":
-        #         self.shooter.set_flywheel_motors(0.85)
-        #         self.prime_shooter_timer.restart()
-        #         self.shooter.change_shooter_state("Armed")
-        #     case "Release Note":
-        #         self.arm.set_carry_position()
-        #         self.shooter.change_next_shooter_state("Start Releasing Note")
-        #         self.shooter.change_shooter_state("Moving Arm")
-        #     case "Start Releasing Note":
-        #         self.shooter.set_flywheel_motors(-1)
-        #         self.shooter.set_intake_motor(-1)
-        #         self.drop_timer.restart()
-        #         self.shooter.change_next_shooter_state("None")
-        #         self.shooter.change_shooter_state("Stop Releasing Note")
-        #     case "Stop Releasing Note":
-        #         if self.drop_timer.hasElapsed(0.75):
-        #             self.drop_timer.reset()
-        #             self.shooter.change_shooter_state("Reset")
-        #     case "Reset":
-        #         self.drivetrain.change_drivetrain_state("Enabled")
-        #         self.arm.set_carry_position()
-        #         self.shooter.reset()
-        #     case "Moving Arm":
-        #         if self.arm.reached_goal():
-        #             self.shooter.change_shooter_state(self.shooter.get_next_shooter_state())
-        #     case "Ready Robot For Amp":
-        #         if self.ready_robot_timer.hasElapsed(1.5):
-        #             self.ready_robot_timer.reset()
-        #             self.shooter.change_shooter_state(self.shooter.get_next_shooter_state())
-        #         else:
-        #             if self.arm.reached_goal():
-        #                 self.ready_robot_timer.reset()
-        #                 self.shooter.change_shooter_state(self.shooter.get_next_shooter_state())
-        #     case "Ready Robot For Speaker":
-        #         if self.ready_robot_timer.hasElapsed(1.5):
-        #             self.drivetrain.stop_robot()
-        #             self.ready_robot_timer.reset()
-        #             self.shooter.change_shooter_state(self.shooter.get_next_shooter_state())
-        #         elif self.arm.reached_goal():#self.drivetrain.reached_align_to_speaker_goal() and self.arm.reached_goal():
-        #             self.drivetrain.stop_robot()
-        #             self.ready_robot_timer.reset()
-        #             self.shooter.change_shooter_state(self.shooter.get_next_shooter_state())
-        #         #else:
-        #         #    if self.drivetrain.reached_align_to_speaker_goal():
-        #         #        self.drivetrain.stop_robot()
-        #         #    else:
-        #         #        self.drivetrain.update_align_to_speaker_controller()
+                        self.shooter.change_next_shooter_state("Armed")
+                        self.shooter.change_shooter_state("Ready Robot For Speaker")
+            case "Armed":
+                if self.prime_shooter_timer.hasElapsed(1):
+                    self.shooter.set_intake_motor(1)
+                    self.prime_shooter_timer.reset()
+                    self.shoot_timer.restart()
+                    self.shooter.change_next_shooter_state("None")
+                    self.shooter.change_shooter_state("Fire")
+            case "Fire":
+                if self.shoot_timer.hasElapsed(1):
+                    self.shoot_timer.reset()
+                    self.shooter.change_shooter_state("Reset")
+            case "Force Fire":
+                self.shooter.set_flywheel_motors(0.85)
+                self.prime_shooter_timer.restart()
+                self.shooter.change_shooter_state("Armed")
+            case "Release Note":
+                self.arm.set_carry_position()
+                self.shooter.change_next_shooter_state("Start Releasing Note")
+                self.shooter.change_shooter_state("Moving Arm")
+            case "Start Releasing Note":
+                self.shooter.set_flywheel_motors(-1)
+                self.shooter.set_intake_motor(-1)
+                self.drop_timer.restart()
+                self.shooter.change_next_shooter_state("None")
+                self.shooter.change_shooter_state("Stop Releasing Note")
+            case "Stop Releasing Note":
+                if self.drop_timer.hasElapsed(0.75):
+                    self.drop_timer.reset()
+                    self.shooter.change_shooter_state("Reset")
+            case "Reset":
+                self.drivetrain.change_drivetrain_state("Enabled")
+                self.arm.set_carry_position()
+                self.shooter.reset()
+            case "Moving Arm":
+                if self.arm.reached_goal():
+                    self.shooter.change_shooter_state(self.shooter.get_next_shooter_state())
+            case "Ready Robot For Amp":
+                if self.ready_robot_timer.hasElapsed(1.5):
+                    self.ready_robot_timer.reset()
+                    self.shooter.change_shooter_state(self.shooter.get_next_shooter_state())
+                else:
+                    if self.arm.reached_goal():
+                        self.ready_robot_timer.reset()
+                        self.shooter.change_shooter_state(self.shooter.get_next_shooter_state())
+            case "Ready Robot For Speaker":
+                if self.ready_robot_timer.hasElapsed(1.5):
+                    self.drivetrain.stop_robot()
+                    self.ready_robot_timer.reset()
+                    self.shooter.change_shooter_state(self.shooter.get_next_shooter_state())
+                elif self.arm.reached_goal():#self.drivetrain.reached_align_to_speaker_goal() and self.arm.reached_goal():
+                    self.drivetrain.stop_robot()
+                    self.ready_robot_timer.reset()
+                    self.shooter.change_shooter_state(self.shooter.get_next_shooter_state())
+                #else:
+                #    if self.drivetrain.reached_align_to_speaker_goal():
+                #        self.drivetrain.stop_robot()
+                #    else:
+                #        self.drivetrain.update_align_to_speaker_controller()
 
-        # # Update arm position
-        # self.arm.update_pid_controller() 
+        # Update arm position
+        self.arm.update_pid_controller() 
 
         # Evaluate drivetrain state.
         match self.drivetrain.get_drivetrain_state():
