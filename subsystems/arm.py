@@ -35,7 +35,7 @@ class Arm():
         # self.d_widget = Shuffleboard.getTab("Arm").add(f"D", 0.0).withSize(2, 2).getEntry()
 
         # PID Controller
-        self.arm_controller = ProfiledPIDController(125, 0, 0, TrapezoidProfile.Constraints(1/3, 2/3))
+        self.arm_controller = ProfiledPIDController(110, 0, 0, TrapezoidProfile.Constraints(1/3, 1.25/3))
         self.arm_controller.enableContinuousInput(0, 1)
         self.set_tolerance(2)
         self.gravity_gain = 0.3
@@ -81,8 +81,8 @@ class Arm():
         """
         Sets the arm at a certain angle.
         """
-        if angle < -13:
-            angle = -13
+        if angle < -12.75:
+            angle = -12.75
         elif angle > 97.5:
             angle = 97.5
             

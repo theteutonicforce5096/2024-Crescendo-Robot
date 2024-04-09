@@ -48,7 +48,9 @@ class Shooter():
 
         # Arm offset
         self.arm_offset = 40
-        self.speaker_height = 2.05
+        self.arm_length = 0.533
+        self.speaker_height = 2.043
+        self.speaker_middle = 0.229
         self.camera_height = 0.43815
 
     def _invert_motor(self, motor):
@@ -140,6 +142,22 @@ class Shooter():
         self.flywheel_left_motor.set(phoenix5.ControlMode.PercentOutput, speed)
         self.flywheel_right_motor.set(phoenix5.ControlMode.PercentOutput, speed)
 
+    def set_left_flywheel_motor(self, speed):
+        if speed > 1:
+            speed = 1
+        elif speed < -1:
+            speed = -1
+            
+        self.flywheel_left_motor.set(phoenix5.ControlMode.PercentOutput, speed)
+    
+    def set_right_flywheel_motor(self, speed):
+        if speed > 1:
+            speed = 1
+        elif speed < -1:
+            speed = -1
+            
+        self.flywheel_right_motor.set(phoenix5.ControlMode.PercentOutput, speed)
+
     def predict_speaker_shooting_state(self, distance):
         """
         Predict the arm angle and flywheel speed for shooting at the speaker.
@@ -147,9 +165,17 @@ class Shooter():
         :param: distance: Distance, in meters, away from the Speaker.
         :type distance: float
         """
-        #arm_angle = degrees(atan((self.speaker_height - self.camera_height) / distance))
-        #arm_angle -= self.arm_offset
         arm_angle = (9.9128234 * distance) - 30.15892857142858
         flywheel_speed = (0.01111148 * distance ** 2) + (-0.03785358 * distance) + 0.8383695335635847
-        #flywheel_speed = 1.0
+        return arm_angle, flywheel_speed
+    
+    def predict_new_speaker_shooting_state(self, distance_to_wall):
+        """
+        Predict the arm angle and flywheel speed for shooting at the speaker.
+
+        :param: distance: Distance, in meters, away from the Speaker.
+        :type distance: float
+        """
+        arm_angle = degrees(atan((self.speaker_height - self.camera_height) / (distance_to_wall - self.speaker_middle + self.arm_length))) - 90 - self.arm_offset
+        flywheel_speed = 0.9
         return arm_angle, flywheel_speed

@@ -32,6 +32,22 @@ class Vision():
             self.tag = 7
         else:
             self.tag = 4
+    
+    def get_new_data_to_speaker(self):
+        result = self.camera.getLatestResult()
+        if result.hasTargets() == True:
+            targets = result.getTargets()
+            for target in targets:
+                if target.getFiducialId() == self.tag:
+                    distance = photonUtils.PhotonUtils.calculateDistanceToWallMeters(self.camera_height, self.target_height, self.camera_pitch, (radians(target.getPitch())))
+                    yaw = target.getYaw()
+                    self.speaker_distance.setString(str(distance))
+                    self.speaker_yaw.setString(str(yaw))
+                    return distance, yaw
+
+        self.speaker_distance.setString("Can't find AprilTag.")
+        self.speaker_yaw.setString("Can't find AprilTag.")
+        return None, None
 
     def get_data_to_speaker(self):
         result = self.camera.getLatestResult()
