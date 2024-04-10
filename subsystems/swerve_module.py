@@ -36,9 +36,10 @@ class SwerveModule():
         self._configure_cancoder(cancoder_offset)
         
         # Swerve Module Variables
-        self.position = SwerveModulePosition()
         self.steering_offset = self.steering_motor.get_position().value - self.cancoder.get_absolute_position().value
         self.steering_motor_offset = self.cancoder.get_absolute_position().value
+        self.position = SwerveModulePosition()
+        self.update_position()
 
     def _configure_cancoder(self, cancoder_offset):
         """
@@ -117,9 +118,11 @@ class SwerveModule():
         self.steering_pid = phoenix6.controls.PositionVoltage(position = 0, enable_foc = False)
 
     def get_angle(self):
+        self.update_position()
         return self.position.angle
 
     def get_position(self):
+        self.update_position()
         return self.position
 
     def update_position(self):
@@ -130,7 +133,7 @@ class SwerveModule():
             angle += 360
 
         self.position.angle = Rotation2d.fromDegrees(angle)
-        self.position.distance = self.driving_motor.get_position() * 0.1016 * pi
+        self.position.distance = self.driving_motor.get_position().value * 0.1016 * pi
 
     def reset(self):
         """

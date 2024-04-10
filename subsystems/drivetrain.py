@@ -1,6 +1,7 @@
 from wpimath.geometry import Translation2d, Rotation2d, Pose2d
 from wpimath.controller import PIDController
 from wpilib.shuffleboard import Shuffleboard
+from wpilib import Field2d
 from wpimath.kinematics import SwerveDrive4Kinematics, ChassisSpeeds
 from wpimath.estimator import SwerveDrive4PoseEstimator
 from .swerve_module import SwerveModule
@@ -19,26 +20,27 @@ class SwerveDrive():
         back_left_location = Translation2d(-0.250825, 0.250825)
         back_right_location = Translation2d(-0.250825, -0.250825)
 
-        # Create Kinematics object and initialize Swerve Modules
-        self.kinematics = SwerveDrive4Kinematics(front_left_location, front_right_location, back_left_location, back_right_location)
-        self.front_left_module = SwerveModule("FL", 23, 13, 33, "CANivore", "CANivore", "rio", -0.007080, False)
-        self.front_right_module = SwerveModule("FR", 20, 10, 30, "CANivore", "CANivore", "rio", 0.012451, True)
-        self.back_left_module = SwerveModule("BL", 22, 12, 32, "CANivore", "CANivore", "rio", -0.474609, False)
-        self.back_right_module = SwerveModule("BR", 21, 11, 31, "CANivore", "CANivore", "rio", -0.011475, True)
+        self.front_left_module = SwerveModule(23, 13, 33, "CANivore", "CANivore", "rio", -0.007080, False)
+        self.front_right_module = SwerveModule(20, 10, 30, "CANivore", "CANivore", "rio", 0.012451, True)
+        self.back_left_module = SwerveModule(22, 12, 32, "CANivore", "CANivore", "rio", -0.474609, False)
+        self.back_right_module = SwerveModule(21, 11, 31, "CANivore", "CANivore", "rio", -0.011475, True)
 
         # Initialize Gyro
         self.gyro = navx.AHRS.create_spi()
         self.drivers_tab_gyro = Shuffleboard.getTab("Drivers").add(f"Current Robot Angle (From Gyro)", "None").withSize(2, 2).getEntry()
 
+        # Create Kinematics object
+        self.kinematics = SwerveDrive4Kinematics(front_left_location, front_right_location, back_left_location, back_right_location)
+
         # Create Odometry Object
-        self.odometry = SwerveDrive4PoseEstimator(self.kinematics, self.get_current_robot_angle(),
-                                                    (
-                                                        self.front_left_module.get_position(),
-                                                        self.front_right_module.get_position(),
-                                                        self.back_left_module.get_position(),
-                                                        self.back_right_module.get_position()
-                                                    ),
-        Pose2d(x, y, Rotation2d.fromDegrees(rotation)))
+        self.odometry = SwerveDrive4PoseEstimator(self.kinematics, self.gyro.getRotation2d(),
+                                            (
+                                                self.front_left_module.get_position(), 
+                                                self.front_right_module.get_position(), 
+                                                self.back_left_module.get_position(), 
+                                                self.back_right_module.get_position()
+                                            ), 
+                                            Pose2d(x, y, Rotation2d.fromDegrees(rotation)))
 
         # Max Drivetrain speed
         self.max_drivetrain_speed = 0.25
@@ -52,6 +54,11 @@ class SwerveDrive():
         # Drivetrain state
         self.drivetrain_state = "Disabled"
         self.drivers_tab_state = Shuffleboard.getTab("Drivers").add(f"Swerve Drive State", self.drivetrain_state).withSize(2, 2).getEntry()
+
+        # Field         
+        self.field = Field2d()
+        Shuffleboard.getTab("Drivers").add(f"Field", self.field)
+        self.field.setRobotPose(self.update_odometry())
 
     def reset_drivetrain(self):
         """
@@ -67,9 +74,9 @@ class SwerveDrive():
         """
         Reset Gyro.
         """
+        pose = self.update_odometry()
         self.gyro.reset()
         self.drivers_tab_gyro.setFloat(0)
-        pose = self.update_odometry()
         self.odometry.resetPosition(self.gyro.getRotation2d(),
                                             (
                                                 self.front_left_module.get_position(),
@@ -123,15 +130,6 @@ class SwerveDrive():
         """        
         self.drivers_tab_gyro.setFloat(round((-self.gyro.getAngle() % 360, 2)))
         return self.gyro.getRotation2d()
-    
-    def update_swerve_modules_position(self):
-        """
-        Update the swerve modules position.
-        """
-        self.front_left_module.update_position()
-        self.front_right_module.update_position()
-        self.back_left_module.update_position()
-        self.back_right_module.update_position()
 
     def update_odometry(self):
         pose = self.odometry.update(self.gyro.getRotation2d(),
@@ -141,6 +139,8 @@ class SwerveDrive():
                                                 self.back_left_module.get_position(),
                                                 self.back_right_module.get_position()
                                             ))
+                
+        self.field.setRobotPose(pose)
         return pose
 
     def move_robot(self, forward_speed, strafe_speed, rotation_speed):
