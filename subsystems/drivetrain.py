@@ -20,10 +20,10 @@ class SwerveDrive():
         back_left_location = Translation2d(-0.250825, 0.250825)
         back_right_location = Translation2d(-0.250825, -0.250825)
 
-        self.front_left_module = SwerveModule(23, 13, 33, "CANivore", "CANivore", "rio", -0.007080, False)
-        self.front_right_module = SwerveModule(20, 10, 30, "CANivore", "CANivore", "rio", 0.012451, True)
-        self.back_left_module = SwerveModule(22, 12, 32, "CANivore", "CANivore", "rio", -0.474609, False)
-        self.back_right_module = SwerveModule(21, 11, 31, "CANivore", "CANivore", "rio", -0.011475, True)
+        self.front_left_module = SwerveModule(23, 13, 33, "CANivore", "CANivore", "rio", -0.988037109375, False)
+        self.front_right_module = SwerveModule(20, 10, 30, "CANivore", "CANivore", "rio", -0.011962890625, True)
+        self.back_left_module = SwerveModule(22, 12, 32, "CANivore", "CANivore", "rio", -0.53173828125, False)
+        self.back_right_module = SwerveModule(21, 11, 31, "CANivore", "CANivore", "rio", -0.994384765625, True)
 
         # Initialize Gyro
         self.gyro = navx.AHRS.create_spi()
@@ -57,7 +57,7 @@ class SwerveDrive():
 
         # Field         
         self.field = Field2d()
-        Shuffleboard.getTab("Drivers").add(f"Field", self.field)
+        Shuffleboard.getTab("Drivers").add(f"Field", self.field).withSize(3, 3)
         self.field.setRobotPose(self.update_odometry())
 
     def reset_drivetrain(self):
@@ -128,7 +128,7 @@ class SwerveDrive():
         """
         Get the current robot angle relative to the field using the gyro.
         """        
-        self.drivers_tab_gyro.setFloat(round((-self.gyro.getAngle() % 360, 2)))
+        self.drivers_tab_gyro.setFloat(round(-self.gyro.getAngle() % 360, 2))
         return self.gyro.getRotation2d()
 
     def update_odometry(self):

@@ -25,7 +25,8 @@ class SwerveModule():
         :param inverted_module: Whether the module is inverted or not.
         :type inverted_module: boolean
         """        
-        # Hardware Initialization
+
+        # Hardware Initialization 
         self.steering_motor = phoenix6.hardware.TalonFX(steering_motor_id, steering_motor_bus)
         self.driving_motor = phoenix6.hardware.TalonFX(driving_motor_id, driving_motor_bus)
         self.cancoder = phoenix6.hardware.CANcoder(cancoder_id, cancoder_bus)
@@ -34,10 +35,9 @@ class SwerveModule():
         self._configure_driving_motor(inverted_module)
         self._configure_steering_motor()
         self._configure_cancoder(cancoder_offset)
-        
+
         # Swerve Module Variables
-        self.steering_offset = self.steering_motor.get_position().value - self.cancoder.get_absolute_position().value
-        self.steering_motor_offset = self.cancoder.get_absolute_position().value
+        self.steering_offset = cancoder_offset
         self.position = SwerveModulePosition()
         self.update_position()
 
@@ -126,7 +126,7 @@ class SwerveModule():
         return self.position
 
     def update_position(self):
-        angle = (-(self.steering_motor_offset + self.steering_motor.get_position().value) * 360) % 360
+        angle = (self.cancoder.get_absolute_position().value * 360) % 360
         if angle > 180:
             angle -= 360
         elif angle <= -180:

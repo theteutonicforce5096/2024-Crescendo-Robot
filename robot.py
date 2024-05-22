@@ -1,6 +1,6 @@
 import wpilib
 from subsystems.drivetrain import SwerveDrive
-from subsystems.arm import Arm
+#from subsystems.arm import Arm
 
 class TheRinger(wpilib.TimedRobot):
     def robotInit(self):
@@ -8,12 +8,12 @@ class TheRinger(wpilib.TimedRobot):
         wpilib.RobotController.setBrownoutVoltage(6.3)
 
         # Initialize components
-        self.drivetrain = SwerveDrive(0, 0, 0)
-        self.arm = Arm(50, 51, True, False, 0, 0.9960985499024637)
+        self.drivetrain = SwerveDrive(8.2296, 4.105, 90)
+        #self.arm = Arm(50, 51, True, False, 0, 0.9960985499024637)
 
         # Initialize controllers
         self.drivetrain_controller = wpilib.XboxController(0)
-        self.shooter_controller = wpilib.XboxController(1)
+        #self.shooter_controller = wpilib.XboxController(1)
 
         # Initialize timers
         self.timer = wpilib.Timer()
@@ -34,7 +34,7 @@ class TheRinger(wpilib.TimedRobot):
         self.drivetrain.reset_gyro()
             
         # Reset Arm
-        self.arm.reset()
+        #self.arm.reset()
 
     def teleopPeriodic(self):
         # Get speeds from drivetrain controller.
@@ -78,14 +78,14 @@ class TheRinger(wpilib.TimedRobot):
             self.rotation_speed = 0
 
         # Check for arm setpoint change
-        pov = self.shooter_controller.getPOV()
-        if pov == 0:
-            self.arm.set(self.arm.get_arm_setpoint() + 0.5)
-        elif pov == 180:
-            self.arm.set(self.arm.get_arm_setpoint() - 0.5)
+        # pov = self.shooter_controller.getPOV()
+        # if pov == 0:
+        #     self.arm.set(self.arm.get_arm_setpoint() + 0.5)
+        # elif pov == 180:
+        #     self.arm.set(self.arm.get_arm_setpoint() - 0.5)
 
-        # Update arm position
-        self.arm.update_pid_controller() 
+        # # Update arm position
+        # self.arm.update_pid_controller() 
 
         # Update odometry
         pose = self.drivetrain.update_odometry()
