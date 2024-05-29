@@ -20,10 +20,10 @@ class SwerveDrive():
         back_left_location = Translation2d(-0.250825, 0.250825)
         back_right_location = Translation2d(-0.250825, -0.250825)
 
-        self.front_left_module = SwerveModule(23, 13, 33, "CANivore", "CANivore", "rio", -0.988037109375, False)
-        self.front_right_module = SwerveModule(20, 10, 30, "CANivore", "CANivore", "rio", -0.011962890625, True)
-        self.back_left_module = SwerveModule(22, 12, 32, "CANivore", "CANivore", "rio", -0.53173828125, False)
-        self.back_right_module = SwerveModule(21, 11, 31, "CANivore", "CANivore", "rio", -0.994384765625, True)
+        self.front_left_module = SwerveModule(23, 13, 33, "CANivore", "CANivore", "rio", -0.991455078125, False)
+        self.front_right_module = SwerveModule(20, 10, 30, "CANivore", "CANivore", "rio", -0.01806640625, True)
+        self.back_left_module = SwerveModule(22, 12, 32, "CANivore", "CANivore", "rio", -0.539306640625, False)
+        self.back_right_module = SwerveModule(21, 11, 31, "CANivore", "CANivore", "rio", -0.197754, True)
 
         # Initialize Gyro
         self.gyro = navx.AHRS.create_spi()
