@@ -141,7 +141,7 @@ class SwerveModule():
         return self.position
 
     def update_position(self):
-        angle = (self.cancoder.get_absolute_position().value * 360) % 360
+        angle = ((self.cancoder.get_absolute_position().value - self.cancoder_0_position_value) * 360) % 360
         if angle > 180:
             angle -= 360
         elif angle <= -180:
@@ -179,7 +179,6 @@ class SwerveModule():
         desired_speed = speed
         desired_angle = ((angle.degrees() * -1) + 360) % 360
         desired_position = self.steering_motor_offset + (desired_angle / 360)
-        self.current_angle = angle
 
         # Set the motors to the desired speed and angle
         self.driving_motor.set_control(self.driving_pid.with_velocity((desired_speed / 5.21208) * 100))
