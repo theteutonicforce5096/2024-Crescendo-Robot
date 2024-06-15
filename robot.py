@@ -8,7 +8,7 @@ class TheRinger(wpilib.TimedRobot):
         wpilib.RobotController.setBrownoutVoltage(6.3)
 
         # Initialize components
-        self.drivetrain = SwerveDrive(8.2296, 4.105, 90)
+        self.drivetrain = SwerveDrive(8.2296, 4.105, -90)
         #self.arm = Arm(50, 51, True, False, 0, 0.9960985499024637)
 
         # Initialize controllers
@@ -43,7 +43,7 @@ class TheRinger(wpilib.TimedRobot):
         rotation_speed = self.drivetrain_controller.getRightX()
         
         # Check if gyro needs to be reset.
-        if self.drivetrain_controller.getAButtonPressed() and self.drivetrain_controller.getLeftBumperPressed() and self.drivetrain_controller.getRightBumperPressed():
+        if self.drivetrain_controller.getAButtonPressed():
             self.drivetrain.stop_robot()
             self.drivetrain.reset_gyro()
             self.drivetrain_timer.restart()

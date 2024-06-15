@@ -146,9 +146,9 @@ class SwerveModule():
             angle -= 360
         elif angle <= -180:
             angle += 360
-
+            
         self.position.angle = Rotation2d.fromDegrees(angle)
-        self.position.distance = self.driving_motor.get_position().value * 0.1016 * pi
+        self.position.distance = self.driving_motor.get_position().value * (1 / 6.12) * -1
 
     def reset(self):
         """
