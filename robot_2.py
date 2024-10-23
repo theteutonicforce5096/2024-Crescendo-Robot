@@ -44,6 +44,117 @@ class TheRinger(wpilib.TimedRobot):
         # State of autonomous
         self.autonomous_state = "None"
 
+    def autonomousInit(self):
+        # Reset timers
+        self.timer.restart()
+        self.drivetrain_timer.reset()
+        self.drop_timer.reset()
+        self.prime_shooter_timer.reset()
+        self.shoot_timer.reset()
+        self.ready_robot_timer.reset() 
+        self.auto_timer.reset()
+
+        # Reset robot speeds.
+        self.forward_speed = 0
+        self.strafe_speed = 0
+        self.rotation_speed = 0
+
+        # Location of robot
+        if wpilib.DriverStation.getLocation() == 2:
+            self.location = 'center'
+        elif wpilib.DriverStation.getLocation() == 1:
+            self.location = 'left'
+        elif wpilib.DriverStation.getLocation() == 3:
+            self.location = 'right'
+
+        # State of autonomous
+        self.autonomous_state = "Idle"
+
+        # Reset Drivetrain
+        self.drivetrain.reset_drivetrain()
+        self.drivetrain.reset_gyro()
+            
+        # Reset shooter
+        self.shooter.reset()
+
+        # Reset Arm
+        self.arm.reset()
+
+        # Reset Vision
+        self.vision.reset()
+        pass
+
+    def autonomousPeriodic(self):
+        match self.autonomous_state:
+            case "Idle":
+                self.autonomous_state = "Fire Note"
+            case "Fire Note":
+                distance, yaw = self.vision.get_data_to_speaker()
+                if distance != None and yaw != None:
+                    arm_angle, flywheel_speed = self.shooter.predict_speaker_shooting_state(distance)
+                    self.shooter.set_flywheel_motors(flywheel_speed)
+                    self.prime_shooter_timer.restart()
+                    
+                    self.arm.set_speaker_shooting_position(arm_angle)
+                    self.ready_robot_timer.restart()
+                    self.autonomous_state = "Moving Arm"
+                else:
+                    self.shooter.set_flywheel_motors(0.8)
+                    self.prime_shooter_timer.restart()
+                    
+        #             self.arm.set_speaker_shooting_position(-12.5)
+        #             self.ready_robot_timer.restart()
+        #             self.autonomous_state = "Moving Arm"
+        #     case "Moving Arm":
+        #         if self.ready_robot_timer.hasElapsed(3):
+        #             self.ready_robot_timer.reset()
+        #             self.autonomous_state = "Armed"
+        #         elif self.arm.reached_goal():
+        #             self.ready_robot_timer.reset()
+        #             self.autonomous_state = "Armed"
+        #     case "Armed":
+        #         if self.prime_shooter_timer.hasElapsed(1.5):
+        #             self.shooter.set_intake_motor(1)
+        #             self.prime_shooter_timer.reset()
+        #             self.shoot_timer.restart()
+        #             self.autonomous_state = "Fire"
+        #     case "Fire":
+        #         if self.shoot_timer.hasElapsed(0.5):
+        #             self.shoot_timer.reset()
+        #             self.autonomous_state = "Reset Shooter"
+        #     case "Reset Shooter":
+        #         self.arm.set_carry_position()
+        #         self.shooter.reset()  
+        #         self.autonomous_state = "Stop Robot" 
+        #         # if self.location == 'center':  
+        #         #     self.autonomous_state = "Move Robot"
+        #         # elif self.location == 'left':
+        #         #     self.autonomous_state = "Move Robot/Rotate Right"
+        #         # elif self.location == 'right':
+        #         #     self.autonomous_state = "Move Robot/Rotate Left"
+        #     case "Move Robot":
+        #         self.drivetrain.move_robot(-1, 0, 0)
+        #         self.auto_timer.restart()
+        #         self.autonomous_state = "Moving Robot"
+        #     case "Move Robot/Rotate Right":
+        #         self.drivetrain.move_robot(-1, 0, -0.5)
+        #         self.auto_timer.restart()
+        #         self.autonomous_state = "Moving Robot"
+        #     case "Move Robot/Rotate Left":
+        #         self.drivetrain.move_robot(-1, 0, 0.5)
+        #         self.auto_timer.restart()
+        #         self.autonomous_state = "Moving Robot"
+        #     case "Moving Robot":
+        #         if self.auto_timer.hasElapsed(2):
+        #             self.drivetrain.stop_robot()
+        #             self.auto_timer.reset()
+        #             self.autonomous_state = "Stop Robot"
+        #     case "Stop Robot":
+        #         pass
+
+        self.arm.update_pid_controller()  
+        pass   
+
     def teleopInit(self):
         # Reset timers
         self.timer.restart()
@@ -268,6 +379,20 @@ class TheRinger(wpilib.TimedRobot):
     def teleopExit(self):
         # Turn off drivetrain controller rumble if it is stil on.
         self.drivetrain_controller.setRumble(wpilib.XboxController.RumbleType.kBothRumble, 0)  
+
+    def testInit(self):
+        #self.arm.set(0)
+        pass
+
+    def testPeriodic(self):
+        # pov = self.shooter_controller.getPOV()
+        # if pov == 0:
+        #    self.arm.set(self.arm.get_arm_setpoint() + 0.5)
+        # elif pov == 180:
+        #    self.arm.set(self.arm.get_arm_setpoint() - 0.5)
+
+        # self.arm.update_pid_controller() 
+        print(self.arm._get_encoder_value())
 
 if __name__ == "__main__":
     wpilib.run(TheRinger)
