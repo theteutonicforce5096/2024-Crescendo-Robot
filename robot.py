@@ -69,16 +69,6 @@ class TheRinger(wpilib.TimedRobot):
         self.arm.reset()
 
         # Reset Vision
-        self.vision.reset()
-
-    def teleopPeriodic(self):
-        # Get speeds from drivetrain controller.
-        self.vision.update()
-        forward_speed = self.drivetrain_controller.getLeftY()
-        strafe_speed = self.drivetrain_controller.getLeftX()
-        rotation_speed = self.drivetrain_controller.getRightX()
-        
-        # Check if gyro needs to be reset.
         if self.drivetrain_controller.getAButtonPressed() and self.drivetrain_controller.getLeftBumperPressed() and self.drivetrain_controller.getRightBumperPressed():
             self.drivetrain.stop_robot()
             self.drivetrain.reset_gyro()
@@ -89,8 +79,32 @@ class TheRinger(wpilib.TimedRobot):
         if self.drivetrain_controller.getLeftTriggerAxis() > 0.1 and self.drivetrain_controller.getRightTriggerAxis() > 0.1:
             self.drivetrain.change_max_drivetrain_speed(1.0)
         elif self.drivetrain_controller.getLeftTriggerAxis() > 0.1:
-            self.drivetrain.change_max_drivetrain_speed(0.5)
-        elif self.drivetrain_controller.getRightTriggerAxis() > 0.1:
+            self.drivetrain.change_max_drivet
+        self.vision.reset()
+        self.align_to_target = False
+
+    def teleopPeriodic(self):
+        # Get speeds from drivetrain controller.
+        self.vision.update()
+
+        if self.shooter_controller.getBButtonPressed():
+            self.vision.align_to_target()
+            self.align_to_target = True
+            self.drivetrain.change_drivetrain_state("Disabled")
+
+        if self.align_to_target:
+            value = self.vision.update_vision_controller(self.vision.update())
+            value2 = self.vision.update_vision_controller(value)
+            if value2 == "Done":
+                self.align_to_target = False
+                self.drivetrain.change_drivetrain_state("Enabled")
+
+        forward_speed = self.drivetrain_controller.getLeftY()
+        strafe_speed = self.drivetrain_controller.getLeftX()
+        rotation_speed = self.drivetrain_controller.getRightX()
+        
+        # Check if gyro needs to be reset.rain_speed(0.5)
+        if self.drivetrain_controller.getRightTriggerAxis() > 0.1:
             self.drivetrain.change_max_drivetrain_speed(0.75)
         else:
             self.drivetrain.change_max_drivetrain_speed(0.25)
